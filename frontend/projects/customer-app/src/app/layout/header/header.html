@@ -12,7 +12,7 @@
     </nav>
 
     <div class="actions">
-      <div class="lang-switcher">
+      <div class="lang-switcher desktop-only">
         @for (locale of locales; track locale) {
           <button
             type="button"
@@ -35,7 +35,7 @@
       </a>
 
       <a
-        class="icon-btn account"
+        class="icon-btn account desktop-only"
         [routerLink]="['/', translation.currentLocale(), auth.isLoggedIn() ? 'profile' : 'login']"
         aria-label="Account"
       >
@@ -47,11 +47,23 @@
 
       <a class="cart-link" [routerLink]="['/', translation.currentLocale(), 'cart']">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 7h12l1 13.1a1 1 0 01-1 1.9H6a1 1 0 01-1-1.9L6 7z M8 7V6a4 4 0 118 0v1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        {{ 'nav.cart' | translate }}
+        <span class="cart-label">{{ 'nav.cart' | translate }}</span>
         @if (cart.itemCount() > 0) {
           <span class="cart-count" [class.bump]="cartBumping()">{{ cart.itemCount() }}</span>
         }
       </a>
+
+      <button
+        type="button"
+        class="icon-btn mobile-only"
+        [class.active]="mobileMenuOpen()"
+        (click)="toggleMobileMenu()"
+        aria-label="Menu"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -63,6 +75,34 @@
     }
     <a [routerLink]="trackOrderPath()" routerLinkActive="active">{{ 'nav.trackOrder' | translate }}</a>
   </nav>
+
+  @if (mobileMenuOpen()) {
+    <div class="mobile-menu-panel">
+      <a
+        class="mobile-menu-account"
+        [routerLink]="['/', translation.currentLocale(), auth.isLoggedIn() ? 'profile' : 'login']"
+        (click)="closeMobileMenu()"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+        {{ (auth.isLoggedIn() ? 'nav.myAccount' : 'nav.signIn') | translate }}
+        @if (auth.isLoggedIn()) {
+          <span class="status-dot"></span>
+        }
+      </a>
+
+      <div class="mobile-menu-langs">
+        @for (locale of locales; track locale) {
+          <button
+            type="button"
+            [class.active]="locale === translation.currentLocale()"
+            (click)="switchLanguage(locale)"
+          >
+            {{ locale.toUpperCase() }}
+          </button>
+        }
+      </div>
+    </div>
+  }
 </header>
 
 @if (searchOpen()) {

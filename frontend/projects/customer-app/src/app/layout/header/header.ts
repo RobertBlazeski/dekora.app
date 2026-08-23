@@ -35,6 +35,7 @@ export class Header {
   protected readonly searchTerm = signal('');
   protected readonly searchResults = signal<ProductListItem[]>([]);
   protected readonly cartBumping = signal(false);
+  protected readonly mobileMenuOpen = signal(false);
 
   private previousCartCount = this.cart.itemCount();
   private searchDebounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -54,6 +55,15 @@ export class Header {
     const segments = this.router.url.split('?')[0].split('/').filter(Boolean);
     segments[0] = locale;
     this.router.navigateByUrl('/' + segments.join('/'));
+    this.mobileMenuOpen.set(false);
+  }
+
+  protected toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  protected closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   protected openSearch(): void {

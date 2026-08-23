@@ -1,5 +1,5 @@
 {
-  "nav": { "shop": "Dyqani", "wishlist": "Të preferuarat", "faq": "Pyetje të shpeshta", "signIn": "Identifikohu", "cart": "Shporta", "trackOrder": "Ndiq porosinë", "searchPlaceholder": "Kërko sipas emrit, etiketës ose rastit — provo 'bebe' ose 'ditëlindje'", "seeAllResultsFor": "Shiko të gjitha rezultatet për \"{{term}}\"" },
+  "nav": { "shop": "Dyqani", "wishlist": "Të preferuarat", "faq": "Pyetje të shpeshta", "signIn": "Identifikohu", "myAccount": "Llogaria ime", "cart": "Shporta", "trackOrder": "Ndiq porosinë", "searchPlaceholder": "Kërko sipas emrit, etiketës ose rastit — provo 'bebe' ose 'ditëlindje'", "seeAllResultsFor": "Shiko të gjitha rezultatet për \"{{term}}\"" },
   "footer": {
     "tagline": "Tetovë, Maqedoni e Veriut · Dhurata të bëra me dorë që nga 2025",
     "faqAndContact": "Pyetje të shpeshta & kontakt",

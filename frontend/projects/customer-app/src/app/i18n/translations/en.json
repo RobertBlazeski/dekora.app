@@ -1,5 +1,5 @@
 {
-  "nav": { "shop": "Shop", "wishlist": "Wishlist", "faq": "FAQ", "signIn": "Sign in", "cart": "Cart", "trackOrder": "Track order", "searchPlaceholder": "Search by name, tag, or occasion — try 'baby' or 'birthday'", "seeAllResultsFor": "See all results for \"{{term}}\"" },
+  "nav": { "shop": "Shop", "wishlist": "Wishlist", "faq": "FAQ", "signIn": "Sign in", "myAccount": "My account", "cart": "Cart", "trackOrder": "Track order", "searchPlaceholder": "Search by name, tag, or occasion — try 'baby' or 'birthday'", "seeAllResultsFor": "See all results for \"{{term}}\"" },
   "footer": {
     "tagline": "Tetovo, North Macedonia · Handmade gifts since 2025",
     "faqAndContact": "FAQ & contact",

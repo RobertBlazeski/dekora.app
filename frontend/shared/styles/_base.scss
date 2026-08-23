@@ -39,6 +39,11 @@ h4 {
 
 body {
   min-height: 100vh;
+  // `dvh` tracks the *actual* visible viewport as mobile browser chrome (address bar, etc.)
+  // shows/hides, instead of the tallest-possible one `vh` assumes — without it, the page was
+  // consistently a bit taller than the visible screen, so you could scroll past the footer
+  // into blank space. Browsers without dvh support just keep the 100vh value above.
+  min-height: 100dvh;
 }
 
 button {

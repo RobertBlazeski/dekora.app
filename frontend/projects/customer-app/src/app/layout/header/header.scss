@@ -109,7 +109,8 @@
     fill: currentColor;
   }
 
-  &:hover {
+  &:hover,
+  &.active {
     background: var(--color-lilac);
   }
 
@@ -145,6 +146,17 @@
   color: var(--color-coral);
   font-weight: 600;
   text-decoration: none;
+
+  // Icon + count carries the meaning on a phone-width row without needing the word too.
+  @media (max-width: 640px) {
+    padding: 0.5rem;
+  }
+}
+
+.cart-label {
+  @media (max-width: 640px) {
+    display: none;
+  }
 }
 
 .cart-count {
@@ -263,4 +275,74 @@
   font-weight: 600;
   cursor: pointer;
   font: inherit;
+}
+
+.mobile-menu-panel {
+  padding: 0.75rem 1.5rem 1rem;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-card);
+  animation: card-fade-in 0.2s ease;
+}
+
+.mobile-menu-account {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.2rem;
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-line);
+
+  svg path {
+    fill: currentColor;
+  }
+
+  .status-dot {
+    position: static;
+    margin-left: -0.2rem;
+    border-color: var(--color-card);
+  }
+}
+
+.mobile-menu-langs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem 0.2rem 0.2rem;
+
+  button {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    background: transparent;
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+
+    &.active {
+      background: var(--color-lilac);
+      border-color: var(--color-ink);
+      color: var(--color-ink);
+    }
+  }
+}
+
+// Utility classes — kept last so they reliably win the cascade over the component rules above
+// regardless of source order (both sides are single-class selectors of equal specificity).
+.mobile-only {
+  display: none;
+
+  @media (max-width: 640px) {
+    display: inline-flex;
+  }
+}
+
+.desktop-only {
+  @media (max-width: 640px) {
+    display: none;
+  }
 }
