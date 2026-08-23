@@ -1,0 +1,39 @@
+<section class="shop-header">
+  <h1>{{ 'shop.title' | translate }}</h1>
+
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" width="18" height="18"><path d="M10 4a6 6 0 104.47 10.03l4.75 4.75 1.41-1.41-4.75-4.75A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
+    <input
+      type="search"
+      [placeholder]="'shopFilters.searchPlaceholder' | translate"
+      [value]="search()"
+      (input)="onSearchInput($any($event.target).value)"
+    />
+  </div>
+
+  <div class="chip-row">
+    <button type="button" class="chip" [class.active]="selectedCategory() === ''" (click)="selectCategory('')">
+      {{ 'shopFilters.allCategories' | translate }}
+    </button>
+    @for (category of categories(); track category.id) {
+      <button
+        type="button"
+        class="chip"
+        [class.active]="selectedCategory() === category.name"
+        (click)="selectCategory(category.name)"
+      >
+        {{ categoryLabel(category.name) }}
+      </button>
+    }
+  </div>
+</section>
+
+@if (!loading() && products().length === 0) {
+  <p class="no-results">{{ 'shopFilters.noResults' | translate }}</p>
+}
+
+<div class="product-grid">
+  @for (product of products(); track product.id) {
+    <app-product-card [product]="product" />
+  }
+</div>

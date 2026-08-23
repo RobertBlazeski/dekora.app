@@ -1,0 +1,10 @@
+<footer class="site-footer">
+  <p class="brand">Dekora</p>
+  <p class="tagline">{{ 'footer.tagline' | translate }}</p>
+  <a [routerLink]="['/', translation.currentLocale(), 'faq']">{{ 'footer.faqAndContact' | translate }}</a>
+  <nav class="legal-links">
+    <a [routerLink]="['/', translation.currentLocale(), 'terms']">{{ 'footer.terms' | translate }}</a>
+    <a [routerLink]="['/', translation.currentLocale(), 'privacy']">{{ 'footer.privacy' | translate }}</a>
+    <a [routerLink]="['/', translation.currentLocale(), 'refund-policy']">{{ 'footer.refundPolicy' | translate }}</a>
+  </nav>
+</footer>

@@ -1,0 +1,149 @@
+.product-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  // Duplicate cards (for the seamless marquee loop) are still visible and get clicked once
+  // the strip scrolls — they must stay clickable. aria-hidden/tabindex=-1 already keep them
+  // out of the accessibility tree and keyboard tab order without needing pointer-events:none.
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-lilac);
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--color-line);
+
+  &.dimmed {
+    opacity: 0.55;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+
+  &.sold-out {
+    background: var(--color-ink);
+    color: var(--color-card);
+  }
+
+  &.tag {
+    background: var(--color-coral);
+    color: white;
+  }
+}
+
+// A diagonal corner ribbon — a deliberately different shape from the pill badges above, so a
+// discounted product visually pops out from the rest of the grid at a glance instead of just
+// swapping one small pill for another. .thumb has overflow:hidden, so the strip (wider than the
+// corner it sits in) gets clipped cleanly into a ribbon rather than needing a separate mask box.
+.ribbon {
+  position: absolute;
+  top: 0.85rem;
+  left: -2.35rem;
+  width: 8.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  padding: 0.3rem 0;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  background: linear-gradient(135deg, #e2635f, #b83c3c);
+  box-shadow: 0 3px 10px rgba(184, 60, 60, 0.5);
+  z-index: 1;
+}
+
+.ribbon-word {
+  color: white;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ribbon-percent {
+  color: white;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wishlist-toggle {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-ink-soft);
+  transition: transform 0.15s ease;
+
+  svg path {
+    fill: currentColor;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &.active {
+    color: var(--color-coral);
+    animation: heart-pop 0.4s ease;
+
+    svg path {
+      fill: var(--color-coral);
+    }
+  }
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.name {
+  margin: 0.6rem 0 0.15rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.price {
+  margin: 0;
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.order-now {
+  display: inline-block;
+  margin-top: 0.2rem;
+  color: var(--color-coral);
+  font-size: 0.78rem;
+  font-weight: 600;
+}

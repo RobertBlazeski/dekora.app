@@ -1,0 +1,139 @@
+<div class="page-header">
+  <h1>Homepage</h1>
+</div>
+
+<section class="card">
+  <h2>Hero banner</h2>
+  <p class="hint">
+    Feature a real product instead of a stock photo — it shows the product's own photo with a
+    "from [price]" tag that links straight to it, which tends to convert far better than a
+    generic banner.
+  </p>
+
+  @if (content().featuredProduct; as featured) {
+    <div class="featured-product-card">
+      <span class="featured-thumb" [style.background-image]="resolveUrl(featured.primaryImageUrl) ? 'url(' + resolveUrl(featured.primaryImageUrl) + ')' : null"></span>
+      <div class="featured-info">
+        <strong>{{ featured.name }}</strong>
+        <span>From {{ featured.lowestPrice }} ден</span>
+      </div>
+      <button type="button" class="remove-featured-btn" (click)="clearFeaturedProduct()">Remove</button>
+    </div>
+  } @else {
+    <div class="featured-product-search">
+      <input
+        type="search"
+        placeholder="Search for a product to feature…"
+        [ngModel]="featuredProductSearch()"
+        (ngModelChange)="featuredProductSearch.set($event)"
+      />
+      @if (featuredProductResults().length > 0) {
+        <div class="search-dropdown">
+          @for (product of featuredProductResults(); track product.id) {
+            <button type="button" class="search-result" (click)="pickFeaturedProduct(product)">
+              <span class="result-thumb" [style.background-image]="resolveUrl(product.primaryImageUrl) ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null"></span>
+              {{ product.name }} · {{ product.lowestPrice }} ден
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <p class="hint">Or fall back to a custom photo instead:</p>
+    <div class="banner-image-field">
+      <app-image-upload [url]="content().bannerImageUrl" (urlChange)="updateField('bannerImageUrl', $event)" />
+    </div>
+  }
+
+  <label>Headline</label>
+  <input type="text" [ngModel]="content().bannerTitle" (ngModelChange)="updateField('bannerTitle', $event)" />
+
+  <label>Supporting paragraph</label>
+  <textarea rows="2" [ngModel]="content().bannerSubtitle" (ngModelChange)="updateField('bannerSubtitle', $event)"></textarea>
+
+  <div class="cta-grid">
+    <div>
+      <label>Primary button label</label>
+      <input type="text" [ngModel]="content().bannerCtaLabel" (ngModelChange)="updateField('bannerCtaLabel', $event)" />
+    </div>
+    <div>
+      <label>Primary button link</label>
+      <input type="text" [ngModel]="content().bannerCtaLink" (ngModelChange)="updateField('bannerCtaLink', $event)" />
+    </div>
+  </div>
+
+  <button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save banner' }}
+  </button>
+</section>
+
+<section class="card">
+  <div class="promo-header">
+    <h2>Promo banner</h2>
+    <label class="switch">
+      <input
+        type="checkbox"
+        [ngModel]="content().promoBannerEnabled"
+        (ngModelChange)="updateField('promoBannerEnabled', $event)"
+      />
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+    </label>
+  </div>
+  <p class="hint">
+    A thin announcement strip shown above the header on every page — good for a time-limited
+    promotion, without touching the hero banner below.
+  </p>
+
+  @if (content().promoBannerEnabled) {
+    <label>Message</label>
+    <input
+      type="text"
+      placeholder="e.g. Free delivery this week only!"
+      [ngModel]="content().promoBannerText"
+      (ngModelChange)="updateField('promoBannerText', $event)"
+    />
+
+    <label>Link (optional)</label>
+    <input
+      type="text"
+      placeholder="/shop"
+      [ngModel]="content().promoBannerLink"
+      (ngModelChange)="updateField('promoBannerLink', $event)"
+    />
+
+    <label>Countdown ends at (optional)</label>
+    <input
+      type="datetime-local"
+      [ngModel]="promoBannerEndsAtLocal"
+      (ngModelChange)="setPromoBannerEndsAtLocal($event)"
+    />
+    <p class="hint">
+      The banner always shows a live countdown. Leave this blank (or let it pass) and it counts down on a
+      rolling 24-hour cycle that restarts itself automatically — set a date here to override it with your own
+      deadline instead.
+    </p>
+  }
+
+  <button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save banner' }}
+  </button>
+</section>
+
+<section class="card">
+  <h2>Trending / featured picks</h2>
+  <p class="hint">Products marked trending show in the "Trending now" carousel on the homepage and product pages.</p>
+
+  <input type="search" class="search-input" placeholder="Search products…" [ngModel]="productSearch()" (ngModelChange)="productSearch.set($event)" />
+
+  <div class="product-list">
+    @for (product of filteredProducts(); track product.id) {
+      <div class="product-row">
+        <span class="thumb" [style.background-image]="resolveUrl(product.primaryImageUrl) ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null"></span>
+        <span class="name">{{ product.name }}</span>
+        <button type="button" class="trending-btn" [class.active]="product.isTrending" (click)="toggleTrending(product)">
+          {{ product.isTrending ? '✓ Trending' : 'Add to trending' }}
+        </button>
+      </div>
+    }
+  </div>
+</section>

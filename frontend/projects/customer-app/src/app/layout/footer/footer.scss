@@ -1,0 +1,41 @@
+.site-footer {
+  margin-top: 3rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid var(--color-line);
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-coral);
+  margin-bottom: 0.3rem;
+}
+
+.tagline {
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+a {
+  color: var(--color-rose);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.legal-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 1rem;
+
+  a {
+    color: var(--color-ink-soft);
+    font-weight: 500;
+    font-size: 0.78rem;
+  }
+}

@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dekora
+      POSTGRES_USER: dekora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [internal]
+
+  api:
+    build:
+      context: ./backend/Dekora.Api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=dekora;Username=dekora;Password=${POSTGRES_PASSWORD}"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: Dekora.Api
+      Jwt__Audience: Dekora.Clients
+      Cors__AllowedOrigins__0: "https://${CUSTOMER_DOMAIN}"
+      Cors__AllowedOrigins__1: "https://${ADMIN_DOMAIN}"
+      Frontend__BaseUrl: "https://${CUSTOMER_DOMAIN}"
+      Email__Enabled: ${EMAIL_ENABLED:-false}
+      Email__SmtpHost: ${SMTP_HOST:-}
+      Email__SmtpPort: ${SMTP_PORT:-587}
+      Email__Username: ${SMTP_USERNAME:-}
+      Email__Password: ${SMTP_PASSWORD:-}
+      Email__FromAddress: ${SMTP_FROM_ADDRESS:-no-reply@dekora.mk}
+      Email__FromName: Dekora
+      Telegram__BotToken: ${TELEGRAM_BOT_TOKEN:-}
+    volumes:
+      - uploads-data:/app/wwwroot/uploads
+    depends_on: [postgres]
+    networks: [internal]
+
+  customer-app:
+    build:
+      context: ./frontend
+      dockerfile: projects/customer-app/Dockerfile
+      args:
+        API_URL: "https://${CUSTOMER_DOMAIN}/api"
+        APP_DOMAIN: "${CUSTOMER_DOMAIN}"
+    restart: unless-stopped
+    depends_on: [api]
+    networks: [internal]
+
+  admin-app:
+    build:
+      context: ./frontend
+      dockerfile: projects/admin-app/Dockerfile
+      args:
+        API_URL: "https://${ADMIN_DOMAIN}/api"
+    restart: unless-stopped
+    depends_on: [api]
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      CUSTOMER_DOMAIN: ${CUSTOMER_DOMAIN}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [api, customer-app, admin-app]
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:
+  uploads-data:

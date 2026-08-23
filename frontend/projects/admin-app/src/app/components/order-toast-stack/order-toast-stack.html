@@ -1,0 +1,19 @@
+@if (notifications.toastQueue().length > 0) {
+  <div class="toast-stack">
+    @for (order of notifications.toastQueue(); track order.id; let i = $index) {
+      <button
+        type="button"
+        class="toast-card"
+        [style.--stack-index]="i"
+        (click)="open(order.id)"
+      >
+        <span class="toast-icon">🎉</span>
+        <span class="toast-body">
+          <strong>New order {{ order.orderNumber }}</strong>
+          <span>{{ order.customerName }} · {{ order.total }} ден</span>
+        </span>
+        <button type="button" class="toast-dismiss" (click)="dismiss($event, order.id)" aria-label="Dismiss">✕</button>
+      </button>
+    }
+  </div>
+}

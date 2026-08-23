@@ -1,0 +1,12 @@
+@if (visible()) {
+  <div class="consent-banner" role="region" aria-label="Site policies notice">
+    <p>
+      {{ 'consentBanner.message' | translate }}
+      <a [routerLink]="['/', translation.currentLocale(), 'terms']">{{ 'footer.terms' | translate }}</a>,
+      <a [routerLink]="['/', translation.currentLocale(), 'privacy']">{{ 'footer.privacy' | translate }}</a>
+      {{ 'consentBanner.and' | translate }}
+      <a [routerLink]="['/', translation.currentLocale(), 'refund-policy']">{{ 'footer.refundPolicy' | translate }}</a>.
+    </p>
+    <button type="button" (click)="acknowledge()">{{ 'consentBanner.accept' | translate }}</button>
+  </div>
+}

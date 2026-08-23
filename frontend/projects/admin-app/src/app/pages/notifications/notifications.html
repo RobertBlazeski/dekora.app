@@ -1,0 +1,118 @@
+<div class="page-header">
+  <h1>Notifications</h1>
+  <p>Choose how you're notified when a new order comes in. You can enable more than one channel.</p>
+</div>
+
+<div class="channel-list">
+  <div class="channel-card">
+    <div class="channel-header">
+      <span class="icon">📧</span>
+      <div class="channel-info">
+        <strong>Email</strong>
+        <p>Get a notification email for every new order.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [ngModel]="settings().emailEnabled" (ngModelChange)="updateField('emailEnabled', $event)" />
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </label>
+    </div>
+    @if (settings().emailEnabled) {
+      <input
+        type="email"
+        placeholder="owner@dekora.mk"
+        [ngModel]="settings().emailAddress"
+        (ngModelChange)="updateField('emailAddress', $event)"
+      />
+    }
+  </div>
+
+  <div class="channel-card">
+    <div class="channel-header">
+      <span class="icon">💬</span>
+      <div class="channel-info">
+        <strong>WhatsApp</strong>
+        <p>Get a WhatsApp message for every new order.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [ngModel]="settings().whatsAppEnabled" (ngModelChange)="updateField('whatsAppEnabled', $event)" />
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </label>
+    </div>
+    @if (settings().whatsAppEnabled) {
+      <input
+        type="tel"
+        placeholder="+389 70 000 000"
+        [ngModel]="settings().whatsAppNumber"
+        (ngModelChange)="updateField('whatsAppNumber', $event)"
+      />
+      <p class="field-hint">
+        Not live yet — WhatsApp requires a verified Meta Business (or Twilio) account, which only you can set
+        up on their side. This number is saved and ready for when that's connected.
+      </p>
+    }
+  </div>
+
+  <div class="channel-card">
+    <div class="channel-header">
+      <span class="icon">✈️</span>
+      <div class="channel-info">
+        <strong>Telegram</strong>
+        <p>Get a Telegram message for every new order.</p>
+      </div>
+      <label class="switch">
+        <input type="checkbox" [ngModel]="settings().telegramEnabled" (ngModelChange)="updateField('telegramEnabled', $event)" />
+        <span class="switch-track"><span class="switch-thumb"></span></span>
+      </label>
+    </div>
+    @if (settings().telegramEnabled) {
+      <input
+        type="text"
+        placeholder="Numeric chat ID, e.g. 123456789"
+        [ngModel]="settings().telegramHandle"
+        (ngModelChange)="updateField('telegramHandle', $event)"
+      />
+      <p class="field-hint">
+        Message your bot once, then open
+        https://api.telegram.org/bot&lt;your-token&gt;/getUpdates in a browser to find your numeric chat ID —
+        Telegram's API needs that, not your @username.
+      </p>
+    }
+  </div>
+</div>
+
+<button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
+  {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save settings' }}
+</button>
+
+<div class="page-header team-header">
+  <h1>Team access</h1>
+  <p>Everyone listed here can sign in to this dashboard with full owner access.</p>
+</div>
+
+<div class="admin-list">
+  @for (admin of admins(); track admin.id) {
+    <div class="admin-row">
+      <span class="admin-name">{{ admin.fullName }}</span>
+      <span class="admin-email">{{ admin.email }}</span>
+    </div>
+  }
+</div>
+
+<div class="add-admin-card">
+  <label>Full name</label>
+  <input type="text" [ngModel]="newAdminName()" (ngModelChange)="newAdminName.set($event)" />
+
+  <label>Email</label>
+  <input type="email" [ngModel]="newAdminEmail()" (ngModelChange)="newAdminEmail.set($event)" />
+
+  <label>Password</label>
+  <input type="password" [ngModel]="newAdminPassword()" (ngModelChange)="newAdminPassword.set($event)" />
+
+  @if (adminError()) {
+    <p class="admin-error">{{ adminError() }}</p>
+  }
+
+  <button type="button" class="save-btn" [disabled]="creatingAdmin()" (click)="createAdmin()">
+    {{ creatingAdmin() ? 'Adding…' : 'Add admin' }}
+  </button>
+</div>

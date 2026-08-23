@@ -1,0 +1,56 @@
+@if (!auth.isLoggedIn()) {
+  <section class="page-placeholder">
+    <h1>{{ 'profile.title' | translate }}</h1>
+    <p>{{ 'profilePage.loginPrompt' | translate }}</p>
+    <a class="login-link" [routerLink]="['/', translation.currentLocale(), 'login']">{{ 'nav.signIn' | translate }}</a>
+  </section>
+} @else {
+  <section class="profile-page">
+    <div class="greeting-row">
+      <div>
+        <h1>Hi, {{ auth.currentUser()?.fullName }}</h1>
+        <p class="email">{{ auth.currentUser()?.email }}</p>
+      </div>
+      <button type="button" class="sign-out" (click)="auth.logout()">{{ 'profilePage.signOut' | translate }}</button>
+    </div>
+
+    <div class="points-card">
+      <span class="label">{{ 'profilePage.points' | translate }}</span>
+      <strong class="balance">{{ auth.currentUser()?.points }}</strong>
+      <span class="redeem-note">
+        {{ 'profilePage.pointsRedeemNote' | translate: { minimum: pointsRedemptionMinimum(), amount: pointsRedemptionAmount() } }}
+      </span>
+    </div>
+
+    <h2>{{ 'profilePage.orderHistory' | translate }}</h2>
+
+    @if (orders().length === 0) {
+      <p class="no-orders">{{ 'profilePage.noOrders' | translate }}</p>
+    } @else {
+      <div class="order-list">
+        @for (order of orders(); track order.id) {
+          <div class="order-card">
+            <div class="order-top">
+              <div>
+                <p class="order-number">{{ order.orderNumber }}</p>
+                <p class="order-date">{{ order.createdAt | date: 'mediumDate' }}</p>
+              </div>
+              <span class="status" [class]="'status-' + order.status">{{ 'orderStatus.' + order.status | translate }}</span>
+            </div>
+
+            <p class="items-summary">{{ order.items[0]?.productNameSnapshot }}@if (order.items.length > 1) {
+                +{{ order.items.length - 1 }}
+              }</p>
+            <p class="order-total">{{ order.total }} ден</p>
+
+            @if (order.status === 'Delivered' && order.items[0]) {
+              <a class="leave-review" [routerLink]="['/', translation.currentLocale(), 'product', order.items[0].productId]">
+                {{ 'profilePage.leaveReview' | translate }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+}

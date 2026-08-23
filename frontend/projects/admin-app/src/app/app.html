@@ -1,0 +1,16 @@
+@if (auth.isLoggedIn()) {
+  <div class="admin-shell">
+    <app-sidebar />
+
+    <div class="admin-content">
+      <app-topbar />
+      <main class="admin-main">
+        <router-outlet />
+      </main>
+    </div>
+
+    <app-order-toast-stack />
+  </div>
+} @else {
+  <router-outlet />
+}

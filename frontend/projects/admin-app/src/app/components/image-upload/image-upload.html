@@ -1,0 +1,20 @@
+<div class="image-upload">
+  @if (previewUrl(); as preview) {
+    <div class="preview" [style.background-image]="'url(' + preview + ')'">
+      <button type="button" class="remove-btn" (click)="remove()" aria-label="Remove photo">✕</button>
+    </div>
+  } @else {
+    <label class="dropzone" [class.uploading]="uploading()">
+      @if (uploading()) {
+        <span>Uploading…</span>
+      } @else {
+        <span>+ Add photo</span>
+      }
+      <input type="file" accept="image/jpeg,image/png,image/webp" [disabled]="uploading()" (change)="onFileSelected($event)" />
+    </label>
+  }
+
+  @if (error()) {
+    <p class="upload-error">{{ error() }}</p>
+  }
+</div>

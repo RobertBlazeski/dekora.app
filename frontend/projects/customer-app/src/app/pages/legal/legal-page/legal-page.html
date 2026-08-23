@@ -1,0 +1,13 @@
+<article class="legal-page">
+  <h1>{{ doc().title }}</h1>
+  <p class="intro">{{ doc().intro }}</p>
+
+  @for (section of doc().sections; track section.heading) {
+    <section>
+      <h2>{{ section.heading }}</h2>
+      @for (paragraph of section.paragraphs; track paragraph) {
+        <p>{{ paragraph }}</p>
+      }
+    </section>
+  }
+</article>

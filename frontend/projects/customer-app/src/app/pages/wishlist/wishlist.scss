@@ -1,0 +1,24 @@
+.empty-wishlist {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--color-ink-soft);
+
+  svg path {
+    fill: currentColor;
+  }
+
+  p {
+    margin-top: 1rem;
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding: 1.5rem 0 3rem;
+
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

@@ -1,0 +1,23 @@
+{$CUSTOMER_DOMAIN} {
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+	handle /uploads/* {
+		reverse_proxy api:8080
+	}
+	handle {
+		reverse_proxy customer-app:4000
+	}
+}
+
+{$ADMIN_DOMAIN} {
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+	handle /uploads/* {
+		reverse_proxy api:8080
+	}
+	handle {
+		reverse_proxy admin-app:80
+	}
+}

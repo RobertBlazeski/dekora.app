@@ -1,0 +1,249 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(251, 246, 242, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-coral);
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 1.25rem;
+
+  a {
+    color: var(--color-ink);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.active {
+      color: var(--color-coral);
+    }
+  }
+}
+
+.desktop-nav {
+  @media (max-width: 860px) {
+    display: none;
+  }
+}
+
+.mobile-nav {
+  display: none;
+  overflow-x: auto;
+  gap: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  border-top: 1px solid var(--color-line);
+
+  @media (max-width: 860px) {
+    display: flex;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lang-switcher {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-lilac);
+
+  button {
+    border: none;
+    background: transparent;
+    padding: 0.3rem 0.55rem;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+
+    &.active {
+      background: var(--color-card);
+      color: var(--color-coral);
+    }
+  }
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  svg path {
+    fill: currentColor;
+  }
+
+  &:hover {
+    background: var(--color-lilac);
+  }
+
+  svg.filled {
+    color: var(--color-coral);
+  }
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  border: 2px solid var(--color-bg);
+}
+
+.cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-coral-tint);
+  color: var(--color-coral);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-coral);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  &.bump {
+    animation: cart-bump 0.45s ease;
+  }
+}
+
+// Search overlay
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(61, 42, 59, 0.35);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  animation: modal-backdrop-in 0.25s ease;
+}
+
+.search-modal {
+  width: min(560px, 90vw);
+  background: var(--color-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  padding: 1.25rem;
+  animation: modal-pop-in 0.3s ease;
+
+  input {
+    width: 100%;
+    padding: 0.8rem 1.1rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    font: inherit;
+    font-size: 1rem;
+  }
+}
+
+.search-results {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.search-result-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+
+  &:hover {
+    background: var(--color-lilac);
+  }
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-lilac);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.result-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.result-price {
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+}
+
+.see-all-row {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.7rem;
+  border: none;
+  border-top: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-rose);
+  font-weight: 600;
+  cursor: pointer;
+  font: inherit;
+}

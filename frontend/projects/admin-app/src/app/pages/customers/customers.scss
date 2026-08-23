@@ -1,0 +1,92 @@
+.page-header {
+  margin-bottom: 1.25rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-line);
+  font: inherit;
+  margin-bottom: 1.25rem;
+  display: block;
+}
+
+.customers-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+
+  @media (max-width: 860px) {
+    display: none;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    color: var(--color-ink-soft);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: 0.9rem;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.customer-name {
+  font-weight: 600;
+}
+
+.join-date,
+.phone {
+  color: var(--color-ink-soft);
+  font-size: 0.8rem;
+}
+
+.points {
+  color: var(--color-coral);
+  font-weight: 600;
+}
+
+.customer-cards {
+  display: none;
+  flex-direction: column;
+  gap: 0.9rem;
+
+  @media (max-width: 860px) {
+    display: flex;
+  }
+}
+
+.customer-card {
+  padding: 1rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+
+  p {
+    margin: 0.1rem 0;
+  }
+}
+
+.card-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+}

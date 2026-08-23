@@ -1,0 +1,289 @@
+@if (product(); as p) {
+  <nav class="breadcrumb">
+    <a [routerLink]="['/', translation.currentLocale(), 'shop']">{{ 'nav.shop' | translate }}</a>
+    <span>›</span>
+    <a [routerLink]="['/', translation.currentLocale(), 'shop']" [queryParams]="{ category: p.categories[0] }">
+      {{ 'categories.' + p.categories[0] | translate }}
+    </a>
+    <span>›</span>
+    <span class="current">{{ displayName() }}</span>
+  </nav>
+
+  <section class="product-layout">
+    <div class="gallery">
+      <div class="main-image" [style.background-image]="resolveUrl(selectedImageUrl()) ? 'url(' + resolveUrl(selectedImageUrl()) + ')' : null">
+        @if (p.soldOut) {
+          <span class="sold-out-badge">{{ 'product.soldOut' | translate }}</span>
+        }
+        @if (p.images.length === 0) {
+          <span class="photo-placeholder-pill">{{ 'product.photoPlaceholder' | translate }}</span>
+        }
+        @if (!p.soldOut && isCurrentSelectionDiscounted()) {
+          <div class="ribbon">
+            <span class="ribbon-word">{{ 'product.sale' | translate }}</span>
+            <span class="ribbon-percent">-{{ currentDiscountPercent() }}%</span>
+          </div>
+        }
+        <button type="button" class="wishlist-toggle" [class.active]="wishlist.has(p.id)" (click)="toggleWishlist()">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+          </svg>
+        </button>
+      </div>
+      @if (p.images.length > 1) {
+        <div class="thumbnails">
+          @for (image of p.images; track image.id) {
+            <button
+              type="button"
+              class="thumb"
+              [class.active]="image.url === selectedImageUrl()"
+              [style.background-image]="'url(' + resolveUrl(image.url) + ')'"
+              (click)="selectImage(image.url)"
+            >
+              @if (image.colorTag) {
+                <span class="thumb-tag">{{ image.colorTag }}</span>
+              }
+            </button>
+          }
+        </div>
+      }
+      <p class="photo-caption">{{ 'product.photoCaption' | translate }}</p>
+    </div>
+
+    <div class="details">
+      <h1>{{ displayName() }}</h1>
+
+      <div class="rating-line">
+        <button type="button" class="star-input interactive" (mouseleave)="hoverRating.set(0)" (click)="openReviewPopup()">
+          @if (hoverRating() > 0) {
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <span class="star hover" [class.filled]="star <= hoverRating()" (mouseenter)="hoverRating.set(star)">★</span>
+            }
+          } @else {
+            <span class="star-display" [style.--fill.%]="starFillPercent()">
+              <span class="stars-outline">☆☆☆☆☆</span>
+              <span class="stars-filled">★★★★★</span>
+            </span>
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <span class="star hover-target" (mouseenter)="hoverRating.set(star)"></span>
+            }
+          }
+        </button>
+
+        @if (reviews().length > 0) {
+          <span class="rating-meta">{{ averageRating() }} · {{ 'product.reviewCount' | translate: { count: reviews().length } }}</span>
+        } @else {
+          <span class="rating-meta">{{ 'product.noReviews' | translate }}</span>
+        }
+      </div>
+
+      @if (reviewSubmitted()) {
+        <p class="review-thanks">{{ 'product.reviewThanks' | translate }}</p>
+      }
+
+      <p class="description">{{ displayDescription() }}</p>
+
+      <p class="price">
+        @if (isCurrentSelectionDiscounted()) {
+          <span class="was-price">{{ regularUnitPrice() }} ден</span>
+        }
+        {{ unitPrice() }} ден
+      </p>
+
+      @if (p.sizesEnabled && p.customSizeEnabled) {
+        <div class="size-mode-toggle">
+          <button type="button" [class.active]="sizeMode() === 'fixed'" (click)="setSizeMode('fixed')">
+            {{ 'product.size' | translate }}
+          </button>
+          <button type="button" [class.active]="sizeMode() === 'custom'" (click)="setSizeMode('custom')">
+            {{ 'product.customSizeQuantity' | translate: { unit: p.customSizeUnitLabel ?? '' } }}
+          </button>
+        </div>
+      }
+
+      @if (p.sizesEnabled && sizeMode() === 'fixed') {
+        <div class="option-group">
+          <label>{{ 'product.size' | translate }}</label>
+          <div class="pill-row">
+            @for (size of p.sizes; track size.id) {
+              <button
+                type="button"
+                class="size-pill"
+                [class.active]="size.name === selectedSizeName()"
+                [class.discounted]="size.discountedPrice !== null"
+                (click)="selectSize(size.name)"
+              >
+                <span class="size-name">{{ size.name }}</span>
+                @if (size.description) {
+                  <span class="size-description">{{ size.description }}</span>
+                }
+                @if (size.discountedPrice !== null) {
+                  <span class="size-delta discount">
+                    <span class="was">{{ size.price }} ден</span>
+                    {{ size.discountedPrice }} ден
+                  </span>
+                } @else {
+                  <span class="size-delta">{{ size.price }} ден</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (p.customSizeEnabled && sizeMode() === 'custom') {
+        <div class="option-group">
+          <label>{{ 'product.customSizeQuantity' | translate: { unit: p.customSizeUnitLabel ?? '' } }}</label>
+          <input
+            type="number"
+            min="1"
+            [value]="customSizeQuantity()"
+            (input)="customSizeQuantity.set(+$any($event.target).value || 1)"
+          />
+        </div>
+      }
+
+      @for (group of p.colorGroups; track group.id) {
+        <div class="option-group">
+          <label>{{ group.name }}</label>
+          <div class="swatch-row">
+            @for (color of group.colors; track color.id) {
+              <button
+                type="button"
+                class="swatch-btn"
+                [class.active]="selectedColorByGroup()[group.name] === color.name"
+                [class.disabled]="color.soldOut"
+                [disabled]="color.soldOut"
+                [style.background-color]="color.hexValue"
+                [title]="color.name + (color.soldOut ? ' — ' + ('product.soldOut' | translate) : '')"
+                (click)="selectColor(group.name, color.name)"
+              >
+                @if (selectedColorByGroup()[group.name] === color.name) {
+                  <span class="check">✓</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="option-group">
+        <label for="customText">{{ 'product.customText' | translate }}</label>
+        <input
+          id="customText"
+          type="text"
+          maxlength="80"
+          [value]="customText()"
+          (input)="customText.set($any($event.target).value)"
+        />
+      </div>
+
+      @if (p.extrasEnabled && p.extras.length > 0) {
+        <div class="option-group">
+          <label>{{ 'product.extras' | translate }}</label>
+          <div class="checkbox-list">
+            @for (extra of p.extras; track extra.id) {
+              <label class="checkbox-row" [class.checked]="selectedExtraNames().has(extra.name)">
+                <input
+                  type="checkbox"
+                  [checked]="selectedExtraNames().has(extra.name)"
+                  (change)="toggleExtra(extra.name)"
+                />
+                <span class="extra-name">{{ extra.name }}</span>
+                <span class="extra-price">+{{ extra.price }} ден</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="option-group">
+        <label for="quantity">{{ 'product.quantity' | translate }}</label>
+        <input
+          id="quantity"
+          type="number"
+          min="1"
+          [value]="quantity()"
+          (input)="quantity.set(+$any($event.target).value || 1)"
+        />
+      </div>
+
+      <button type="button" class="add-to-cart" [disabled]="!canAddToCart()" (click)="addToCart()">
+        {{ (justAdded() ? 'product.addedToCart' : 'product.addToCart') | translate }} — {{ lineTotal() }} ден
+      </button>
+      <p class="points-line">{{ 'product.pointsEarned' | translate: { points: pointsForThisOrder() } }}</p>
+    </div>
+
+    <section class="reviews">
+      <div class="reviews-header">
+        <h2>
+          {{ 'product.reviews' | translate }}
+          @if (reviews().length > 0) {
+            <span class="reviews-summary">{{ averageRating() }} · {{ 'product.reviewCount' | translate: { count: reviews().length } }}</span>
+          }
+        </h2>
+        <button type="button" class="write-review-btn" (click)="openReviewPopup()">{{ 'product.writeReview' | translate }}</button>
+      </div>
+      @if (reviews().length === 0) {
+        <p class="no-reviews">{{ 'product.noReviews' | translate }}</p>
+      } @else {
+        @for (review of reviews(); track review.id) {
+          <div class="review">
+            <div class="review-header">
+              <span class="stars">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
+              <span class="author">{{ review.reviewerName }}</span>
+              <span class="review-date">{{ reviewDateLabel(review) }}</span>
+            </div>
+            @if (review.text) {
+              <p>{{ review.text }}</p>
+            }
+          </div>
+        }
+      }
+    </section>
+  </section>
+
+  @if (reviewPopupOpen()) {
+    <div class="modal-backdrop" (click)="closeReviewPopup()">
+      <div class="review-modal" (click)="$event.stopPropagation()">
+        <h3>{{ 'product.rateThisProduct' | translate }}</h3>
+        <div class="popup-star-picker">
+          @for (star of [1, 2, 3, 4, 5]; track star) {
+            <button type="button" [class.filled]="star <= reviewRating()" (click)="reviewRating.set(star)">★</button>
+          }
+        </div>
+        @if (reviewRating() > 0) {
+          <input
+            type="text"
+            class="reviewer-name-input"
+            [placeholder]="'product.yourNameOptional' | translate"
+            [value]="reviewerName()"
+            (input)="reviewerName.set($any($event.target).value)"
+          />
+          <textarea
+            rows="3"
+            [placeholder]="'profilePage.reviewPlaceholder' | translate"
+            [value]="reviewText()"
+            (input)="reviewText.set($any($event.target).value)"
+          ></textarea>
+          <button type="button" class="submit-review-btn" [disabled]="submittingReview()" (click)="submitReview()">
+            {{ 'profilePage.submitReview' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+}
+
+<app-product-carousel [heading]="'home.trendingNow' | translate" [products]="trending()" />
+
+@if (alsoOrdered().length > 0) {
+  <section class="also-ordered">
+    <h2>{{ 'productDetail.alsoOrdered' | translate }}</h2>
+    <div class="also-ordered-grid">
+      @for (item of alsoOrdered(); track item.id) {
+        <app-product-card [product]="item" />
+      }
+    </div>
+  </section>
+}

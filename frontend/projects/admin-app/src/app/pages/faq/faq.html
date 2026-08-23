@@ -1,0 +1,96 @@
+<div class="page-header">
+  <h1>FAQ &amp; Contact</h1>
+  <button type="button" class="pill-btn" (click)="openCreate()">+ Add question</button>
+</div>
+
+<div class="faq-list">
+  @for (entry of entries(); track entry.id; let i = $index) {
+    <div class="faq-row">
+      <div class="reorder-col">
+        <button type="button" [disabled]="i === 0" (click)="moveUp(i)">▲</button>
+        <button type="button" [disabled]="i === entries().length - 1" (click)="moveDown(i)">▼</button>
+      </div>
+      <div class="faq-content">
+        <strong>{{ entry.question }}</strong>
+        <p>{{ entry.answer }}</p>
+      </div>
+      <div class="faq-actions">
+        <button type="button" (click)="openEdit(entry)">Edit</button>
+        <button type="button" class="delete-btn" (click)="remove(entry)">Delete</button>
+      </div>
+    </div>
+  }
+  @if (entries().length === 0) {
+    <p class="hint">No FAQ entries yet.</p>
+  }
+</div>
+
+<section class="card">
+  <h2>Contact info</h2>
+  <p class="hint">Shown on the FAQ page's "Get in touch" panel, and the email/phone also appear on the Terms, Privacy and Refund Policy pages.</p>
+
+  <label>Instagram handle</label>
+  <input type="text" [ngModel]="contact().instagramHandle" (ngModelChange)="updateContactField('instagramHandle', $event)" />
+
+  <label>Email</label>
+  <input type="text" [ngModel]="contact().email" (ngModelChange)="updateContactField('email', $event)" />
+
+  <label>Location</label>
+  <input type="text" [ngModel]="contact().location" (ngModelChange)="updateContactField('location', $event)" />
+
+  <label>Phone numbers</label>
+  <div class="nested-rows">
+    @for (phone of contact().phoneNumbers; track $index) {
+      <div class="phone-row">
+        <input type="text" placeholder="+389 XX XXX XXX" [ngModel]="phone" (ngModelChange)="updatePhoneNumber($index, $event)" />
+        <button type="button" class="remove-btn" (click)="removePhoneNumber($index)">✕</button>
+      </div>
+    }
+    <button type="button" class="add-row-btn" (click)="addPhoneNumber()">+ Add phone number</button>
+  </div>
+
+  <button type="button" class="save-btn" [disabled]="contactSaving()" (click)="saveContact()">
+    {{ contactSaving() ? 'Saving…' : contactSaved() ? 'Saved ✓' : 'Save contact info' }}
+  </button>
+</section>
+
+@if (formOpen()) {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <div class="faq-modal" (click)="$event.stopPropagation()">
+      <h2>{{ form().id ? 'Edit question' : 'Add question' }}</h2>
+
+      <label>Question</label>
+      <input type="text" [ngModel]="form().question" (ngModelChange)="updateField('question', $event)" />
+
+      <label>Answer</label>
+      <textarea rows="3" [ngModel]="form().answer" (ngModelChange)="updateField('answer', $event)"></textarea>
+
+      <button type="button" class="translations-toggle" (click)="toggleTranslations()">
+        {{ showTranslations() ? '▾' : '▸' }} Translations (optional)
+      </button>
+      @if (showTranslations()) {
+        <div class="translation-grid">
+          <div>
+            <label>English question</label>
+            <input type="text" [ngModel]="form().questionEn" (ngModelChange)="updateField('questionEn', $event)" />
+            <label>English answer</label>
+            <textarea rows="2" [ngModel]="form().answerEn" (ngModelChange)="updateField('answerEn', $event)"></textarea>
+          </div>
+          <div>
+            <label>Albanian question</label>
+            <input type="text" [ngModel]="form().questionSq" (ngModelChange)="updateField('questionSq', $event)" />
+            <label>Albanian answer</label>
+            <textarea rows="2" [ngModel]="form().answerSq" (ngModelChange)="updateField('answerSq', $event)"></textarea>
+          </div>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeForm()">Cancel</button>
+        <button type="button" class="save-btn" [disabled]="saving() || !form().question.trim() || !form().answer.trim()" (click)="save()">
+          {{ saving() ? 'Saving…' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

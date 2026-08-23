@@ -1,0 +1,58 @@
+.image-upload {
+  width: 100%;
+}
+
+.preview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: var(--radius-md);
+  background-color: var(--color-lilac);
+  background-size: cover;
+  background-position: center;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border: 1.5px dashed var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.uploading {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
+  input {
+    display: none;
+  }
+}
+
+.upload-error {
+  margin: 0.4rem 0 0;
+  color: var(--color-coral);
+  font-size: 0.78rem;
+}

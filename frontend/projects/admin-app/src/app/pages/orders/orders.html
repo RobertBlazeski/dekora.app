@@ -1,0 +1,267 @@
+<div class="page-header">
+  <h1>Orders</h1>
+  <button type="button" class="pill-btn" (click)="openManualForm()">+ New order</button>
+</div>
+
+<div class="filters">
+  <input type="search" placeholder="Search by name or order #" (input)="onSearchInput($any($event.target).value)" />
+  <select (change)="statusFilter.set($any($event.target).value)">
+    <option value="">All statuses</option>
+    @for (status of statuses; track status) {
+      <option [value]="status">{{ status }}</option>
+    }
+  </select>
+</div>
+
+<table class="orders-table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Customer</th>
+      <th>Total</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (order of orders(); track order.id) {
+      <tr [class.unread]="!order.isViewed">
+        <td>
+          @if (!order.isViewed) { <span class="unread-dot"></span> }
+          {{ order.orderNumber }}
+        </td>
+        <td>{{ order.customerName }} @if (order.isManualEntry) { <span class="manual-badge">Manual</span> }</td>
+        <td>{{ order.total }} ден</td>
+        <td>{{ order.createdAt | date: 'mediumDate' }}</td>
+        <td><span class="status-badge" [class]="'status-' + order.status">{{ order.status }}</span></td>
+        <td><button type="button" class="details-link" (click)="openDetails(order.id)">Details</button></td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="orders-cards">
+  @for (order of orders(); track order.id) {
+    <div class="order-card" [class.unread]="!order.isViewed">
+      <div class="order-card-top">
+        <div>
+          <p class="order-number">
+            @if (!order.isViewed) { <span class="unread-dot"></span> }
+            {{ order.orderNumber }}
+          </p>
+          <p class="customer">{{ order.customerName }} @if (order.isManualEntry) { <span class="manual-badge">Manual</span> }</p>
+        </div>
+        <span class="status-badge" [class]="'status-' + order.status">{{ order.status }}</span>
+      </div>
+      <p class="date-total">{{ order.createdAt | date: 'mediumDate' }} · {{ order.total }} ден</p>
+      <button type="button" class="view-details-btn" (click)="openDetails(order.id)">View details ›</button>
+    </div>
+  }
+</div>
+
+@if (selectedOrder(); as order) {
+  <div class="modal-backdrop" (click)="closeDetails()">
+    <div class="order-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ order.orderNumber }}</h2>
+        <select [value]="order.status" [disabled]="updatingStatus()" (change)="updateStatus($any($event.target).value)">
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="contact-block">
+        <p><strong>{{ order.customerName }}</strong></p>
+        <p>{{ order.phone }}</p>
+        <p>{{ order.email }}</p>
+        <p>{{ order.deliveryAddress }}@if (order.deliveryCity) {, {{ order.deliveryCity }}}</p>
+        <p>Payment: {{ order.paymentMethod }}</p>
+        @if (order.note) {
+          <p class="note">"{{ order.note }}"</p>
+        }
+      </div>
+
+      <div class="items-list">
+        @for (item of order.items; track item.id) {
+          <div class="item-row">
+            <span class="item-thumb" [style.background-image]="item.imageUrl ? 'url(' + resolveUrl(item.imageUrl) + ')' : null"></span>
+            <div class="item-info">
+              <p class="item-name">{{ item.productNameSnapshot }} × {{ item.quantity }}</p>
+              <p class="item-options">
+                @if (item.selectedSize) {
+                  {{ item.selectedSize }}
+                }
+                @for (color of item.selectedColors; track color) {
+                  · {{ color }}
+                }
+                @for (extra of item.selectedExtras; track extra) {
+                  · {{ extra }}
+                }
+              </p>
+              @if (item.customText) {
+                <p class="item-custom-text">"{{ item.customText }}"</p>
+              }
+            </div>
+            <span class="item-price">{{ item.lineTotal }} ден</span>
+          </div>
+        }
+      </div>
+
+      <div class="order-total-row">
+        <span>Total</span>
+        <strong>{{ order.total }} ден</strong>
+      </div>
+    </div>
+  </div>
+}
+
+@if (manualFormOpen()) {
+  <div class="modal-backdrop" (click)="closeManualForm()">
+    <div class="order-modal manual-modal" (click)="$event.stopPropagation()">
+      <h2>New manual order</h2>
+      <p class="hint">
+        For sales made by phone or in person — only the customer name and at least one item are
+        required. This counts toward income totals but doesn't earn points or notify anyone.
+      </p>
+
+      <label>Customer name</label>
+      <input type="text" [ngModel]="manualForm().customerName" (ngModelChange)="updateManualField('customerName', $event)" />
+
+      <div class="field-grid">
+        <div>
+          <label>Phone (optional)</label>
+          <input type="text" [ngModel]="manualForm().phone" (ngModelChange)="updateManualField('phone', $event)" />
+        </div>
+        <div>
+          <label>Email (optional)</label>
+          <input type="text" [ngModel]="manualForm().email" (ngModelChange)="updateManualField('email', $event)" />
+        </div>
+      </div>
+
+      <label>City (optional)</label>
+      <select [ngModel]="manualForm().deliveryCity" (ngModelChange)="updateManualField('deliveryCity', $event)">
+        <option value="">—</option>
+        @for (city of deliveryCities(); track city.id) {
+          <option [value]="city.name">{{ city.name }}</option>
+        }
+      </select>
+      <div class="add-category-row">
+        <input
+          type="text"
+          placeholder="New city name"
+          [ngModel]="newCityName()"
+          (ngModelChange)="newCityName.set($event)"
+        />
+        <button type="button" class="add-row-btn" [disabled]="!newCityName().trim()" (click)="addCity()">+ Add city</button>
+      </div>
+
+      <label>Delivery address (optional)</label>
+      <input type="text" [ngModel]="manualForm().deliveryAddress" (ngModelChange)="updateManualField('deliveryAddress', $event)" />
+
+      <label class="checkbox-row">
+        <input
+          type="checkbox"
+          [ngModel]="manualForm().includeDeliveryFee"
+          (ngModelChange)="updateManualField('includeDeliveryFee', $event)"
+        />
+        Add the {{ deliveryFee() }} ден delivery fee to this order
+      </label>
+      <p class="hint">
+        Turn this off for pickup orders, or when the price you agreed with the customer already includes delivery
+        — otherwise it's added on top automatically.
+      </p>
+
+      <div class="field-grid">
+        <div>
+          <label>Payment method</label>
+          <select [ngModel]="manualForm().paymentMethod" (ngModelChange)="updateManualField('paymentMethod', $event)">
+            <option value="PayAtDelivery">Pay at delivery</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+        <div>
+          <label>Starting status</label>
+          <select [ngModel]="manualForm().initialStatus" (ngModelChange)="updateManualField('initialStatus', $event)">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <label>Note (optional)</label>
+      <input type="text" [ngModel]="manualForm().note" (ngModelChange)="updateManualField('note', $event)" />
+
+      <label>Items</label>
+      <div class="product-search">
+        <input
+          type="search"
+          placeholder="Search products to add…"
+          [ngModel]="manualProductSearch()"
+          (ngModelChange)="manualProductSearch.set($event)"
+        />
+        @if (productSearchResults().length > 0) {
+          <div class="search-dropdown">
+            @for (product of productSearchResults(); track product.id) {
+              <button type="button" class="search-result" (click)="addProductLine(product)">
+                <span
+                  class="result-thumb"
+                  [style.background-image]="product.primaryImageUrl ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null"
+                ></span>
+                {{ product.name }} · {{ product.basePrice }} ден
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="manual-lines">
+        @for (line of manualLines(); track line.productId) {
+          <div class="manual-line">
+            <span
+              class="line-thumb"
+              [style.background-image]="line.imageUrl ? 'url(' + resolveUrl(line.imageUrl) + ')' : null"
+            ></span>
+            <span class="line-name">{{ line.productName }}</span>
+            @if (line.availableSizes.length > 0) {
+              <select [ngModel]="line.selectedSize" (ngModelChange)="updateLineSize(line.productId, $event)">
+                @for (size of line.availableSizes; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            }
+            <input
+              type="number"
+              min="1"
+              class="qty-input"
+              [ngModel]="line.quantity"
+              (ngModelChange)="updateLineQuantity(line.productId, +$event)"
+            />
+            <button type="button" class="remove-btn" (click)="removeLine(line.productId)">✕</button>
+          </div>
+        }
+        @if (manualLines().length === 0) {
+          <p class="hint">No items added yet — search above to add one.</p>
+        }
+      </div>
+
+      @if (manualError()) {
+        <p class="manual-error">{{ manualError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeManualForm()">Cancel</button>
+        <button
+          type="button"
+          class="save-btn"
+          [disabled]="manualSaving() || !manualForm().customerName.trim() || manualLines().length === 0"
+          (click)="submitManualOrder()"
+        >
+          {{ manualSaving() ? 'Saving…' : 'Save order' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

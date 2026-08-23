@@ -1,0 +1,327 @@
+.promo-strip {
+  background: var(--color-coral);
+  color: white;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+.promo-countdown {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.22);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 3rem 0;
+
+  @media (min-width: 860px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-rose);
+  font-weight: 700;
+  font-size: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.hero-copy {
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+}
+
+.subtitle {
+  color: var(--color-ink-soft);
+  font-size: 1.05rem;
+  max-width: 30rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-solid,
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.btn-solid {
+  background: var(--color-ink);
+  color: white;
+
+  &.light {
+    background: white;
+    color: var(--color-ink);
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--color-ink);
+  color: var(--color-ink);
+}
+
+.hero-art {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--color-rose-tint), var(--color-lilac));
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+  border: 1px solid var(--color-line);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &.has-photo {
+    background-size: cover;
+    background-position: center;
+  }
+
+  &.featured {
+    cursor: pointer;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(61, 42, 59, 0.55) 0%, rgba(61, 42, 59, 0) 45%);
+    }
+
+    &:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 20px 40px -12px rgba(61, 42, 59, 0.35);
+    }
+  }
+}
+
+.featured-price-tag {
+  position: absolute;
+  z-index: 1;
+  left: 1.1rem;
+  bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  color: var(--color-ink);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: var(--shadow-modal);
+}
+
+.featured-name {
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+
+.blob-1 {
+  width: 140px;
+  height: 140px;
+  background: var(--color-rose);
+  top: 15%;
+  left: 20%;
+}
+
+.blob-2 {
+  width: 100px;
+  height: 100px;
+  background: var(--color-coral);
+  bottom: 18%;
+  right: 22%;
+  opacity: 0.55;
+}
+
+.blob-3 {
+  width: 70px;
+  height: 70px;
+  background: var(--color-success);
+  top: 45%;
+  right: 12%;
+  opacity: 0.45;
+}
+
+.occasions {
+  padding: 2rem 0;
+
+  h2 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+}
+
+.occasion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+
+  @media (min-width: 860px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.occasion-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-ink);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.015);
+    box-shadow: var(--shadow-card, 0 8px 20px rgba(0, 0, 0, 0.12));
+  }
+
+  &:not(.has-photo) {
+    &.tone-coral {
+      background-color: var(--color-coral-tint);
+    }
+    &.tone-rose {
+      background-color: var(--color-rose-tint);
+    }
+    &.tone-lilac {
+      background-color: var(--color-lilac);
+    }
+    &.tone-success {
+      background-color: var(--color-success-tint);
+    }
+    &.tone-ink {
+      background-color: var(--color-line);
+    }
+  }
+}
+
+.occasion-icon {
+  color: var(--color-ink);
+  opacity: 0.4;
+}
+
+.occasion-label {
+  position: relative;
+  z-index: 1;
+  line-height: 1.2;
+}
+
+// A photo tile gets a bottom-up scrim (tinted with its assigned tone) so the label stays
+// legible over any product photo without the owner ever picking colors/crops by hand.
+.has-photo {
+  color: white;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.12) 55%, transparent 100%);
+  }
+
+  &.tone-coral::after,
+  &.tone-rose::after,
+  &.tone-lilac::after,
+  &.tone-success::after,
+  &.tone-ink::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    mix-blend-mode: soft-light;
+  }
+  &.tone-coral::after {
+    background: var(--color-coral);
+  }
+  &.tone-rose::after {
+    background: var(--color-rose);
+  }
+  &.tone-lilac::after {
+    background: var(--color-lilac);
+  }
+  &.tone-success::after {
+    background: var(--color-success);
+  }
+  &.tone-ink::after {
+    background: var(--color-ink);
+  }
+}
+
+.points-banner {
+  margin: 2rem 0 3rem;
+  padding: 3rem 2rem;
+  border-radius: var(--radius-xl);
+  background: var(--color-ink);
+  color: white;
+  text-align: center;
+
+  h2 {
+    font-weight: 500;
+    font-size: 1.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 28rem;
+    margin: 0 auto 1.5rem;
+  }
+}

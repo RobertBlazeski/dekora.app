@@ -1,0 +1,71 @@
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  padding: 1rem;
+}
+
+.login-card {
+  width: min(24rem, 100%);
+  padding: 2.5rem 2rem;
+  background: var(--color-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  text-align: center;
+
+  h1 {
+    color: var(--color-coral);
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: left;
+  }
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  input {
+    padding: 0.65rem 0.9rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-line);
+    font: inherit;
+  }
+
+  .error {
+    color: var(--color-coral);
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
+    color: white;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

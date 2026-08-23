@@ -1,0 +1,20 @@
+<div class="admin-login">
+  <div class="login-card">
+    <h1>Dekora Admin</h1>
+    <p>Owner access only</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" formControlName="password" />
+
+      @if (errorMessage()) {
+        <p class="error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="submitting()">Sign in</button>
+    </form>
+  </div>
+</div>

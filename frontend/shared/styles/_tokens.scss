@@ -1,0 +1,60 @@
+// Design tokens from the technical handoff + UI spec. Shared between customer-app and
+// admin-app so both stay visually consistent — the admin dashboard is a separate
+// protected area, but it is NOT a flat/static admin-tool aesthetic; it uses the same
+// warm, rounded, softly-animated theme as the storefront.
+
+$color-bg: #FBF6F2;
+$color-card: #FFFFFF;
+$color-ink: #3D2A3B;
+$color-ink-soft: #8A7387;
+$color-rose: #C97B92;
+$color-rose-tint: #F6E4E9;
+$color-coral: #E2635F;
+$color-coral-tint: #FBE4E1;
+$color-lilac: #EFE4EE;
+$color-line: #EAD9E3;
+$color-success: #7C9473;
+$color-success-tint: #E9EFE6;
+$color-cancelled-tint: #F1E4E4;
+$color-cancelled: #A85D5D;
+
+$font-display: 'Fraunces', serif;
+$font-body: 'Public Sans', sans-serif;
+
+// Cards/images use rounded-2xl/3xl; buttons, chips and badges are fully pill-shaped.
+$radius-sm: 8px;
+$radius-md: 14px;
+$radius-lg: 22px;
+$radius-xl: 28px;
+$radius-pill: 999px;
+
+// Ordinary cards use a 1px border, not a shadow — shadows are reserved for modals/popups.
+$shadow-modal: 0 10px 30px rgba(61, 42, 59, 0.25);
+
+:root {
+  --color-bg: #{$color-bg};
+  --color-card: #{$color-card};
+  --color-ink: #{$color-ink};
+  --color-ink-soft: #{$color-ink-soft};
+  --color-rose: #{$color-rose};
+  --color-rose-tint: #{$color-rose-tint};
+  --color-coral: #{$color-coral};
+  --color-coral-tint: #{$color-coral-tint};
+  --color-lilac: #{$color-lilac};
+  --color-line: #{$color-line};
+  --color-success: #{$color-success};
+  --color-success-tint: #{$color-success-tint};
+  --color-cancelled-tint: #{$color-cancelled-tint};
+  --color-cancelled: #{$color-cancelled};
+
+  --font-display: #{$font-display};
+  --font-body: #{$font-body};
+
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-pill: #{$radius-pill};
+
+  --shadow-modal: #{$shadow-modal};
+}

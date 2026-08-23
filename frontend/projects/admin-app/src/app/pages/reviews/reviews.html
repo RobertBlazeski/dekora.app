@@ -1,0 +1,49 @@
+<div class="page-header">
+  <h1>Reviews</h1>
+</div>
+
+@if (stats(); as s) {
+  <div class="stats-card">
+    <div class="stats-summary">
+      <strong class="avg">{{ s.averageRating || '—' }}</strong>
+      <div>
+        <span class="stars">{{ '★'.repeat(roundedAverage()) }}{{ '☆'.repeat(5 - roundedAverage()) }}</span>
+        <p class="total">{{ s.totalReviews }} review{{ s.totalReviews === 1 ? '' : 's' }}</p>
+      </div>
+    </div>
+    <div class="breakdown">
+      @for (row of s.breakdown; track row.rating) {
+        <button type="button" class="breakdown-row" [class.active]="minRating() === row.rating" (click)="setMinRating(minRating() === row.rating ? 0 : row.rating)">
+          <span class="breakdown-label">{{ row.rating }}★</span>
+          <span class="breakdown-bar-track">
+            <span class="breakdown-bar" [style.width.%]="(row.count / maxBreakdownCount()) * 100"></span>
+          </span>
+          <span class="breakdown-count">{{ row.count }}</span>
+        </button>
+      }
+    </div>
+  </div>
+}
+
+<div class="review-list">
+  @if (filteredReviews().length === 0) {
+    <p class="no-reviews">No reviews {{ minRating() > 0 ? 'at this rating' : 'yet' }}.</p>
+  }
+  @for (review of filteredReviews(); track review.id) {
+    <div class="review-card">
+      <div class="review-top">
+        <div>
+          <span class="stars">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</span>
+          <span class="product-name">{{ review.productName }}</span>
+        </div>
+        <button type="button" class="delete-btn" [disabled]="deletingId() === review.id" (click)="delete(review)">
+          {{ deletingId() === review.id ? 'Deleting…' : 'Delete' }}
+        </button>
+      </div>
+      @if (review.text) {
+        <p class="review-text">"{{ review.text }}"</p>
+      }
+      <p class="review-meta">{{ review.reviewerName }} · {{ review.createdAt | date: 'mediumDate' }}</p>
+    </div>
+  }
+</div>

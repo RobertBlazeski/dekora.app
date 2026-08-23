@@ -1,0 +1,57 @@
+.carousel {
+  padding: 1.5rem 0;
+}
+
+.carousel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  margin-bottom: 1rem;
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  a {
+    color: var(--color-rose);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+}
+
+.track-viewport {
+  overflow: hidden;
+  // Fade the edges so the loop point isn't a hard cut.
+  mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+}
+
+.track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  padding: 0 1.5rem;
+  animation-name: scroll-left;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    // Exactly one copy's width, since the list is rendered twice back-to-back.
+    transform: translateX(-50%);
+  }
+}
+
+.card-slot {
+  flex: 0 0 auto;
+  width: 200px;
+}

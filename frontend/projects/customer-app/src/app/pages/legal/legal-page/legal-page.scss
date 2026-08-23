@@ -1,0 +1,29 @@
+.legal-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem 0 3rem;
+
+  h1 {
+    margin-bottom: 0.75rem;
+  }
+
+  .intro {
+    color: var(--color-ink-soft);
+    margin-bottom: 2rem;
+  }
+
+  section {
+    margin-bottom: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--color-ink-soft);
+    line-height: 1.6;
+    margin: 0 0 0.75rem;
+  }
+}

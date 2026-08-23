@@ -1,0 +1,54 @@
+<div class="page-header">
+  <h1>Customers</h1>
+</div>
+
+<input type="search" class="search-input" placeholder="Search by name or email" (input)="onSearchInput($any($event.target).value)" />
+
+<table class="customers-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Contact</th>
+      <th>Points</th>
+      <th>Orders</th>
+      <th>Total spent</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (customer of customers(); track customer.id) {
+      <tr>
+        <td>
+          <p class="customer-name">{{ customer.fullName }}</p>
+          <p class="join-date">Joined {{ customer.createdAt | date: 'mediumDate' }}</p>
+        </td>
+        <td>
+          <p>{{ customer.email }}</p>
+          @if (customer.phone) {
+            <p class="phone">{{ customer.phone }}</p>
+          }
+        </td>
+        <td><span class="points">✨ {{ customer.points }}</span></td>
+        <td>{{ customer.orderCount }}</td>
+        <td>{{ customer.totalSpent }} ден</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<div class="customer-cards">
+  @for (customer of customers(); track customer.id) {
+    <div class="customer-card">
+      <p class="customer-name">{{ customer.fullName }}</p>
+      <p class="join-date">Joined {{ customer.createdAt | date: 'mediumDate' }}</p>
+      <p>{{ customer.email }}</p>
+      @if (customer.phone) {
+        <p class="phone">{{ customer.phone }}</p>
+      }
+      <div class="card-stats">
+        <span class="points">✨ {{ customer.points }}</span>
+        <span>{{ customer.orderCount }} orders</span>
+        <span>{{ customer.totalSpent }} ден</span>
+      </div>
+    </div>
+  }
+</div>

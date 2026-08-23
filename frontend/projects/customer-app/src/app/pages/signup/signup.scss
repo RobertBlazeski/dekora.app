@@ -1,0 +1,156 @@
+.auth-page {
+  max-width: 22rem;
+  margin: 3rem auto;
+  text-align: center;
+
+  h1 {
+    margin-bottom: 0.4rem;
+  }
+
+  p {
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    text-align: left;
+  }
+
+  .field > input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    font: inherit;
+  }
+
+  button {
+    margin-top: 0.5rem;
+    padding: 0.8rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-ink);
+    color: white;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .field-error {
+    margin: 0;
+    color: var(--color-coral);
+    font-size: 0.78rem;
+  }
+
+  .password-rules {
+    list-style: none;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.78rem;
+    color: var(--color-ink-soft);
+
+    li {
+      position: relative;
+      padding-left: 1.1rem;
+
+      &::before {
+        content: '○';
+        position: absolute;
+        left: 0;
+      }
+
+      &.met {
+        color: var(--color-success);
+
+        &::before {
+          content: '●';
+        }
+      }
+    }
+  }
+
+  .error {
+    color: var(--color-coral);
+    font-weight: 600;
+    font-size: 0.85rem;
+
+    p {
+      margin: 0 0 0.2rem;
+    }
+  }
+
+  .switch-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+
+    a {
+      color: var(--color-coral);
+      font-weight: 600;
+      margin-left: 0.3rem;
+    }
+  }
+
+  .guest-link {
+    display: block;
+    margin-top: 0.75rem;
+    text-align: center;
+    color: var(--color-ink-soft);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+}
+
+.icon-circle {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--color-rose-tint);
+  color: var(--color-rose);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg path {
+    fill: currentColor;
+  }
+}
+
+.input-icon {
+  position: relative;
+
+  svg {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-ink-soft);
+  }
+
+  input {
+    width: 100%;
+    padding: 0.7rem 0.8rem 0.7rem 2.6rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    font: inherit;
+  }
+}

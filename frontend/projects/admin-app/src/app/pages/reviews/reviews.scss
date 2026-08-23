@@ -1,0 +1,159 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.stats-card {
+  display: flex;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stats-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  .avg {
+    font-size: 2.4rem;
+    font-weight: 700;
+  }
+
+  .stars {
+    color: var(--color-coral);
+    letter-spacing: 0.05em;
+  }
+
+  .total {
+    margin: 0.15rem 0 0;
+    color: var(--color-ink-soft);
+    font-size: 0.82rem;
+  }
+}
+
+.breakdown {
+  flex: 1;
+  min-width: 14rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: none;
+  background: none;
+  padding: 0.15rem 0.3rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font: inherit;
+
+  &.active {
+    background: var(--color-coral-tint);
+  }
+}
+
+.breakdown-label {
+  width: 1.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+
+.breakdown-bar-track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.breakdown-bar {
+  display: block;
+  height: 100%;
+  background: var(--color-coral);
+  border-radius: var(--radius-pill);
+}
+
+.breakdown-count {
+  width: 1.6rem;
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.no-reviews {
+  color: var(--color-ink-soft);
+}
+
+.review-card {
+  padding: 1rem 1.25rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  .stars {
+    color: var(--color-coral);
+    margin-right: 0.6rem;
+  }
+
+  .product-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+}
+
+.delete-btn {
+  border: 1px solid var(--color-line);
+  background: transparent;
+  color: var(--color-ink-soft);
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-pill);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.review-text {
+  margin: 0.6rem 0 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.review-meta {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.78rem;
+}

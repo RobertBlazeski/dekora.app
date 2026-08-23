@@ -1,0 +1,390 @@
+<div class="page-header">
+  <h1>Products</h1>
+  <div class="header-actions">
+    <select class="category-filter" [ngModel]="categorySearch()" (ngModelChange)="categorySearch.set($event)">
+      <option value="">All categories</option>
+      @for (category of allCategories(); track category.id) {
+        <option [value]="category.name">{{ category.name }}</option>
+      }
+    </select>
+    <button type="button" class="pill-btn" (click)="openCreate()">Add product</button>
+  </div>
+</div>
+
+<div class="product-grid">
+  @for (product of filteredProducts(); track product.id) {
+    <div class="product-card">
+      <div class="thumb" [class.dimmed]="product.soldOut" [style.background-image]="product.primaryImageUrl ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null">
+        @if (product.soldOut) {
+          <span class="sold-out-badge">Sold out</span>
+        }
+        @if (product.isDiscounted) {
+          <span class="discount-badge">-{{ product.discountPercent }}%</span>
+        }
+      </div>
+      <p class="name">{{ product.name }}</p>
+      <p class="meta">
+        @if (product.isDiscounted) {
+          <span class="was-price">{{ product.basePrice }} ден</span>
+        }
+        {{ product.lowestPrice }} ден · {{ product.categories[0] }}
+      </p>
+      <div class="card-actions">
+        <button type="button" (click)="openEdit(product.id)">Edit</button>
+        <button type="button" [class.active]="product.soldOut" (click)="toggleSoldOut(product)">
+          {{ product.soldOut ? 'Restock' : 'Sold out' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+@if (formOpen()) {
+  <div class="modal-backdrop" (click)="closeForm()">
+    <div class="product-modal" (click)="$event.stopPropagation()">
+      <div class="modal-layout">
+        <div class="form-pane">
+          <h2>{{ form().id ? 'Edit product' : 'Add product' }}</h2>
+
+          <section class="form-section">
+            <label>Photos</label>
+            <p class="hint">The first photo is the main one shown on the shop and product page.</p>
+            <div class="image-grid">
+              @for (image of form().images; track $index) {
+                <div class="image-tile">
+                  <app-image-upload [url]="image.url" (urlChange)="updateImage($index, 'url', $event ?? '')" />
+                  <input type="text" placeholder="Color tag (optional)" [ngModel]="image.colorTag" (ngModelChange)="updateImage($index, 'colorTag', $event)" />
+                  <button type="button" class="remove-tile-btn" (click)="removeImage($index)">Remove</button>
+                </div>
+              }
+              <button type="button" class="add-tile-btn" (click)="addImage()">+ Add photo</button>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <label>Name</label>
+            <input type="text" [ngModel]="form().name" (ngModelChange)="form.update((f) => ({ ...f, name: $event }))" />
+
+            <button type="button" class="translations-toggle" (click)="toggleTranslations()">
+              {{ showTranslations() ? '▾' : '▸' }} Translations (optional)
+            </button>
+            @if (showTranslations()) {
+              <div class="translation-grid">
+                <div>
+                  <label>English name</label>
+                  <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameEn" (ngModelChange)="form.update((f) => ({ ...f, nameEn: $event }))" />
+                </div>
+                <div>
+                  <label>Albanian name</label>
+                  <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameSq" (ngModelChange)="form.update((f) => ({ ...f, nameSq: $event }))" />
+                </div>
+              </div>
+            }
+
+            <label>Base price (ден)</label>
+            <input type="number" [ngModel]="form().basePrice" (ngModelChange)="form.update((f) => ({ ...f, basePrice: +$event }))" />
+
+            @if (!form().sizesEnabled) {
+              <label>Sale price (ден, optional)</label>
+              <input
+                type="number"
+                placeholder="Leave blank for no discount"
+                [ngModel]="form().discountedPrice"
+                (ngModelChange)="form.update((f) => ({ ...f, discountedPrice: $event === '' ? null : +$event }))"
+              />
+              <p class="hint">When set and lower than the base price, this product shows as discounted everywhere.</p>
+            }
+
+            <label>Categories</label>
+            <div class="chip-row">
+              @for (category of allCategories(); track category.id) {
+                <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
+                  {{ category.name }}
+                </button>
+              }
+            </div>
+            <div class="add-category-row">
+              <input
+                type="text"
+                placeholder="New category name"
+                [ngModel]="newCategoryName()"
+                (ngModelChange)="newCategoryName.set($event)"
+              />
+              <button type="button" class="add-row-btn" [disabled]="!newCategoryName().trim()" (click)="addCategory()">+ Add category</button>
+            </div>
+
+            @if (form().categories.length > 0) {
+              <label>Homepage tile photo</label>
+              <p class="hint">
+                Use this product's photo on the "shop by occasion" tile for:
+              </p>
+              <div class="showcase-row">
+                @for (category of form().categories; track category) {
+                  <label class="showcase-check">
+                    <input
+                      type="checkbox"
+                      [checked]="form().showcaseCategories.includes(category)"
+                      (change)="toggleShowcaseCategory(category)"
+                    />
+                    {{ category }}
+                  </label>
+                }
+              </div>
+            }
+
+            <label>Tags (comma-separated)</label>
+            <input type="text" [ngModel]="form().tags" (ngModelChange)="form.update((f) => ({ ...f, tags: $event }))" />
+
+            <label>Description</label>
+            <textarea rows="3" [ngModel]="form().description" (ngModelChange)="form.update((f) => ({ ...f, description: $event }))"></textarea>
+            @if (showTranslations()) {
+              <div class="translation-grid">
+                <div>
+                  <label>English description</label>
+                  <textarea
+                    rows="3"
+                    placeholder="Falls back to the description above"
+                    [ngModel]="form().descriptionEn"
+                    (ngModelChange)="form.update((f) => ({ ...f, descriptionEn: $event }))"
+                  ></textarea>
+                </div>
+                <div>
+                  <label>Albanian description</label>
+                  <textarea
+                    rows="3"
+                    placeholder="Falls back to the description above"
+                    [ngModel]="form().descriptionSq"
+                    (ngModelChange)="form.update((f) => ({ ...f, descriptionSq: $event }))"
+                  ></textarea>
+                </div>
+              </div>
+            }
+          </section>
+
+          <section class="form-section toggle-section">
+            <label class="toggle-row">
+              <span>Sold out (whole product)</span>
+              <input type="checkbox" [ngModel]="form().soldOut" (ngModelChange)="form.update((f) => ({ ...f, soldOut: $event }))" />
+            </label>
+            <label class="toggle-row">
+              <span>Mark as Trending</span>
+              <input type="checkbox" [ngModel]="form().isTrending" (ngModelChange)="form.update((f) => ({ ...f, isTrending: $event }))" />
+            </label>
+            <label class="toggle-row">
+              <span>Mark as Featured / Most ordered</span>
+              <input type="checkbox" [ngModel]="form().isFeatured" (ngModelChange)="form.update((f) => ({ ...f, isFeatured: $event }))" />
+            </label>
+          </section>
+
+          <section class="form-section toggle-section">
+            <label class="toggle-row">
+              <span>Offer multiple sizes</span>
+              <input type="checkbox" [ngModel]="form().sizesEnabled" (ngModelChange)="form.update((f) => ({ ...f, sizesEnabled: $event }))" />
+            </label>
+            @if (form().sizesEnabled) {
+              <div class="nested-rows">
+                @for (size of form().sizes; track $index) {
+                  <div class="size-row">
+                    <input type="text" placeholder="Name (e.g. Medium)" [ngModel]="size.name" (ngModelChange)="updateSize($index, 'name', $event)" />
+                    <input type="text" placeholder="Description (e.g. 12 roses, 30cm box)" [ngModel]="size.description" (ngModelChange)="updateSize($index, 'description', $event)" />
+                    <input type="number" placeholder="Price (ден)" [ngModel]="size.price" (ngModelChange)="updateSize($index, 'price', +$event)" />
+                    <input
+                      type="number"
+                      placeholder="Sale price"
+                      class="discount-input"
+                      [ngModel]="size.discountedPrice"
+                      (ngModelChange)="updateSize($index, 'discountedPrice', $event === '' ? null : +$event)"
+                    />
+                    <button type="button" class="remove-btn" (click)="removeSize($index)">✕</button>
+                  </div>
+                }
+                @if (form().sizes.length > 0) {
+                  <p class="hint">
+                    "Price" is the full price for that size (not added to the base price) — e.g. Small = 450,
+                    Large = 700. "Sale price" puts just that size on sale — e.g. set it on L only and S/M stay full price.
+                  </p>
+                }
+                <button type="button" class="add-row-btn" (click)="addSize()">+ Add size</button>
+              </div>
+
+              <label class="toggle-row nested">
+                <span>Allow custom size with price calculator</span>
+                <input type="checkbox" [ngModel]="form().customSizeEnabled" (ngModelChange)="form.update((f) => ({ ...f, customSizeEnabled: $event }))" />
+              </label>
+              @if (form().customSizeEnabled) {
+                <p class="hint">
+                  The customer picks a quantity on the product page. Final price = quantity × price per unit,
+                  plus the flat fee once (if set). Example: 10 roses × 60 ден + 150 ден wrapping = 750 ден.
+                </p>
+                <div class="custom-size-row">
+                  <div class="custom-size-field">
+                    <label>Price per unit (ден)</label>
+                    <input type="number" placeholder="e.g. 60" [ngModel]="form().customSizeUnitPrice" (ngModelChange)="form.update((f) => ({ ...f, customSizeUnitPrice: +$event }))" />
+                  </div>
+                  <div class="custom-size-field">
+                    <label>Unit name</label>
+                    <input type="text" placeholder="e.g. rose" [ngModel]="form().customSizeUnitLabel" (ngModelChange)="form.update((f) => ({ ...f, customSizeUnitLabel: $event }))" />
+                  </div>
+                  <div class="custom-size-field">
+                    <label>Flat fee (ден, optional)</label>
+                    <input type="number" placeholder="e.g. 150 for wrapping" [ngModel]="form().customSizeBaseFee" (ngModelChange)="form.update((f) => ({ ...f, customSizeBaseFee: +$event }))" />
+                  </div>
+                </div>
+              }
+            }
+          </section>
+
+          <section class="form-section">
+            <label>Color groups</label>
+            <p class="hint">
+              Add whatever color pickers make sense for this product — e.g. "Box color" and "Rose color" for a
+              bouquet, or just "Balloon color" for a balloon box. Only the groups added here show up on the
+              product page.
+            </p>
+            <div class="color-groups">
+              @for (group of form().colorGroups; track $index; let groupIndex = $index) {
+                <div class="color-group">
+                  <div class="color-group-header">
+                    <input
+                      type="text"
+                      placeholder="Group name (e.g. Box color)"
+                      [ngModel]="group.name"
+                      (ngModelChange)="updateColorGroupName(groupIndex, $event)"
+                    />
+                    <button type="button" class="remove-btn" (click)="removeColorGroup(groupIndex)">✕ Remove group</button>
+                  </div>
+                  <div class="nested-rows">
+                    @for (color of group.colors; track $index; let colorIndex = $index) {
+                      <div class="color-row">
+                        <input type="color" [ngModel]="color.hexValue" (ngModelChange)="updateColor(groupIndex, colorIndex, 'hexValue', $event)" />
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          list="saved-colors-list"
+                          [ngModel]="color.name"
+                          (ngModelChange)="updateColor(groupIndex, colorIndex, 'name', $event)"
+                        />
+                        <label class="sold-out-chip">
+                          <input type="checkbox" [ngModel]="color.soldOut" (ngModelChange)="updateColor(groupIndex, colorIndex, 'soldOut', $event)" />
+                          Sold out
+                        </label>
+                        <button
+                          type="button"
+                          class="save-palette-btn"
+                          title="Save this color to your palette"
+                          [disabled]="!color.name.trim()"
+                          (click)="saveColorToPalette(groupIndex, colorIndex)"
+                        >
+                          💾
+                        </button>
+                        <button type="button" class="remove-btn" (click)="removeColor(groupIndex, colorIndex)">✕</button>
+                      </div>
+                    }
+                  </div>
+                  <button type="button" class="add-row-btn" (click)="addColor(groupIndex)">+ Add color</button>
+                </div>
+              }
+            </div>
+            <button type="button" class="add-row-btn" (click)="addColorGroup()">+ Add color group</button>
+            <datalist id="saved-colors-list">
+              @for (color of savedColors(); track color.id) {
+                <option [value]="color.name"></option>
+              }
+            </datalist>
+          </section>
+
+          <section class="form-section toggle-section">
+            <label class="toggle-row">
+              <span>Offer extras</span>
+              <input type="checkbox" [ngModel]="form().extrasEnabled" (ngModelChange)="form.update((f) => ({ ...f, extrasEnabled: $event }))" />
+            </label>
+            @if (form().extrasEnabled) {
+              <div class="nested-rows">
+                @for (extra of form().extras; track $index) {
+                  <div class="size-row">
+                    <input type="text" placeholder="Name" [ngModel]="extra.name" (ngModelChange)="updateExtra($index, 'name', $event)" />
+                    <input type="number" placeholder="Price" [ngModel]="extra.price" (ngModelChange)="updateExtra($index, 'price', +$event)" />
+                    <button type="button" class="remove-btn" (click)="removeExtra($index)">✕</button>
+                  </div>
+                }
+                <button type="button" class="add-row-btn" (click)="addExtra()">+ Add extra</button>
+              </div>
+            }
+          </section>
+
+          <div class="modal-actions">
+            <button type="button" class="cancel-btn" (click)="closeForm()">Cancel</button>
+            <button type="button" class="save-btn" [disabled]="saving() || !form().name || form().categories.length === 0" (click)="save()">
+              {{ saving() ? 'Saving…' : 'Save' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="preview-pane">
+          <p class="preview-label">Live preview</p>
+          <div class="preview-card">
+            <div class="preview-image" [style.background-image]="previewImageUrl() ? 'url(' + previewImageUrl() + ')' : null">
+              @if (!previewImageUrl()) {
+                <span class="preview-image-placeholder">Photo preview</span>
+              }
+              @if (previewIsDiscounted()) {
+                <span class="preview-discount-tag">Sale</span>
+              }
+            </div>
+            @if (form().images.length > 1) {
+              <div class="preview-thumbs">
+                @for (image of form().images; track $index) {
+                  <button
+                    type="button"
+                    class="preview-thumb"
+                    [class.active]="$index === previewImageIndex()"
+                    [style.background-image]="resolveUrl(image.url) ? 'url(' + resolveUrl(image.url) + ')' : null"
+                    (click)="previewImageIndex.set($index)"
+                  ></button>
+                }
+              </div>
+            }
+
+            <h3>{{ form().name || 'Product name' }}</h3>
+            <p class="preview-price">
+              @if (previewIsDiscounted()) {
+                <span class="preview-was">{{ previewRegularPrice() }} ден</span>
+              }
+              {{ previewPrice() }} ден
+            </p>
+            <p class="preview-desc">{{ form().description || 'Description will appear here as you type…' }}</p>
+
+            @if (form().sizesEnabled && form().sizes.length > 0) {
+              <div class="preview-chip-row">
+                @for (size of form().sizes; track $index) {
+                  <span class="preview-chip">{{ size.name || 'Size' }}</span>
+                }
+              </div>
+            }
+
+            @for (group of form().colorGroups; track $index) {
+              @if (group.colors.length > 0) {
+                <div class="preview-swatch-row">
+                  <span class="preview-group-label">{{ group.name || 'Color group' }}</span>
+                  <div class="preview-swatches">
+                    @for (color of group.colors; track $index) {
+                      <span class="preview-swatch" [style.background-color]="color.hexValue" [title]="color.name"></span>
+                    }
+                  </div>
+                </div>
+              }
+            }
+
+            @if (form().extrasEnabled && form().extras.length > 0) {
+              <div class="preview-chip-row">
+                @for (extra of form().extras; track $index) {
+                  <span class="preview-chip subtle">{{ extra.name || 'Extra' }} +{{ extra.price }} ден</span>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

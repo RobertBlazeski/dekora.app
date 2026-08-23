@@ -1,0 +1,67 @@
+<div class="page-header">
+  <h1>Overview</h1>
+  <a class="pill-btn" routerLink="/analytics">Full analytics</a>
+</div>
+
+@if (overview(); as data) {
+  <div class="stat-grid">
+    <div class="stat-card">
+      <span class="icon-circle">💰</span>
+      <strong>{{ data.salesToday }} ден</strong>
+      <span class="label">Sales today</span>
+    </div>
+    <div class="stat-card" [class.alert]="data.pendingOrders > 0">
+      <span class="icon-circle">⏳</span>
+      <strong>{{ data.pendingOrders }}</strong>
+      <span class="label">Pending orders</span>
+    </div>
+    <div class="stat-card">
+      <span class="icon-circle">👁</span>
+      <strong>—</strong>
+      <span class="label">Visitors today</span>
+    </div>
+    <div class="stat-card">
+      <span class="icon-circle">👤</span>
+      <strong>{{ data.totalCustomers }}</strong>
+      <span class="label">Total customers</span>
+    </div>
+  </div>
+}
+
+<div class="panel-row">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Sales this week</h2>
+      <span class="weekly-total">{{ weeklyTotal() }} ден</span>
+    </div>
+    <div class="bar-chart">
+      @for (day of salesPerDay(); track day.date) {
+        <div class="bar-column">
+          <div class="bar" [class.today]="isToday(day.date)" [style.height.%]="(day.revenue / maxDailyRevenue()) * 100"></div>
+          <span class="bar-label">{{ dayLabel(day.date) }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Needs attention</h2>
+      <a routerLink="/orders">View all</a>
+    </div>
+    @if (pendingOrders().length === 0) {
+      <p class="empty">No orders need confirmation right now.</p>
+    } @else {
+      <div class="attention-list">
+        @for (order of pendingOrders(); track order.id) {
+          <a class="attention-row" routerLink="/orders">
+            <span class="alert-icon">!</span>
+            <span class="order-number">{{ order.orderNumber }}</span>
+            <span class="customer">{{ order.customerName }}</span>
+            <span class="note">needs confirmation call</span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

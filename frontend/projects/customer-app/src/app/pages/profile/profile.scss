@@ -1,0 +1,157 @@
+.login-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: var(--color-coral);
+  font-weight: 600;
+}
+
+.profile-page {
+  padding: 2rem 0 3rem;
+}
+
+.greeting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  h1 {
+    margin-bottom: 0.2rem;
+  }
+}
+
+.email {
+  color: var(--color-ink-soft);
+  margin: 0;
+}
+
+.sign-out {
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+}
+
+.points-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem;
+  background: var(--color-ink);
+  color: white;
+  border-radius: var(--radius-xl);
+  margin: 1.5rem 0;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.balance {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0.2rem 0;
+}
+
+.redeem-note {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+h2 {
+  margin-top: 2rem;
+  font-size: 1.05rem;
+}
+
+.no-orders {
+  color: var(--color-ink-soft);
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+.order-card {
+  padding: 1rem 1.1rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  animation: card-fade-in 0.3s ease;
+}
+
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.order-number {
+  font-weight: 600;
+  margin: 0;
+}
+
+.order-date {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+}
+
+.status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+
+  &.status-PendingConfirmation {
+    background: var(--color-rose-tint);
+    color: var(--color-rose);
+  }
+  &.status-Confirmed,
+  &.status-Preparing {
+    background: var(--color-lilac);
+    color: var(--color-ink);
+  }
+  &.status-Shipped {
+    background: var(--color-coral-tint);
+    color: var(--color-coral);
+  }
+  &.status-Delivered {
+    background: var(--color-success-tint);
+    color: var(--color-success);
+  }
+  &.status-Cancelled {
+    background: var(--color-cancelled-tint);
+    color: var(--color-cancelled);
+  }
+}
+
+.items-summary {
+  margin: 0.5rem 0 0.15rem;
+  color: var(--color-ink-soft);
+  font-size: 0.88rem;
+}
+
+.order-total {
+  font-weight: 700;
+  margin: 0;
+}
+
+.leave-review {
+  display: inline-block;
+  margin-top: 0.75rem;
+  border: none;
+  background: none;
+  color: var(--color-rose);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}

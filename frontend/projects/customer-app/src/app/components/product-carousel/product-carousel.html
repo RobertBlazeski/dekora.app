@@ -1,0 +1,28 @@
+@if (products.length > 0) {
+  <section class="carousel">
+    @if (heading) {
+      <div class="carousel-header">
+        <h2>{{ heading }}</h2>
+        @if (seeAllLink) {
+          <a [routerLink]="['/', translation.currentLocale(), seeAllLink]">{{ 'shopFilters.seeAll' | translate }}</a>
+        }
+      </div>
+    }
+
+    <div class="track-viewport">
+      <div class="track" [style.animation-duration.s]="scrollDurationSeconds">
+        @for (product of products; track product.id + '-a') {
+          <div class="card-slot">
+            <app-product-card [product]="product" />
+          </div>
+        }
+        <!-- Duplicate the rail so the marquee loop is seamless. -->
+        @for (product of products; track product.id + '-b') {
+          <div class="card-slot">
+            <app-product-card [product]="product" [hidden]="true" />
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+}

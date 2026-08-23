@@ -1,0 +1,70 @@
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 0 2rem;
+}
+
+.accordion-item {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: var(--color-card);
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-ink);
+}
+
+.chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+
+  &.open {
+    transform: rotate(90deg);
+  }
+}
+
+.accordion-answer {
+  padding: 0 1.25rem 1.1rem;
+  color: var(--color-ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  animation: card-fade-in 0.2s ease;
+}
+
+.contact-panel {
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  background: var(--color-ink);
+  color: white;
+  margin-bottom: 3rem;
+
+  h2 {
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+
+  svg path {
+    stroke: rgba(255, 255, 255, 0.7);
+  }
+}
