@@ -1,7 +1,8 @@
 .toast-stack {
   position: fixed;
   right: 1.25rem;
-  bottom: 1.25rem;
+  // Clears the home-indicator bar on notched phones instead of sitting under it.
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   z-index: 90;
   display: flex;
   flex-direction: column-reverse;

@@ -25,6 +25,13 @@
   cursor: pointer;
   font-size: 0.85rem;
   line-height: 1;
+
+  // It's a floating overlay button with room to grow — worth a real finger target on phones.
+  @media (max-width: 640px) {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
 }
 
 .dropzone {

@@ -552,6 +552,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
+
+  @media (max-width: 640px) {
+    gap: 0.85rem;
+  }
 }
 
 .swatch-btn {
@@ -564,6 +568,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  // Choosing a color is a required step before add-to-cart on many products — worth a real
+  // finger-sized target on phones, with extra gap (see .swatch-row) so neighboring swatches
+  // don't catch a mistap.
+  @media (max-width: 640px) {
+    width: 44px;
+    height: 44px;
+  }
 
   &.active {
     border-color: var(--color-ink);

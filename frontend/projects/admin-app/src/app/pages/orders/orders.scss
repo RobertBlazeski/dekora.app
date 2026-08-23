@@ -441,6 +441,18 @@ tr.unread td:first-child,
     width: auto;
     flex-shrink: 0;
   }
+
+  // Thumb + name + size select + qty + remove all in one row gets crowded on a phone-width
+  // modal — let the name take its own full-width row, freeing up space for the controls below.
+  @media (max-width: 420px) {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .line-name {
+    flex-basis: 100%;
+  }
 }
 
 .line-thumb {

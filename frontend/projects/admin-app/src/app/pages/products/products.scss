@@ -114,6 +114,7 @@
   button {
     flex: 1;
     padding: 0.4rem;
+    min-height: 40px;
     border-radius: var(--radius-pill);
     border: 1px solid var(--color-line);
     background: var(--color-card);
@@ -475,9 +476,11 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
 
   input {
     flex: 1;
+    min-width: 0;
     padding: 0.5rem 0.7rem;
     border-radius: var(--radius-sm);
     border: 1px solid var(--color-line);
@@ -492,6 +495,25 @@
     flex: 0 0 40px;
     padding: 0;
     height: 34px;
+  }
+
+  // The same set of inputs that comfortably share one row on desktop (name/description/price,
+  // or color/name/sold-out/save/remove) compress to unusably narrow on a phone-width modal —
+  // let each take a full row instead, same treatment as .custom-size-row below.
+  @media (max-width: 560px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    input {
+      flex: 1 1 auto;
+      width: 100%;
+    }
+
+    .discount-input,
+    input[type='color'] {
+      flex: 1 1 auto;
+      width: 100%;
+    }
   }
 }
 

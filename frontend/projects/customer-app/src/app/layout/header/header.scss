@@ -116,6 +116,12 @@
   svg.filled {
     color: var(--color-coral);
   }
+
+  // Comfortable finger targets on phones, without changing the tighter desktop density.
+  @media (max-width: 640px) {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .status-dot {
@@ -169,12 +175,21 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 10vh;
+  padding: 10vh 1rem 1rem;
   animation: modal-backdrop-in 0.25s ease;
+
+  // The visual viewport shrinks when the on-screen keyboard opens (the search input
+  // autofocuses) — less headroom needed on a phone than the desktop 10vh drop.
+  @media (max-width: 640px) {
+    padding-top: 4vh;
+  }
 }
 
 .search-modal {
   width: min(560px, 90vw);
+  max-height: min(78vh, 32rem);
+  display: flex;
+  flex-direction: column;
   background: var(--color-card);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-modal);
@@ -182,6 +197,7 @@
   animation: modal-pop-in 0.3s ease;
 
   input {
+    flex-shrink: 0;
     width: 100%;
     padding: 0.8rem 1.1rem;
     border-radius: var(--radius-pill);
@@ -196,6 +212,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  overflow-y: auto;
 }
 
 .search-result-row {

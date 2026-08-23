@@ -108,9 +108,10 @@
 
 .review-top {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem 1rem;
 
   .stars {
     color: var(--color-coral);
@@ -128,12 +129,14 @@
   background: transparent;
   color: var(--color-ink-soft);
   padding: 0.35rem 0.8rem;
+  min-height: 40px;
   border-radius: var(--radius-pill);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 
   &:hover {
     border-color: var(--color-coral);

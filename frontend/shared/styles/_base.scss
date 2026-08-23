@@ -5,10 +5,25 @@
   box-sizing: border-box;
 }
 
+html {
+  // Belt-and-suspenders alongside the <meta name="color-scheme"> tag in index.html — both
+  // apps are deliberately light-only, so native form controls (checkboxes, selects, date
+  // pickers) shouldn't switch to dark UA styling just because the visitor's OS is set to dark.
+  color-scheme: light;
+  // Prevents iOS Safari from silently bumping the page's effective font size on rotation.
+  -webkit-text-size-adjust: 100%;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  // A safety net, not a fix for a specific bug — one overlooked fixed-width element on any
+  // page would otherwise force the whole site to scroll sideways on a phone. `clip` rather
+  // than `hidden`: it doesn't turn body into a scroll container, which would otherwise rescope
+  // (and risk breaking) every `position: sticky` element on the page — e.g. the admin sidebar.
+  overflow-x: clip;
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
@@ -28,6 +43,27 @@ body {
 
 button {
   font-family: var(--font-body);
+}
+
+a,
+button,
+[role='button'] {
+  // Removes the default grey flash Android/iOS browsers paint on tap — every tappable element
+  // here already has its own hover/press feedback (see .interactive above), so the native
+  // highlight only ever looked like an unstyled glitch on top of it.
+  -webkit-tap-highlight-color: transparent;
+}
+
+// iOS Safari zooms the whole page in when a form field's font-size is under 16px on focus —
+// a small annoyance on desktop-sized inputs that becomes a real problem on a phone, where it
+// happens on every single field. Scoped to phone-width viewports so no desktop input's
+// intentional sizing changes.
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 .page-placeholder {

@@ -8,6 +8,11 @@
 
   @media (max-width: 860px) {
     display: flex;
+    // Otherwise this is the only way to navigate below the sidebar breakpoint, and it was
+    // scrolling away with the page content on anything longer than one screen.
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
 }
 
@@ -21,6 +26,13 @@
   color: white;
   cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  // 44px minimum tap target (Apple HIG / Material) — the icon itself is only 22px, so this is
+  // padding around it, not a visual size change.
+  width: 44px;
+  height: 44px;
+  margin: -11px -11px -11px 0;
 }
 
 .mobile-menu {
