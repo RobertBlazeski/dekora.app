@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using Dekora.Api.Data;
@@ -157,6 +158,29 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<DekoraDbContext>();
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
+
+// Best-effort — registers this API's webhook URL with Telegram so the bot can respond to
+// commands like /today, /week, /month (see TelegramWebhookController). Safe to call on every
+// startup: Telegram's setWebhook is idempotent, and a briefly-unreachable Telegram API must
+// never stop the app itself from starting.
+var telegramOptionsAtStartup = builder.Configuration.GetSection(TelegramOptions.SectionName).Get<TelegramOptions>();
+var frontendOptionsAtStartup = builder.Configuration.GetSection(FrontendOptions.SectionName).Get<FrontendOptions>();
+if (!string.IsNullOrWhiteSpace(telegramOptionsAtStartup?.BotToken) && frontendOptionsAtStartup is not null)
+{
+    try
+    {
+        using var setupClient = new HttpClient();
+        var webhookUrl = $"{frontendOptionsAtStartup.BaseUrl.TrimEnd('/')}/api/telegram/webhook";
+        var secret = TelegramWebhookSecret.Compute(telegramOptionsAtStartup.BotToken);
+        await setupClient.PostAsJsonAsync(
+            $"https://api.telegram.org/bot{telegramOptionsAtStartup.BotToken}/setWebhook",
+            new { url = webhookUrl, secret_token = secret });
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Failed to register Telegram webhook on startup");
+    }
 }
 
 if (app.Environment.IsDevelopment())

@@ -25,7 +25,8 @@ public class CompositeNotificationSender(
         var settings = await db.NotificationSettings.FirstOrDefaultAsync(cancellationToken);
         if (settings is null) return;
 
-        var summary = BuildSummary(order);
+        var adminLoginUrl = $"{frontendOptions.Value.AdminBaseUrl.TrimEnd('/')}/login";
+        var summary = BuildSummary(order, adminLoginUrl);
         var imageUrls = await BuildImageUrlLookupAsync(order.Items, cancellationToken);
 
         if (settings.EmailEnabled && !string.IsNullOrWhiteSpace(settings.EmailAddress))
@@ -33,7 +34,7 @@ public class CompositeNotificationSender(
             await emailSender.SendAsync(
                 settings.EmailAddress,
                 $"New order {order.OrderNumber} — {order.Total} ден",
-                BuildHtmlSummary(order, imageUrls),
+                BuildHtmlSummary(order, imageUrls, adminLoginUrl),
                 cancellationToken);
         }
 
@@ -86,20 +87,40 @@ public class CompositeNotificationSender(
         return relativeUrls.ToDictionary(kv => kv.Key, kv => kv.Value is null ? null : $"{baseUrl}{kv.Value}");
     }
 
-    private static string BuildSummary(Order order)
+    // The size/colors/extras/custom-text an item was ordered with — everything the owner needs
+    // to actually fulfil it (which cardstock color, what to write, etc), not just the product
+    // name. Empty when the product has none of these options set.
+    private static IReadOnlyList<string> ItemOptionParts(OrderItem item)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(item.SelectedSize)) parts.Add(item.SelectedSize);
+        parts.AddRange(item.SelectedColors);
+        parts.AddRange(item.SelectedExtras);
+        if (!string.IsNullOrWhiteSpace(item.CustomText)) parts.Add($"\"{item.CustomText}\"");
+        return parts;
+    }
+
+    private static string BuildSummary(Order order, string adminLoginUrl)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"New order {order.OrderNumber} — {order.Total} ден");
         sb.AppendLine($"{order.CustomerName} · {order.Phone}");
         sb.AppendLine($"Deliver to: {order.DeliveryAddress}");
         foreach (var item in order.Items)
+        {
             sb.AppendLine($"• {item.ProductNameSnapshot} × {item.Quantity}");
+            var options = ItemOptionParts(item);
+            if (options.Count > 0)
+                sb.AppendLine($"   {string.Join(" · ", options)}");
+        }
         if (!string.IsNullOrWhiteSpace(order.Note))
             sb.AppendLine($"Note: {order.Note}");
+        sb.AppendLine();
+        sb.AppendLine($"Open in admin: {adminLoginUrl}");
         return sb.ToString();
     }
 
-    private static string BuildHtmlSummary(Order order, IReadOnlyDictionary<Guid, string?> imageUrls)
+    private static string BuildHtmlSummary(Order order, IReadOnlyDictionary<Guid, string?> imageUrls, string adminLoginUrl)
     {
         var items = string.Join("", order.Items.Select(i =>
         {
@@ -107,7 +128,16 @@ public class CompositeNotificationSender(
             var thumb = imageUrl is null
                 ? ""
                 : $"""<img src="{imageUrl}" alt="" width="48" height="48" style="width:48px;height:48px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:10px;">""";
-            return $"""<li style="list-style:none;display:flex;align-items:center;margin-bottom:6px;">{thumb}{System.Net.WebUtility.HtmlEncode(i.ProductNameSnapshot)} × {i.Quantity} — {i.LineTotal} ден</li>""";
+            var options = ItemOptionParts(i);
+            var optionsLine = options.Count == 0
+                ? ""
+                : $"""<div style="font-size:12px;color:#888;margin-left:58px;">{System.Net.WebUtility.HtmlEncode(string.Join(" · ", options))}</div>""";
+            return $"""
+                <li style="list-style:none;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;">{thumb}{System.Net.WebUtility.HtmlEncode(i.ProductNameSnapshot)} × {i.Quantity} — {i.LineTotal} ден</div>
+                    {optionsLine}
+                </li>
+                """;
         }));
         var note = string.IsNullOrWhiteSpace(order.Note)
             ? ""
@@ -121,6 +151,7 @@ public class CompositeNotificationSender(
             <ul style="padding-left:0;margin:0;">{items}</ul>
             {note}
             <p><strong>Total: {order.Total} ден</strong></p>
+            <p><a href="{adminLoginUrl}" style="display:inline-block;padding:10px 18px;background:#3D2A3B;color:#fff;border-radius:999px;text-decoration:none;">Open admin dashboard</a></p>
             """;
     }
 }

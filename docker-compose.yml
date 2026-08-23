@@ -23,6 +23,7 @@ services:
       Cors__AllowedOrigins__0: "https://${CUSTOMER_DOMAIN}"
       Cors__AllowedOrigins__1: "https://${ADMIN_DOMAIN}"
       Frontend__BaseUrl: "https://${CUSTOMER_DOMAIN}"
+      Frontend__AdminBaseUrl: "https://${ADMIN_DOMAIN}"
       Email__Enabled: ${EMAIL_ENABLED:-false}
       Email__SmtpHost: ${SMTP_HOST:-}
       Email__SmtpPort: ${SMTP_PORT:-587}
