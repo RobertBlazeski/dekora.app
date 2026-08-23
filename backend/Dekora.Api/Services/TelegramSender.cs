@@ -43,6 +43,44 @@ public class TelegramSender(HttpClient httpClient, IOptions<TelegramOptions> opt
         }
     }
 
+    public async Task<NotificationSendResult> SendPhotosAsync(string chatId, IReadOnlyList<string> photoUrls, CancellationToken cancellationToken = default)
+    {
+        if (photoUrls.Count == 0) return NotificationSendResult.Ok();
+
+        var botToken = options.Value.BotToken;
+        if (string.IsNullOrWhiteSpace(botToken))
+            return NotificationSendResult.Fail("No Telegram bot token is configured for this deployment (TELEGRAM_BOT_TOKEN).");
+
+        try
+        {
+            // A single photo can't go through sendMediaGroup (it requires 2-10 items), so it
+            // gets its own simpler endpoint.
+            HttpResponseMessage response = photoUrls.Count == 1
+                ? await httpClient.PostAsJsonAsync(
+                    $"https://api.telegram.org/bot{botToken}/sendPhoto",
+                    new { chat_id = chatId, photo = photoUrls[0] },
+                    cancellationToken)
+                : await httpClient.PostAsJsonAsync(
+                    $"https://api.telegram.org/bot{botToken}/sendMediaGroup",
+                    new { chat_id = chatId, media = photoUrls.Take(10).Select(url => new { type = "photo", media = url }) },
+                    cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogError("Telegram photo send failed ({Status}) to {ChatId}: {Body}", response.StatusCode, chatId, body);
+                return NotificationSendResult.Fail(DescribeTelegramError(response.StatusCode, body));
+            }
+
+            return NotificationSendResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send Telegram photos to {ChatId}", chatId);
+            return NotificationSendResult.Fail(ex.Message);
+        }
+    }
+
     // Telegram's own error "description" field is usually specific enough to act on directly
     // ("chat not found" almost always means the chat ID is wrong, or the bot's never been
     // messaged) — surfacing it beats a generic "failed" for someone troubleshooting their setup.
