@@ -1,6 +1,9 @@
 <div class="image-upload">
   @if (previewUrl(); as preview) {
     <div class="preview" [style.background-image]="'url(' + preview + ')'">
+      <button type="button" class="reposition-btn" [disabled]="loadingForCrop()" (click)="openCropperForExisting()">
+        {{ loadingForCrop() ? 'Loading…' : '✥ Reposition' }}
+      </button>
       <button type="button" class="remove-btn" (click)="remove()" aria-label="Remove photo">✕</button>
     </div>
   } @else {

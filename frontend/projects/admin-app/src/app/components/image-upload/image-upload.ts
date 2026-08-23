@@ -27,6 +27,7 @@ export class ImageUpload {
   protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly pendingFile = signal<File | null>(null);
+  protected readonly loadingForCrop = signal(false);
 
   protected readonly previewUrl = computed(() => resolveAssetUrl(environment.apiUrl, this.url()));
 
@@ -42,6 +43,32 @@ export class ImageUpload {
 
   protected onCropCancelled(): void {
     this.pendingFile.set(null);
+  }
+
+  // Re-opens the cropper on the photo that's already attached — the owner already had this from
+  // first upload, but couldn't come back and adjust it afterwards (only remove-and-restart).
+  // There's no original, uncropped source kept server-side (see UploadsController — every
+  // upload is immediately resized and re-encoded, nothing raw is retained), so this re-crops
+  // from the current stored photo; each pass re-encodes it, same as any repeated JPEG edit would.
+  protected openCropperForExisting(): void {
+    const url = this.previewUrl();
+    if (!url) return;
+
+    this.error.set(null);
+    this.loadingForCrop.set(true);
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error('fetch failed');
+        return res.blob();
+      })
+      .then((blob) => {
+        this.pendingFile.set(new File([blob], 'photo.jpg', { type: blob.type || 'image/jpeg' }));
+        this.loadingForCrop.set(false);
+      })
+      .catch(() => {
+        this.error.set('Could not load that photo to reposition it.');
+        this.loadingForCrop.set(false);
+      });
   }
 
   protected onCropped(blob: Blob): void {
