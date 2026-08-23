@@ -296,6 +296,18 @@
 
           <section class="form-section toggle-section">
             <label class="toggle-row">
+              <span>Let customer specify order details</span>
+              <input type="checkbox" [ngModel]="form().customTextEnabled" (ngModelChange)="form.update((f) => ({ ...f, customTextEnabled: $event }))" />
+            </label>
+            <p class="hint">
+              Adds a text box on the product page where the customer can describe exactly what they want — e.g.
+              "Barcelona design with Lamine Yamal stickers, blue cardstock" for a first-day-of-school pencil set.
+              Shows up in the order details for you too.
+            </p>
+          </section>
+
+          <section class="form-section toggle-section">
+            <label class="toggle-row">
               <span>Offer extras</span>
               <input type="checkbox" [ngModel]="form().extrasEnabled" (ngModelChange)="form.update((f) => ({ ...f, extrasEnabled: $event }))" />
             </label>

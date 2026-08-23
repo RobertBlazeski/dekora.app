@@ -16,6 +16,24 @@
   font-size: 0.88rem;
 }
 
+.missing-fields-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-coral-tint);
+  color: var(--color-coral);
+  font-weight: 600;
+  font-size: 0.88rem;
+  animation: toast-pop-in 0.25s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
 .page-placeholder a {
   display: inline-block;
   margin-top: 0.5rem;
@@ -69,6 +87,15 @@
     border: 1px solid var(--color-line);
     font: inherit;
     color: var(--color-ink);
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    // Angular stamps these classes on automatically — a field only turns red once the visitor
+    // has actually interacted with the form (or hit submit, which touches everything at once),
+    // never on first paint before they've had a chance to fill anything in.
+    &.ng-invalid.ng-touched {
+      border-color: var(--color-coral);
+      background: var(--color-coral-tint);
+    }
   }
 
   textarea {

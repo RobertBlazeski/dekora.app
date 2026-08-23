@@ -80,9 +80,31 @@
   </div>
 </div>
 
-<button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
-  {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save settings' }}
-</button>
+<div class="save-row">
+  <button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save settings' }}
+  </button>
+  @if (settings().emailEnabled || settings().telegramEnabled) {
+    <button type="button" class="test-btn" [disabled]="testing()" (click)="sendTest()">
+      {{ testing() ? 'Sending test…' : 'Send test notification' }}
+    </button>
+  }
+</div>
+
+@if (testResult(); as result) {
+  <div class="test-result">
+    @if (result.emailSuccess !== null) {
+      <p [class.ok]="result.emailSuccess" [class.fail]="!result.emailSuccess">
+        📧 {{ result.emailSuccess ? 'Test email sent — check your inbox.' : 'Email failed: ' + result.emailError }}
+      </p>
+    }
+    @if (result.telegramSuccess !== null) {
+      <p [class.ok]="result.telegramSuccess" [class.fail]="!result.telegramSuccess">
+        ✈️ {{ result.telegramSuccess ? 'Test Telegram message sent — check your chat.' : 'Telegram failed: ' + result.telegramError }}
+      </p>
+    }
+  </div>
+}
 
 <div class="page-header team-header">
   <h1>Team access</h1>

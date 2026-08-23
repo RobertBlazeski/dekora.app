@@ -32,7 +32,7 @@
           {{ order.orderNumber }}
         </td>
         <td>{{ order.customerName }} @if (order.isManualEntry) { <span class="manual-badge">Manual</span> }</td>
-        <td>{{ order.total }} ден</td>
+        <td>{{ order.subtotal }} ден</td>
         <td>{{ order.createdAt | date: 'mediumDate' }}</td>
         <td><span class="status-badge" [class]="'status-' + order.status">{{ order.status }}</span></td>
         <td><button type="button" class="details-link" (click)="openDetails(order.id)">Details</button></td>
@@ -54,7 +54,7 @@
         </div>
         <span class="status-badge" [class]="'status-' + order.status">{{ order.status }}</span>
       </div>
-      <p class="date-total">{{ order.createdAt | date: 'mediumDate' }} · {{ order.total }} ден</p>
+      <p class="date-total">{{ order.createdAt | date: 'mediumDate' }} · {{ order.subtotal }} ден</p>
       <button type="button" class="view-details-btn" (click)="openDetails(order.id)">View details ›</button>
     </div>
   }
@@ -133,6 +133,8 @@
           </div>
         }
       </div>
+
+      <button type="button" class="delete-order-btn" (click)="deleteOrder()">Delete order</button>
     </div>
   </div>
 }

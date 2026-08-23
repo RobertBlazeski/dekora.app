@@ -60,6 +60,7 @@ export class Checkout {
   protected readonly confirmedOrder = signal<Order | null>(null);
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly showMissingFieldsAlert = signal(false);
 
   private static readonly CONFETTI_COLORS = ['#E2635F', '#C97B92', '#7C9473', '#EFE4EE', '#F6E4E9'];
   protected readonly confettiPieces = Array.from({ length: 14 }, (_, i) => ({
@@ -78,9 +79,13 @@ export class Checkout {
       nonNullable: true,
       validators: [Validators.required],
     }),
+    // Only a logged-in customer is guaranteed to have an email on file — requiring it from a
+    // guest blocked checkout with no way for them to tell why. Validators.email itself already
+    // treats an empty value as valid, so a guest who does type something still gets format
+    // feedback; only the required-ness differs.
     email: new FormControl(this.auth.currentUser()?.email ?? '', {
       nonNullable: true,
-      validators: [Validators.required, Validators.email],
+      validators: this.auth.isLoggedIn() ? [Validators.required, Validators.email] : [Validators.email],
     }),
     deliveryCity: new FormControl(this.savedDetails?.deliveryCity ?? '', {
       nonNullable: true,
@@ -157,6 +162,7 @@ export class Checkout {
   protected submit(): void {
     if (this.form.invalid || this.cart.cartItems().length === 0) {
       this.form.markAllAsTouched();
+      this.flashMissingFieldsAlert();
       return;
     }
 
@@ -179,7 +185,7 @@ export class Checkout {
       .create({
         customerName: value.customerName,
         phone: value.phone,
-        email: value.email,
+        email: value.email || null,
         deliveryCity: value.deliveryCity,
         deliveryAddress: value.deliveryAddress,
         note: value.note || null,
@@ -200,6 +206,23 @@ export class Checkout {
           this.submitting.set(false);
         },
       });
+  }
+
+  // Marking fields red on their own is easy to miss on a long form, especially on a phone where
+  // the invalid field might be scrolled off-screen — the banner plus a jump to the first
+  // offender is what actually tells the customer why nothing happened when they tapped submit.
+  private flashMissingFieldsAlert(): void {
+    this.showMissingFieldsAlert.set(true);
+    setTimeout(() => this.showMissingFieldsAlert.set(false), 4000);
+
+    if (!this.isBrowser) return;
+    const firstInvalidName = Object.keys(this.form.controls).find(
+      (name) => this.form.get(name)?.invalid,
+    );
+    if (!firstInvalidName) return;
+    const el = document.getElementById(firstInvalidName);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el?.focus({ preventScroll: true });
   }
 
   private saveDetailsForNextTime(): void {

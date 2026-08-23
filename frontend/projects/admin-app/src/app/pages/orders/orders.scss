@@ -322,6 +322,25 @@ tr.unread td:first-child,
   color: var(--color-ink-soft);
 }
 
+.delete-order-btn {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.6rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-coral);
+    color: var(--color-coral);
+  }
+}
+
 .manual-modal {
   label {
     display: block;

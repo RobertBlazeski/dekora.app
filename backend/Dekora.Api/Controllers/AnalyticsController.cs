@@ -76,9 +76,12 @@ public class AnalyticsController(DekoraDbContext db) : ControllerBase
         var since = new DateTimeOffset(sinceDate, TimeSpan.Zero);
 
         var orders = await db.Orders.AsNoTracking().Where(o => o.CreatedAt >= since).ToListAsync();
+        // Subtotal, not Total — the delivery fee isn't the owner's money (paid straight to the
+        // courier, or waived for pickup), so summing Total here would report revenue that's
+        // never actually collected.
         var grouped = orders
             .GroupBy(o => DateOnly.FromDateTime(o.CreatedAt.UtcDateTime.Date))
-            .ToDictionary(g => g.Key, g => (Count: g.Count(), Revenue: g.Sum(o => o.Total)));
+            .ToDictionary(g => g.Key, g => (Count: g.Count(), Revenue: g.Sum(o => o.Subtotal)));
 
         var result = Enumerable.Range(0, days)
             .Select(i => DateOnly.FromDateTime(sinceDate.AddDays(i)))
@@ -159,13 +162,14 @@ public class AnalyticsController(DekoraDbContext db) : ControllerBase
     public async Task<ActionResult<AnalyticsOverviewDto>> GetOverview()
     {
         var totalOrders = await db.Orders.CountAsync();
-        var totalRevenue = await db.Orders.SumAsync(o => (decimal?)o.Total) ?? 0;
+        // Subtotal, not Total — see the same note in GetSalesPerDay above.
+        var totalRevenue = await db.Orders.SumAsync(o => (decimal?)o.Subtotal) ?? 0;
         var totalCustomers = await db.Users.CountAsync();
         var pendingOrders = await db.Orders.CountAsync(o => o.Status == OrderStatus.PendingConfirmation);
         var averageOrderValue = totalOrders == 0 ? 0 : totalRevenue / totalOrders;
 
         var todayStart = new DateTimeOffset(DateTimeOffset.UtcNow.UtcDateTime.Date, TimeSpan.Zero);
-        var salesToday = await db.Orders.Where(o => o.CreatedAt >= todayStart).SumAsync(o => (decimal?)o.Total) ?? 0;
+        var salesToday = await db.Orders.Where(o => o.CreatedAt >= todayStart).SumAsync(o => (decimal?)o.Subtotal) ?? 0;
 
         return Ok(new AnalyticsOverviewDto(totalOrders, totalRevenue, totalCustomers, pendingOrders, averageOrderValue, salesToday));
     }

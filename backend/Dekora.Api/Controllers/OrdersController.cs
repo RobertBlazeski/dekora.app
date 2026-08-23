@@ -74,7 +74,7 @@ public class OrdersController(
             CustomerId = customer?.Id,
             CustomerName = request.CustomerName,
             Phone = request.Phone,
-            Email = request.Email,
+            Email = request.Email ?? string.Empty,
             DeliveryCity = request.DeliveryCity,
             DeliveryAddress = request.DeliveryAddress,
             Subtotal = built.Subtotal,
@@ -187,7 +187,7 @@ public class OrdersController(
         var orders = await query
             .OrderByDescending(o => o.CreatedAt)
             .Select(o => new OrderSummaryDto(
-                o.Id, o.OrderNumber, o.CustomerName, o.Total, o.Status, o.IsManualEntry, o.ViewedByAdminAt != null, o.CreatedAt))
+                o.Id, o.OrderNumber, o.CustomerName, o.Subtotal, o.Total, o.Status, o.IsManualEntry, o.ViewedByAdminAt != null, o.CreatedAt))
             .ToListAsync();
 
         return Ok(orders);
@@ -205,7 +205,7 @@ public class OrdersController(
             .Where(o => o.ViewedByAdminAt == null && !o.IsManualEntry)
             .OrderByDescending(o => o.CreatedAt)
             .Select(o => new OrderSummaryDto(
-                o.Id, o.OrderNumber, o.CustomerName, o.Total, o.Status, o.IsManualEntry, false, o.CreatedAt))
+                o.Id, o.OrderNumber, o.CustomerName, o.Subtotal, o.Total, o.Status, o.IsManualEntry, false, o.CreatedAt))
             .ToListAsync();
 
         return Ok(orders);
@@ -234,6 +234,29 @@ public class OrdersController(
 
         var images = await BuildImageLookupAsync(order.Items);
         return Ok(ToDto(order, images));
+    }
+
+    // Mainly for cleaning up test orders made while trying out the storefront — reverses any
+    // points this order earned/spent before removing it, so deleting a test order never leaves
+    // a customer's real point balance permanently skewed by it. Items cascade-delete with the
+    // order (see DekoraDbContext).
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var order = await db.Orders.FirstOrDefaultAsync(o => o.Id == id);
+        if (order is null) return NotFound();
+
+        if (order.CustomerId is not null)
+        {
+            var customer = await db.Users.FindAsync(order.CustomerId.Value);
+            if (customer is not null)
+                customer.Points = customer.Points - order.PointsEarned + order.PointsSpent;
+        }
+
+        db.Orders.Remove(order);
+        await db.SaveChangesAsync();
+        return NoContent();
     }
 
     [HttpPatch("{id:guid}/status")]

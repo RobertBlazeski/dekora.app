@@ -1,0 +1,51 @@
+<div class="cropper-backdrop">
+  <div class="cropper-modal">
+    <h2>Adjust photo</h2>
+    <p class="hint">Drag to reposition, scroll or use the slider to zoom.</p>
+
+    <div
+      #frame
+      class="crop-frame"
+      [style.aspect-ratio]="aspectRatio()"
+      (wheel)="onWheel($event)"
+      (pointerdown)="onPointerDown($event)"
+      (pointermove)="onPointerMove($event)"
+      (pointerup)="onPointerUp()"
+      (pointercancel)="onPointerUp()"
+    >
+      <img
+        #img
+        [src]="imageUrl"
+        alt=""
+        [class.loaded]="imageLoaded()"
+        [style.left.px]="imageLeft()"
+        [style.top.px]="imageTop()"
+        [style.width.px]="displayedWidth()"
+        [style.height.px]="displayedHeight()"
+        (load)="onImageLoad()"
+        draggable="false"
+      />
+    </div>
+
+    <div class="zoom-row">
+      <span class="zoom-icon">−</span>
+      <input
+        type="range"
+        [min]="minZoom"
+        [max]="maxZoom"
+        step="0.01"
+        [value]="zoom()"
+        (input)="onZoomInput($any($event.target).value)"
+      />
+      <span class="zoom-icon">+</span>
+    </div>
+
+    <div class="cropper-actions">
+      <button type="button" class="reset-btn" (click)="reset()">Reset</button>
+      <div class="right-actions">
+        <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+        <button type="button" class="confirm-btn" [disabled]="!imageLoaded()" (click)="confirm()">Use this photo</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@
         <span class="toast-icon">🎉</span>
         <span class="toast-body">
           <strong>New order {{ order.orderNumber }}</strong>
-          <span>{{ order.customerName }} · {{ order.total }} ден</span>
+          <span>{{ order.customerName }} · {{ order.subtotal }} ден</span>
         </span>
         <button type="button" class="toast-dismiss" (click)="dismiss($event, order.id)" aria-label="Dismiss">✕</button>
       </button>

@@ -17,4 +17,8 @@
   @if (error()) {
     <p class="upload-error">{{ error() }}</p>
   }
+
+  @if (pendingFile(); as file) {
+    <app-image-cropper [file]="file" [aspectRatio]="aspectRatio()" (cropped)="onCropped($event)" (cancelled)="onCropCancelled()" />
+  }
 </div>

@@ -61,6 +61,13 @@ public class Product
 
     public bool ExtrasEnabled { get; set; }
 
+    // Opt-in per product — a free-text box on the product page where the customer can describe
+    // exactly what they want (e.g. "Barcelona design with Lamine Yamal stickers, blue cardstock"
+    // for a first-day-of-school pencil set). Off by default since most products don't need it;
+    // OrderItem.CustomText already stores whatever the customer wrote regardless of this flag,
+    // this only controls whether the input is shown to them.
+    public bool CustomTextEnabled { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public List<ProductImage> Images { get; set; } = new();

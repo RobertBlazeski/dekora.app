@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AdminAccount, NotificationSettings } from '@dekora/shared';
+import { AdminAccount, NotificationSettings, TestNotificationResult } from '@dekora/shared';
 import { NotificationSettingsApi } from '../../core/api/notification-settings.api';
 import { AuthApi } from '../../core/auth/auth.api';
 
@@ -24,6 +24,9 @@ export class Notifications {
   });
   protected readonly saving = signal(false);
   protected readonly saved = signal(false);
+
+  protected readonly testing = signal(false);
+  protected readonly testResult = signal<TestNotificationResult | null>(null);
 
   // Team access — the owner can add another admin account here; there's no other way to get
   // the Admin role since public sign-up always creates a Customer account.
@@ -54,6 +57,20 @@ export class Notifications {
       this.saving.set(false);
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), 2000);
+    });
+  }
+
+  // Sends a real message through every enabled-and-configured channel using whatever's
+  // currently saved on the server — so this always tests the settings actually in effect, not
+  // whatever's mid-edit in the form. Saving first avoids testing a stale channel.
+  protected sendTest(): void {
+    this.testing.set(true);
+    this.testResult.set(null);
+    this.api.update(this.settings()).subscribe(() => {
+      this.api.sendTest().subscribe((result) => {
+        this.testing.set(false);
+        this.testResult.set(result);
+      });
     });
   }
 

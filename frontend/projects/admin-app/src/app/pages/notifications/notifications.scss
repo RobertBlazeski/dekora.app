@@ -104,6 +104,12 @@
   transform: translateX(18px);
 }
 
+.save-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .save-btn {
   padding: 0.7rem 1.4rem;
   border: none;
@@ -117,6 +123,47 @@
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+}
+
+.test-btn {
+  padding: 0.7rem 1.4rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: var(--color-card);
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.test-result {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  p {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    &.ok {
+      background: var(--color-success-tint);
+      color: var(--color-success);
+    }
+
+    &.fail {
+      background: var(--color-coral-tint);
+      color: var(--color-coral);
+    }
   }
 }
 

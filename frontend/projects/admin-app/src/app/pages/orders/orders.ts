@@ -144,6 +144,19 @@ export class Orders {
     });
   }
 
+  protected deleteOrder(): void {
+    const order = this.selectedOrder();
+    if (!order) return;
+
+    const confirmed = confirm(`Delete order ${order.orderNumber} permanently? This can't be undone.`);
+    if (!confirmed) return;
+
+    this.ordersApi.delete(order.id).subscribe(() => {
+      this.selectedOrder.set(null);
+      this.ordersApi.getAll(this.statusFilter() || undefined, this.search() || undefined).subscribe((orders) => this.orders.set(orders));
+    });
+  }
+
   protected openManualForm(): void {
     this.manualForm.set(emptyManualForm());
     this.manualLines.set([]);

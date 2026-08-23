@@ -272,6 +272,7 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
         product.CustomSizeUnitLabel = request.CustomSizeUnitLabel;
         product.CustomSizeBaseFee = request.CustomSizeBaseFee;
         product.ExtrasEnabled = request.ExtrasEnabled;
+        product.CustomTextEnabled = request.CustomTextEnabled;
 
         product.Images = request.Images.Select(i => new ProductImage { Url = i.Url, ColorTag = i.ColorTag }).ToList();
         product.Sizes = request.Sizes.Select(s => new ProductSize
@@ -303,7 +304,7 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
     private static ProductDetailDto ToDetailDto(Product p) => new(
         p.Id, p.Name, p.NameEn, p.NameSq, p.Description, p.DescriptionEn, p.DescriptionSq, p.BasePrice, p.DiscountedPrice, p.Categories, p.Tags, p.ShowcaseCategories,
         p.SoldOut, p.IsTrending, p.IsFeatured,
-        p.SizesEnabled, p.CustomSizeEnabled, p.CustomSizeUnitPrice, p.CustomSizeUnitLabel, p.CustomSizeBaseFee, p.ExtrasEnabled,
+        p.SizesEnabled, p.CustomSizeEnabled, p.CustomSizeUnitPrice, p.CustomSizeUnitLabel, p.CustomSizeBaseFee, p.ExtrasEnabled, p.CustomTextEnabled,
         p.Images.Select(i => new ProductImageDto(i.Id, i.Url, i.ColorTag)).ToList(),
         // Sorted by effective price ascending — the sizes are entered in whatever order the
         // owner typed them (e.g. S, M, L), but a collection navigation property has no

@@ -41,7 +41,7 @@
 
     <p class="hint">Or fall back to a custom photo instead:</p>
     <div class="banner-image-field">
-      <app-image-upload [url]="content().bannerImageUrl" (urlChange)="updateField('bannerImageUrl', $event)" />
+      <app-image-upload [url]="content().bannerImageUrl" [aspectRatio]="4 / 3" (urlChange)="updateField('bannerImageUrl', $event)" />
     </div>
   }
 

@@ -11,7 +11,7 @@ namespace Dekora.Api.Services;
 // server configured — the reset link / notification just lands in the log instead of an inbox.
 public class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSender> logger) : IEmailSender
 {
-    public async Task SendAsync(string toAddress, string subject, string htmlBody, CancellationToken cancellationToken = default)
+    public async Task<NotificationSendResult> SendAsync(string toAddress, string subject, string htmlBody, CancellationToken cancellationToken = default)
     {
         var config = options.Value;
         if (!config.Enabled || string.IsNullOrWhiteSpace(config.SmtpHost))
@@ -22,7 +22,7 @@ public class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSe
             logger.LogInformation(
                 "Email delivery not configured — would have sent {Subject} to {ToAddress}:\n{Body}",
                 subject, toAddress, htmlBody);
-            return;
+            return NotificationSendResult.Fail("Email sending isn't turned on for this deployment (EMAIL_ENABLED / SMTP host not configured).");
         }
 
         var message = new MimeMessage();
@@ -39,6 +39,7 @@ public class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSe
                 await client.AuthenticateAsync(config.Username, config.Password, cancellationToken);
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
+            return NotificationSendResult.Ok();
         }
         catch (Exception ex)
         {
@@ -46,6 +47,7 @@ public class SmtpEmailSender(IOptions<EmailOptions> options, ILogger<SmtpEmailSe
             // placement, password reset request) — the order/token already succeeded, only the
             // notification about it failed.
             logger.LogError(ex, "Failed to send email {Subject} to {ToAddress}", subject, toAddress);
+            return NotificationSendResult.Fail(ex.Message);
         }
     }
 }

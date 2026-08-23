@@ -78,6 +78,9 @@ export interface ProductDetail {
   customSizeUnitLabel: string | null;
   customSizeBaseFee: number | null;
   extrasEnabled: boolean;
+  // Opt-in per product — shows a free-text box on the product page for the customer to describe
+  // exactly what they want (e.g. a specific design/sticker request, which cardstock color, etc).
+  customTextEnabled: boolean;
   images: ProductImage[];
   sizes: ProductSize[];
   colorGroups: ProductColorGroup[];
@@ -132,6 +135,7 @@ export interface UpsertProductRequest {
   customSizeUnitLabel: string | null;
   customSizeBaseFee: number | null;
   extrasEnabled: boolean;
+  customTextEnabled: boolean;
   images: UpsertProductImageRequest[];
   sizes: UpsertProductSizeRequest[];
   colorGroups: UpsertProductColorGroupRequest[];

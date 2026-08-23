@@ -1,0 +1,126 @@
+.cropper-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(61, 42, 59, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: modal-backdrop-in 0.2s ease;
+}
+
+.cropper-modal {
+  width: min(480px, 100%);
+  background: var(--color-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  padding: 1.5rem;
+  animation: modal-pop-in 0.25s ease;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+}
+
+.hint {
+  margin: 0 0 1rem;
+  color: var(--color-ink-soft);
+  font-size: 0.82rem;
+}
+
+.crop-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-ink);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  img {
+    position: absolute;
+    max-width: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+
+    &.loaded {
+      opacity: 1;
+    }
+  }
+}
+
+.zoom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+
+  input[type='range'] {
+    flex: 1;
+    accent-color: var(--color-coral);
+  }
+}
+
+.zoom-icon {
+  color: var(--color-ink-soft);
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 1rem;
+  text-align: center;
+}
+
+.cropper-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  gap: 0.75rem;
+}
+
+.right-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.reset-btn,
+.cancel-btn {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+}
+
+.confirm-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

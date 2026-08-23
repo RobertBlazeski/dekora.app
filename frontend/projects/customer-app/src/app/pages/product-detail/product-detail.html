@@ -167,16 +167,19 @@
         </div>
       }
 
-      <div class="option-group">
-        <label for="customText">{{ 'product.customText' | translate }}</label>
-        <input
-          id="customText"
-          type="text"
-          maxlength="80"
-          [value]="customText()"
-          (input)="customText.set($any($event.target).value)"
-        />
-      </div>
+      @if (p.customTextEnabled) {
+        <div class="option-group">
+          <label for="customText">{{ 'product.customText' | translate }}</label>
+          <textarea
+            id="customText"
+            rows="3"
+            maxlength="300"
+            [placeholder]="'product.customTextPlaceholder' | translate"
+            [value]="customText()"
+            (input)="customText.set($any($event.target).value)"
+          ></textarea>
+        </div>
+      }
 
       @if (p.extrasEnabled && p.extras.length > 0) {
         <div class="option-group">

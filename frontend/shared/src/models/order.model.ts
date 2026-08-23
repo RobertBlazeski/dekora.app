@@ -18,7 +18,9 @@ export interface CreateOrderItemRequest {
 export interface CreateOrderRequest {
   customerName: string;
   phone: string;
-  email: string;
+  // Optional for a guest checkout — only logged-in customers are guaranteed to have one on
+  // file, so requiring it from everyone blocked guest orders with no way to explain why.
+  email: string | null;
   deliveryCity: string;
   deliveryAddress: string;
   note?: string | null;
@@ -84,6 +86,9 @@ export interface OrderSummary {
   id: string;
   orderNumber: string;
   customerName: string;
+  // Product-only revenue — see OrderSummaryDto.Subtotal on the backend for why this, not
+  // `total`, is what the orders list displays.
+  subtotal: number;
   total: number;
   status: OrderStatus;
   isManualEntry: boolean;

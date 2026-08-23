@@ -39,6 +39,7 @@ interface ProductFormState {
   customSizeUnitLabel: string;
   customSizeBaseFee: number | null;
   extrasEnabled: boolean;
+  customTextEnabled: boolean;
   isTrending: boolean;
   trendingOrder: number | null;
   isFeatured: boolean;
@@ -69,6 +70,7 @@ function emptyForm(): ProductFormState {
     customSizeUnitLabel: '',
     customSizeBaseFee: null,
     extrasEnabled: false,
+    customTextEnabled: false,
     isTrending: false,
     trendingOrder: null,
     isFeatured: false,
@@ -190,6 +192,7 @@ export class Products {
         customSizeUnitLabel: product.customSizeUnitLabel ?? '',
         customSizeBaseFee: product.customSizeBaseFee,
         extrasEnabled: product.extrasEnabled,
+        customTextEnabled: product.customTextEnabled,
         isTrending: product.isTrending,
         trendingOrder: null,
         isFeatured: product.isFeatured,
@@ -388,6 +391,7 @@ export class Products {
       customSizeUnitLabel: f.customSizeEnabled ? f.customSizeUnitLabel || null : null,
       customSizeBaseFee: f.customSizeEnabled ? f.customSizeBaseFee : null,
       extrasEnabled: f.extrasEnabled,
+      customTextEnabled: f.customTextEnabled,
       images: f.images.filter((i) => i.url.trim()),
       sizes: f.sizes.filter((s) => s.name.trim()),
       colorGroups: f.colorGroups

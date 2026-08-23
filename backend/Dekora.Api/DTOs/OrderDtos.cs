@@ -18,7 +18,10 @@ public record CreateOrderItemRequest(
 public record CreateOrderRequest(
     string CustomerName,
     string Phone,
-    string Email,
+    // Optional for a guest checkout — only a logged-in customer is guaranteed to have one on
+    // file. Downstream code already treats a blank Order.Email as "no email" (see the
+    // review-nudge email in OrdersController.UpdateStatus), so this needs no further plumbing.
+    string? Email,
     string DeliveryCity,
     string DeliveryAddress,
     string? Note,
@@ -83,6 +86,11 @@ public record OrderSummaryDto(
     Guid Id,
     string OrderNumber,
     string CustomerName,
+    // Product-only revenue — the figure the owner should read as "what this order is worth to
+    // me." Total (below) also includes the delivery fee, which is never the owner's money (it's
+    // either paid straight to the courier or waived for pickup), so leading the list with it
+    // would silently inflate every revenue figure an owner reads at a glance.
+    decimal Subtotal,
     decimal Total,
     OrderStatus Status,
     bool IsManualEntry,

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Dekora.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dekora.Api.Data.Migrations
 {
     [DbContext(typeof(DekoraDbContext))]
-    partial class DekoraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260823144958_AddProductCustomTextEnabled")]
+    partial class AddProductCustomTextEnabled
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

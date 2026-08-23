@@ -23,6 +23,10 @@ export class OrdersApi {
     return this.http.patch<void>(`${environment.apiUrl}/orders/${id}/status`, { status });
   }
 
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/orders/${id}`);
+  }
+
   createManual(request: CreateManualOrderRequest): Observable<Order> {
     return this.http.post<Order>(`${environment.apiUrl}/orders/manual`, request);
   }
