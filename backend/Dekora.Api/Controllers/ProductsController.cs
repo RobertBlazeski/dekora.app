@@ -11,7 +11,7 @@ namespace Dekora.Api.Controllers;
 
 [ApiController]
 [Route("api/products")]
-public class ProductsController(DekoraDbContext db) : ControllerBase
+public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILogger<ProductsController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ProductListItemDto>>> GetAll(
@@ -160,6 +160,41 @@ public class ProductsController(DekoraDbContext db) : ControllerBase
         await db.SaveChangesAsync();
 
         return Ok(ToDetailDto(product));
+    }
+
+    // Hard delete — safe because orders never depend on a live product: OrderItem stores its
+    // own name/price snapshot and has no foreign key to Product at all, Review cascade-deletes
+    // with the product, and HomepageContent.FeaturedProduct just goes null if it pointed here.
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var product = await db.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+        if (product is null) return NotFound();
+
+        var imageUrls = product.Images.Select(i => i.Url).ToList();
+
+        db.Products.Remove(product);
+        await db.SaveChangesAsync();
+
+        // Best-effort: an orphaned file left behind on disk is a non-issue, so this never
+        // fails the delete itself.
+        var webRoot = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
+        foreach (var url in imageUrls)
+        {
+            try
+            {
+                var relativePath = url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var filePath = Path.Combine(webRoot, relativePath);
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to delete orphaned image file for deleted product {ProductId}", id);
+            }
+        }
+
+        return NoContent();
     }
 
     [HttpPatch("{id:guid}/sold-out")]

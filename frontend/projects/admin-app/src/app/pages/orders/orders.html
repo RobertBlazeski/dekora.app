@@ -109,9 +109,29 @@
         }
       </div>
 
-      <div class="order-total-row">
-        <span>Total</span>
-        <strong>{{ order.total }} ден</strong>
+      <div class="order-totals">
+        <div class="totals-row totals-row-primary">
+          <span>Product total</span>
+          <strong>{{ order.subtotal }} ден</strong>
+        </div>
+        @if (order.deliveryFee > 0) {
+          <div class="totals-row totals-row-muted">
+            <span>Delivery fee</span>
+            <span>+{{ order.deliveryFee }} ден</span>
+          </div>
+        }
+        @if (order.pointsDiscount > 0) {
+          <div class="totals-row totals-row-muted">
+            <span>Points redeemed</span>
+            <span>−{{ order.pointsDiscount }} ден</span>
+          </div>
+        }
+        @if (order.deliveryFee > 0 || order.pointsDiscount > 0) {
+          <div class="totals-row totals-row-charged">
+            <span>Customer charged</span>
+            <span>{{ order.total }} ден</span>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -159,19 +179,6 @@
 
       <label>Delivery address (optional)</label>
       <input type="text" [ngModel]="manualForm().deliveryAddress" (ngModelChange)="updateManualField('deliveryAddress', $event)" />
-
-      <label class="checkbox-row">
-        <input
-          type="checkbox"
-          [ngModel]="manualForm().includeDeliveryFee"
-          (ngModelChange)="updateManualField('includeDeliveryFee', $event)"
-        />
-        Add the {{ deliveryFee() }} ден delivery fee to this order
-      </label>
-      <p class="hint">
-        Turn this off for pickup orders, or when the price you agreed with the customer already includes delivery
-        — otherwise it's added on top automatically.
-      </p>
 
       <div class="field-grid">
         <div>

@@ -38,10 +38,6 @@ public record CreateManualOrderRequest(
     string? Note,
     PaymentMethod PaymentMethod,
     OrderStatus InitialStatus,
-    // Off for e.g. a pickup order, or when the agreed price already includes delivery — the
-    // owner shouldn't have to either silently eat a mismatched total or tack the standard fee
-    // onto a price that was already settled with the customer.
-    bool IncludeDeliveryFee,
     List<CreateOrderItemRequest> Items);
 
 public record OrderItemDto(

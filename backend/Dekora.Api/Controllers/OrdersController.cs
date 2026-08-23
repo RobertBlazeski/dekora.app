@@ -115,7 +115,10 @@ public class OrdersController(
         var built = await BuildOrderItemsAsync(request.Items);
         if (built.Error is not null) return Problem(built.Error, statusCode: built.ErrorStatus);
 
-        var deliveryFee = request.IncludeDeliveryFee ? _rules.DeliveryFee : 0;
+        // Manual orders (phone/in-person sales) almost always go out via an external courier
+        // paid separately or free pickup, so unlike real checkout they never carry this app's
+        // delivery fee.
+        const decimal deliveryFee = 0m;
         var total = Math.Max(0, built.Subtotal + deliveryFee);
 
         var order = new Order

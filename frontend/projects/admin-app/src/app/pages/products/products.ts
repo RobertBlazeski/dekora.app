@@ -412,4 +412,11 @@ export class Products {
   protected toggleSoldOut(product: ProductListItem): void {
     this.productsApi.setSoldOut(product.id, !product.soldOut).subscribe(() => this.reload());
   }
+
+  protected deleteProduct(product: ProductListItem): void {
+    const confirmed = confirm(`Delete "${product.name}" permanently? This can't be undone.`);
+    if (!confirmed) return;
+
+    this.productsApi.delete(product.id).subscribe(() => this.reload());
+  }
 }

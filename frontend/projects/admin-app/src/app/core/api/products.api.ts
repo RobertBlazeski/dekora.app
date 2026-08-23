@@ -24,6 +24,10 @@ export class ProductsApi {
     return this.http.put<ProductDetail>(`${environment.apiUrl}/products/${id}`, request);
   }
 
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/products/${id}`);
+  }
+
   setSoldOut(id: string, soldOut: boolean): Observable<void> {
     return this.http.patch<void>(`${environment.apiUrl}/products/${id}/sold-out`, { soldOut });
   }

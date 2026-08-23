@@ -39,7 +39,6 @@ export interface CreateManualOrderRequest {
   note?: string | null;
   paymentMethod: PaymentMethod;
   initialStatus: OrderStatus;
-  includeDeliveryFee: boolean;
   items: CreateOrderItemRequest[];
 }
 

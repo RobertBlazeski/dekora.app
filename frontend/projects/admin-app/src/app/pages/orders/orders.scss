@@ -286,14 +286,40 @@ tr.unread td:first-child,
   font-size: 0.88rem;
 }
 
-.order-total-row {
-  display: flex;
-  justify-content: space-between;
+.order-totals {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-line);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+// The owner uses this figure as the product's price label when arranging delivery separately
+// (courier or pickup), so it has to read as the product-only total — never combined with the
+// delivery fee — or they risk quoting a price that double-counts delivery.
+.totals-row-primary {
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+.totals-row-muted {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+.totals-row-charged {
+  margin-top: 0.15rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--color-line);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-ink-soft);
 }
 
 .manual-modal {

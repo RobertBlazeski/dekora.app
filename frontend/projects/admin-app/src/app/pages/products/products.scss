@@ -127,6 +127,17 @@
       border-color: var(--color-coral);
       color: var(--color-coral);
     }
+
+    &.delete-btn {
+      flex: 0 0 auto;
+      color: var(--color-ink-soft);
+
+      &:hover {
+        background: var(--color-coral-tint);
+        border-color: var(--color-coral);
+        color: var(--color-coral);
+      }
+    }
   }
 }
 

@@ -34,6 +34,7 @@
         <button type="button" [class.active]="product.soldOut" (click)="toggleSoldOut(product)">
           {{ product.soldOut ? 'Restock' : 'Sold out' }}
         </button>
+        <button type="button" class="delete-btn" (click)="deleteProduct(product)">Delete</button>
       </div>
     </div>
   }

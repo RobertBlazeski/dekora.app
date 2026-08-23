@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CreateManualOrderRequest, DeliveryCity, Order, OrderStatus, OrderSummary, PaymentMethod, ProductListItem, resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
-import { BusinessRulesApi } from '../../core/api/business-rules.api';
 import { DeliveryCitiesApi } from '../../core/api/delivery-cities.api';
 import { OrdersApi } from '../../core/api/orders.api';
 import { ProductsApi } from '../../core/api/products.api';
@@ -38,7 +37,6 @@ function emptyManualForm() {
     note: '',
     paymentMethod: 'PayAtDelivery' as PaymentMethod,
     initialStatus: 'PendingConfirmation' as OrderStatus,
-    includeDeliveryFee: true,
   };
 }
 
@@ -52,11 +50,8 @@ export class Orders {
   private readonly ordersApi = inject(OrdersApi);
   private readonly productsApi = inject(ProductsApi);
   private readonly deliveryCitiesApi = inject(DeliveryCitiesApi);
-  private readonly businessRulesApi = inject(BusinessRulesApi);
   private readonly notifications = inject(OrderNotifications);
   private readonly route = inject(ActivatedRoute);
-
-  protected readonly deliveryFee = signal(0);
 
   protected readonly statuses = ORDER_STATUSES;
   protected readonly search = signal('');
@@ -105,7 +100,6 @@ export class Orders {
     if (openId) this.openDetails(openId);
 
     this.deliveryCitiesApi.getAll().subscribe((cities) => this.deliveryCities.set(cities));
-    this.businessRulesApi.get().subscribe((rules) => this.deliveryFee.set(rules.deliveryFee));
   }
 
   protected addCity(): void {
@@ -218,7 +212,6 @@ export class Orders {
       note: f.note || null,
       paymentMethod: f.paymentMethod,
       initialStatus: f.initialStatus,
-      includeDeliveryFee: f.includeDeliveryFee,
       items: this.manualLines().map((l) => ({
         productId: l.productId,
         quantity: l.quantity,
