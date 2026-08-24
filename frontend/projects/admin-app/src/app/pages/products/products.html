@@ -80,11 +80,17 @@
               <div class="translation-grid">
                 <div>
                   <label>English name</label>
-                  <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameEn" (ngModelChange)="form.update((f) => ({ ...f, nameEn: $event }))" />
+                  <div class="field-with-translate">
+                    <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameEn" (ngModelChange)="form.update((f) => ({ ...f, nameEn: $event }))" />
+                    <app-translate-button [sourceText]="form().name" targetLanguage="en" (translated)="form.update((f) => ({ ...f, nameEn: $event }))" />
+                  </div>
                 </div>
                 <div>
                   <label>Albanian name</label>
-                  <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameSq" (ngModelChange)="form.update((f) => ({ ...f, nameSq: $event }))" />
+                  <div class="field-with-translate">
+                    <input type="text" placeholder="Falls back to the name above" [ngModel]="form().nameSq" (ngModelChange)="form.update((f) => ({ ...f, nameSq: $event }))" />
+                    <app-translate-button [sourceText]="form().name" targetLanguage="sq" (translated)="form.update((f) => ({ ...f, nameSq: $event }))" />
+                  </div>
                 </div>
               </div>
             }
@@ -153,21 +159,27 @@
               <div class="translation-grid">
                 <div>
                   <label>English description</label>
-                  <textarea
-                    rows="3"
-                    placeholder="Falls back to the description above"
-                    [ngModel]="form().descriptionEn"
-                    (ngModelChange)="form.update((f) => ({ ...f, descriptionEn: $event }))"
-                  ></textarea>
+                  <div class="field-with-translate">
+                    <textarea
+                      rows="3"
+                      placeholder="Falls back to the description above"
+                      [ngModel]="form().descriptionEn"
+                      (ngModelChange)="form.update((f) => ({ ...f, descriptionEn: $event }))"
+                    ></textarea>
+                    <app-translate-button [sourceText]="form().description" targetLanguage="en" (translated)="form.update((f) => ({ ...f, descriptionEn: $event }))" />
+                  </div>
                 </div>
                 <div>
                   <label>Albanian description</label>
-                  <textarea
-                    rows="3"
-                    placeholder="Falls back to the description above"
-                    [ngModel]="form().descriptionSq"
-                    (ngModelChange)="form.update((f) => ({ ...f, descriptionSq: $event }))"
-                  ></textarea>
+                  <div class="field-with-translate">
+                    <textarea
+                      rows="3"
+                      placeholder="Falls back to the description above"
+                      [ngModel]="form().descriptionSq"
+                      (ngModelChange)="form.update((f) => ({ ...f, descriptionSq: $event }))"
+                    ></textarea>
+                    <app-translate-button [sourceText]="form().description" targetLanguage="sq" (translated)="form.update((f) => ({ ...f, descriptionSq: $event }))" />
+                  </div>
                 </div>
               </div>
             }
@@ -335,11 +347,17 @@
                       <div class="translation-grid">
                         <div>
                           <label>English name</label>
-                          <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameEn" (ngModelChange)="updateExtra($index, 'nameEn', $event)" />
+                          <div class="field-with-translate">
+                            <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameEn" (ngModelChange)="updateExtra($index, 'nameEn', $event)" />
+                            <app-translate-button [sourceText]="extra.name" targetLanguage="en" (translated)="updateExtra($index, 'nameEn', $event)" />
+                          </div>
                         </div>
                         <div>
                           <label>Albanian name</label>
-                          <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameSq" (ngModelChange)="updateExtra($index, 'nameSq', $event)" />
+                          <div class="field-with-translate">
+                            <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameSq" (ngModelChange)="updateExtra($index, 'nameSq', $event)" />
+                            <app-translate-button [sourceText]="extra.name" targetLanguage="sq" (translated)="updateExtra($index, 'nameSq', $event)" />
+                          </div>
                         </div>
                       </div>
                     }

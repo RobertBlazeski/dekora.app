@@ -15,6 +15,7 @@ import {
 } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 import { ImageUpload } from '../../components/image-upload/image-upload';
+import { TranslateButton } from '../../components/translate-button/translate-button';
 import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
 import { SavedColorsApi } from '../../core/api/saved-colors.api';
@@ -83,7 +84,7 @@ function emptyForm(): ProductFormState {
 
 @Component({
   selector: 'app-products',
-  imports: [FormsModule, ImageUpload],
+  imports: [FormsModule, ImageUpload, TranslateButton],
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })

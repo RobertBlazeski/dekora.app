@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ContactInfo, FaqEntry, UpsertFaqEntryRequest } from '@dekora/shared';
+import { TranslateButton } from '../../components/translate-button/translate-button';
 import { ContactInfoApi, FaqApi } from '../../core/api/faq.api';
 
 interface FaqFormState {
@@ -19,7 +20,7 @@ function emptyForm(): FaqFormState {
 
 @Component({
   selector: 'app-faq',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslateButton],
   templateUrl: './faq.html',
   styleUrl: './faq.scss',
 })

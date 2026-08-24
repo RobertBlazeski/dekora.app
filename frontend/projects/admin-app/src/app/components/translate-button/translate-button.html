@@ -1,0 +1,12 @@
+<button
+  type="button"
+  class="translate-btn"
+  [disabled]="!sourceText().trim() || loading()"
+  [title]="error() ?? 'Draft a translation from the Macedonian text above'"
+  (click)="translate()"
+>
+  {{ loading() ? '…' : '✨' }}
+</button>
+@if (error()) {
+  <span class="translate-error">{{ error() }}</span>
+}

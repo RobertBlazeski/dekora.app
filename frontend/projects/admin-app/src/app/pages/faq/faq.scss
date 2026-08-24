@@ -258,6 +258,21 @@ textarea {
   }
 }
 
+.field-with-translate {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+
+  input,
+  textarea {
+    flex: 1;
+  }
+
+  app-translate-button {
+    margin-top: 0.15rem;
+  }
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;

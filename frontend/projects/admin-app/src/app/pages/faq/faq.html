@@ -72,15 +72,27 @@
         <div class="translation-grid">
           <div>
             <label>English question</label>
-            <input type="text" [ngModel]="form().questionEn" (ngModelChange)="updateField('questionEn', $event)" />
+            <div class="field-with-translate">
+              <input type="text" [ngModel]="form().questionEn" (ngModelChange)="updateField('questionEn', $event)" />
+              <app-translate-button [sourceText]="form().question" targetLanguage="en" (translated)="updateField('questionEn', $event)" />
+            </div>
             <label>English answer</label>
-            <textarea rows="2" [ngModel]="form().answerEn" (ngModelChange)="updateField('answerEn', $event)"></textarea>
+            <div class="field-with-translate">
+              <textarea rows="2" [ngModel]="form().answerEn" (ngModelChange)="updateField('answerEn', $event)"></textarea>
+              <app-translate-button [sourceText]="form().answer" targetLanguage="en" (translated)="updateField('answerEn', $event)" />
+            </div>
           </div>
           <div>
             <label>Albanian question</label>
-            <input type="text" [ngModel]="form().questionSq" (ngModelChange)="updateField('questionSq', $event)" />
+            <div class="field-with-translate">
+              <input type="text" [ngModel]="form().questionSq" (ngModelChange)="updateField('questionSq', $event)" />
+              <app-translate-button [sourceText]="form().question" targetLanguage="sq" (translated)="updateField('questionSq', $event)" />
+            </div>
             <label>Albanian answer</label>
-            <textarea rows="2" [ngModel]="form().answerSq" (ngModelChange)="updateField('answerSq', $event)"></textarea>
+            <div class="field-with-translate">
+              <textarea rows="2" [ngModel]="form().answerSq" (ngModelChange)="updateField('answerSq', $event)"></textarea>
+              <app-translate-button [sourceText]="form().answer" targetLanguage="sq" (translated)="updateField('answerSq', $event)" />
+            </div>
           </div>
         </div>
       }
