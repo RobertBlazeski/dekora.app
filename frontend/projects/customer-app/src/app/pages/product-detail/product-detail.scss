@@ -443,26 +443,28 @@
   margin-bottom: 1.25rem;
 }
 
-.size-mode-toggle {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+// The custom-size pill sits in the same row as the fixed sizes (styled by .size-pill above) —
+// this only adds the one thing that's different about it: a dashed border, so it visually reads
+// as "type your own" rather than another fixed option.
+.custom-size-pill {
+  border-style: dashed;
+}
 
-  button {
-    flex: 1;
-    padding: 0.5rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-line);
-    background: var(--color-card);
-    cursor: pointer;
-    font: inherit;
+.custom-size-panel {
+  padding: 0.9rem;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
 
-    &.active {
-      background: var(--color-ink);
-      border-color: var(--color-ink);
-      color: white;
-    }
+  input {
+    max-width: 8rem;
   }
+}
+
+.custom-size-math {
+  margin: 0.6rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-ink-soft);
+  font-variant-numeric: tabular-nums;
 }
 
 .option-group {
@@ -630,6 +632,18 @@
     color: var(--color-ink-soft);
     font-size: 0.85rem;
   }
+}
+
+.extra-custom-text {
+  width: 100%;
+  margin-top: -0.15rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-line);
+  font: inherit;
+  color: var(--color-ink);
+  resize: vertical;
+  min-height: 3rem;
 }
 
 .add-to-cart {

@@ -46,7 +46,7 @@ public class CompositeNotificationSender(
             // separate calls from sendMessage, so this is the closest a bot can get to "one
             // notification with pictures attached."
             var distinctPhotos = order.Items
-                .Select(i => imageUrls.GetValueOrDefault(i.ProductId))
+                .Select(i => imageUrls.GetValueOrDefault(i.Id))
                 .Where(url => url is not null)
                 .Distinct()
                 .Take(10)
@@ -65,26 +65,36 @@ public class CompositeNotificationSender(
         }
     }
 
-    // Product photos are stored as paths relative to the API's own origin ("/uploads/xxx.jpg" —
-    // see UploadsController), which only resolves correctly inside a browser tab already on one
-    // of this site's domains. An email client or Telegram's own servers fetching the image have
-    // no such context, so these need to be turned into full URLs first — reusing the same public
+    // Keyed by OrderItem.Id (not ProductId) so each line gets its own photo: prefers the exact
+    // photo the customer had selected at order time (item.SelectedImageUrl — a real signal of
+    // what they wanted, e.g. which color variant) and only falls back to the product's current
+    // primary photo for manual orders or ones placed before that was captured. Product photos
+    // are stored as paths relative to the API's own origin ("/uploads/xxx.jpg" — see
+    // UploadsController), which only resolves correctly inside a browser tab already on one of
+    // this site's domains — an email client or Telegram's own servers fetching the image have no
+    // such context, so these need to be turned into full URLs too, reusing the same public
     // customer-facing domain the review-nudge email's links already use (Caddy proxies
     // /uploads/* under it too, see Caddyfile).
     private async Task<IReadOnlyDictionary<Guid, string?>> BuildImageUrlLookupAsync(
         IEnumerable<OrderItem> items, CancellationToken cancellationToken)
     {
-        var productIds = items.Select(i => i.ProductId).Distinct().ToList();
-        if (productIds.Count == 0) return new Dictionary<Guid, string?>();
-
+        var itemList = items.ToList();
         var baseUrl = frontendOptions.Value.BaseUrl.TrimEnd('/');
-        var relativeUrls = await db.Products
-            .AsNoTracking()
-            .Where(p => productIds.Contains(p.Id))
-            .Select(p => new { p.Id, ImageUrl = p.Images.Select(i => i.Url).FirstOrDefault() })
-            .ToDictionaryAsync(p => p.Id, p => p.ImageUrl, cancellationToken);
 
-        return relativeUrls.ToDictionary(kv => kv.Key, kv => kv.Value is null ? null : $"{baseUrl}{kv.Value}");
+        var productIdsNeedingLiveLookup = itemList.Where(i => i.SelectedImageUrl is null).Select(i => i.ProductId).Distinct().ToList();
+        var livePrimaryUrls = productIdsNeedingLiveLookup.Count == 0
+            ? new Dictionary<Guid, string?>()
+            : await db.Products
+                .AsNoTracking()
+                .Where(p => productIdsNeedingLiveLookup.Contains(p.Id))
+                .Select(p => new { p.Id, ImageUrl = p.Images.Select(i => i.Url).FirstOrDefault() })
+                .ToDictionaryAsync(p => p.Id, p => p.ImageUrl, cancellationToken);
+
+        return itemList.ToDictionary(i => i.Id, i =>
+        {
+            var relative = i.SelectedImageUrl ?? livePrimaryUrls.GetValueOrDefault(i.ProductId);
+            return relative is null ? null : $"{baseUrl}{relative}";
+        });
     }
 
     // The size/colors/extras/custom-text an item was ordered with — everything the owner needs
@@ -95,7 +105,13 @@ public class CompositeNotificationSender(
         var parts = new List<string>();
         if (!string.IsNullOrWhiteSpace(item.SelectedSize)) parts.Add(item.SelectedSize);
         parts.AddRange(item.SelectedColors);
-        parts.AddRange(item.SelectedExtras);
+
+        // ExtraCustomTexts entries are formatted "{ExtraName}: {text}" — when one exists for an
+        // extra, show that instead of the bare name from SelectedExtras so it isn't listed twice.
+        var extrasWithText = item.ExtraCustomTexts.Select(t => t.Split(':', 2)[0].Trim()).ToHashSet();
+        parts.AddRange(item.SelectedExtras.Where(name => !extrasWithText.Contains(name)));
+        parts.AddRange(item.ExtraCustomTexts);
+
         if (!string.IsNullOrWhiteSpace(item.CustomText)) parts.Add($"\"{item.CustomText}\"");
         return parts;
     }
@@ -124,7 +140,7 @@ public class CompositeNotificationSender(
     {
         var items = string.Join("", order.Items.Select(i =>
         {
-            var imageUrl = imageUrls.GetValueOrDefault(i.ProductId);
+            var imageUrl = imageUrls.GetValueOrDefault(i.Id);
             var thumb = imageUrl is null
                 ? ""
                 : $"""<img src="{imageUrl}" alt="" width="48" height="48" style="width:48px;height:48px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:10px;">""";

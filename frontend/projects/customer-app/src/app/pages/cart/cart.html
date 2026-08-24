@@ -30,7 +30,10 @@
             @for (color of item.selectedColors; track color.groupName) {
               <span>{{ color.groupName }}: {{ color.colorName }}</span>
             }
-            @for (extra of item.selectedExtras; track extra) {
+            @for (extra of bareExtras(item); track extra) {
+              <span>{{ extra }}</span>
+            }
+            @for (extra of item.extraCustomTexts; track extra) {
               <span>{{ extra }}</span>
             }
           </p>

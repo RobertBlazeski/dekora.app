@@ -173,7 +173,9 @@ export class Checkout {
       selectedColors: item.selectedColors,
       customText: item.customText,
       selectedExtras: item.selectedExtras,
+      extraCustomTexts: item.extraCustomTexts,
       customSizeQuantity: item.customSizeQuantity,
+      imageUrl: item.imageUrl,
     }));
 
     const value = this.form.getRawValue();

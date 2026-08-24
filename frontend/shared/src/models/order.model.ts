@@ -12,7 +12,14 @@ export interface CreateOrderItemRequest {
   selectedColors?: SelectedColorChoice[] | null;
   customText?: string | null;
   selectedExtras?: string[] | null;
+  // "{ExtraName}: {text}" for any selected extra that has its own custom-text box — kept
+  // separate from selectedExtras since the server matches those against the product's extras
+  // by exact name for pricing/validation.
+  extraCustomTexts?: string[] | null;
   customSizeQuantity?: number | null;
+  // The photo the customer had selected on the product page — must match one of that product's
+  // own image URLs exactly or the server discards it (see OrdersController.BuildOrderItemsAsync).
+  imageUrl?: string | null;
 }
 
 export interface CreateOrderRequest {
@@ -54,6 +61,7 @@ export interface OrderItem {
   selectedColors: string[];
   customText: string | null;
   selectedExtras: string[];
+  extraCustomTexts: string[];
   unitPrice: number;
   lineTotal: number;
 }

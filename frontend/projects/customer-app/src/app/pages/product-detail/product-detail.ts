@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   ProductDetail as ProductDetailModel,
+  ProductExtra,
   ProductListItem,
   Review,
   SelectedColorChoice,
@@ -74,6 +75,9 @@ export class ProductDetail {
   // Keyed by color group name — one selection per group the product actually defines.
   protected readonly selectedColorByGroup = signal<Record<string, string>>({});
   protected readonly selectedExtraNames = signal<Set<string>>(new Set());
+  // Keyed by extra name — only meaningful for extras with customTextEnabled. Kept even if the
+  // extra gets unchecked and rechecked, so the customer doesn't lose what they typed.
+  protected readonly selectedExtraTexts = signal<Record<string, string>>({});
   protected readonly customText = signal('');
   protected readonly quantity = signal(1);
   protected readonly justAdded = signal(false);
@@ -145,6 +149,15 @@ export class ProductDetail {
         : this.product()?.discountedPrice;
     if (!discounted || regular === 0) return 0;
     return Math.round((1 - discounted / regular) * 100);
+  });
+
+  // The custom-size price on its own, before extras — shown as the live "quantity × unit price
+  // + wrapping/box" breakdown next to the quantity field, since folding extras into that number
+  // would make it not add up with what the breakdown itself claims to be calculating.
+  protected readonly customSizeSubtotal = computed(() => {
+    const p = this.product();
+    if (!p) return 0;
+    return (p.customSizeUnitPrice ?? 0) * this.customSizeQuantity() + (p.customSizeBaseFee ?? 0);
   });
 
   protected readonly lineTotal = computed(() => this.unitPrice() * this.quantity());
@@ -256,6 +269,7 @@ export class ProductDetail {
 
   protected selectSize(name: string): void {
     this.selectedSizeName.set(name);
+    this.sizeMode.set('fixed');
   }
 
   protected selectColor(groupName: string, colorName: string): void {
@@ -274,6 +288,16 @@ export class ProductDetail {
     if (next.has(name)) next.delete(name);
     else next.add(name);
     this.selectedExtraNames.set(next);
+  }
+
+  // Extras reuse the same name/nameEn/nameSq shape as the product itself — resolveProductName
+  // only cares about that shape, not that it's normally called with a whole product.
+  protected extraDisplayName(extra: ProductExtra): string {
+    return resolveProductName(this.translation.currentLocale(), extra);
+  }
+
+  protected setExtraText(extraName: string, text: string): void {
+    this.selectedExtraTexts.update((current) => ({ ...current, [extraName]: text }));
   }
 
   protected setSizeMode(mode: SizeMode): void {
@@ -308,7 +332,21 @@ export class ProductDetail {
           : this.selectedSizeName(),
       selectedColors,
       customText: this.customText().trim() || null,
+      // Kept as the extra's plain base name (never the localized display name or any decorated
+      // text) — the server looks up each entry against Product.Extras[].Name exactly, both to
+      // validate it and to price it. Any per-extra custom text travels separately, in
+      // extraCustomTexts below.
       selectedExtras: [...this.selectedExtraNames()],
+      // Uses the extra's plain base name (matching SelectedExtras/ProductNameSnapshot/colors),
+      // not the localized display name — order records always stay in the base language
+      // regardless of which locale the customer was browsing in.
+      extraCustomTexts: [...this.selectedExtraNames()]
+        .map((name) => {
+          const extra = p.extras.find((x) => x.name === name);
+          const text = extra?.customTextEnabled ? this.selectedExtraTexts()[name]?.trim() : '';
+          return text ? `${name}: ${text}` : null;
+        })
+        .filter((text): text is string => text !== null),
       customSizeQuantity: this.sizeMode() === 'custom' ? this.customSizeQuantity() : null,
     });
 

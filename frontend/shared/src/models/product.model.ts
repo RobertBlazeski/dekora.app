@@ -35,7 +35,12 @@ export interface ProductColorGroup {
 export interface ProductExtra {
   id: string;
   name: string;
+  nameEn: string | null;
+  nameSq: string | null;
   price: number;
+  // Opt-in per extra — when true, the product page shows a text box once the customer picks
+  // this extra (e.g. "Personalized name tag"), for what to actually put on it.
+  customTextEnabled: boolean;
 }
 
 export interface ProductListItem {
@@ -113,7 +118,10 @@ export interface UpsertProductColorGroupRequest {
 
 export interface UpsertProductExtraRequest {
   name: string;
+  nameEn: string | null;
+  nameSq: string | null;
   price: number;
+  customTextEnabled: boolean;
 }
 
 export interface UpsertProductRequest {

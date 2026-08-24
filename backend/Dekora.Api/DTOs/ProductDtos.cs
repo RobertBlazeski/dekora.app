@@ -4,7 +4,7 @@ public record ProductImageDto(Guid Id, string Url, string? ColorTag);
 public record ProductSizeDto(Guid Id, string Name, string? Description, decimal Price, decimal? DiscountedPrice);
 public record ProductColorDto(Guid Id, string Name, string HexValue, bool SoldOut);
 public record ProductColorGroupDto(Guid Id, string Name, int SortOrder, IReadOnlyList<ProductColorDto> Colors);
-public record ProductExtraDto(Guid Id, string Name, decimal Price);
+public record ProductExtraDto(Guid Id, string Name, string? NameEn, string? NameSq, decimal Price, bool CustomTextEnabled);
 
 public record ProductListItemDto(
     Guid Id,
@@ -55,7 +55,7 @@ public record ProductDetailDto(
 public record UpsertProductSizeRequest(string Name, string? Description, decimal Price, decimal? DiscountedPrice);
 public record UpsertProductColorRequest(string Name, string HexValue, bool SoldOut);
 public record UpsertProductColorGroupRequest(string Name, int SortOrder, List<UpsertProductColorRequest> Colors);
-public record UpsertProductExtraRequest(string Name, decimal Price);
+public record UpsertProductExtraRequest(string Name, string? NameEn, string? NameSq, decimal Price, bool CustomTextEnabled);
 public record UpsertProductImageRequest(string Url, string? ColorTag);
 
 public record UpsertProductRequest(

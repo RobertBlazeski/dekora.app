@@ -290,7 +290,14 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
             SortOrder = g.SortOrder,
             Colors = g.Colors.Select(c => new ProductColor { Name = c.Name, HexValue = c.HexValue, SoldOut = c.SoldOut }).ToList(),
         }).ToList();
-        product.Extras = request.Extras.Select(x => new ProductExtra { Name = x.Name, Price = x.Price }).ToList();
+        product.Extras = request.Extras.Select(x => new ProductExtra
+        {
+            Name = x.Name,
+            NameEn = x.NameEn,
+            NameSq = x.NameSq,
+            Price = x.Price,
+            CustomTextEnabled = x.CustomTextEnabled,
+        }).ToList();
     }
 
     private static ProductListItemDto ToListItemDto(Product p)
@@ -320,5 +327,5 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
                 g.Id, g.Name, g.SortOrder,
                 g.Colors.Select(c => new ProductColorDto(c.Id, c.Name, c.HexValue, c.SoldOut)).ToList()))
             .ToList(),
-        p.Extras.Select(x => new ProductExtraDto(x.Id, x.Name, x.Price)).ToList());
+        p.Extras.Select(x => new ProductExtraDto(x.Id, x.Name, x.NameEn, x.NameSq, x.Price, x.CustomTextEnabled)).ToList());
 }

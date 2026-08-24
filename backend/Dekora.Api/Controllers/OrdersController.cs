@@ -325,6 +325,7 @@ public class OrdersController(
                 .Include(p => p.Sizes)
                 .Include(p => p.ColorGroups).ThenInclude(g => g.Colors)
                 .Include(p => p.Extras)
+                .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.Id == itemRequest.ProductId);
 
             if (product is null)
@@ -391,6 +392,13 @@ public class OrdersController(
             var lineTotal = unitPrice * itemRequest.Quantity;
             subtotal += lineTotal;
 
+            // Only accept it if it's actually one of this product's own photos — otherwise this
+            // field would let a client put an arbitrary URL somewhere that renders as an <img>
+            // in the admin panel.
+            var selectedImageUrl = itemRequest.ImageUrl is not null && product.Images.Any(i => i.Url == itemRequest.ImageUrl)
+                ? itemRequest.ImageUrl
+                : null;
+
             items.Add(new OrderItem
             {
                 ProductId = product.Id,
@@ -400,8 +408,10 @@ public class OrdersController(
                 SelectedColors = selectedColorSnapshots,
                 CustomText = itemRequest.CustomText,
                 SelectedExtras = selectedExtras,
+                ExtraCustomTexts = itemRequest.ExtraCustomTexts ?? [],
                 UnitPrice = unitPrice,
-                LineTotal = lineTotal
+                LineTotal = lineTotal,
+                SelectedImageUrl = selectedImageUrl
             });
         }
 
@@ -430,6 +440,6 @@ public class OrdersController(
         o.Subtotal, o.DeliveryFee, o.PointsDiscount, o.Total, o.PointsEarned, o.PointsSpent,
         o.PaymentMethod, o.Status, o.Note, o.IsManualEntry, o.CreatedAt, o.StatusUpdatedAt,
         o.Items.Select(i => new OrderItemDto(
-            i.Id, i.ProductId, i.ProductNameSnapshot, images.GetValueOrDefault(i.ProductId), i.Quantity, i.SelectedSize,
-            i.SelectedColors, i.CustomText, i.SelectedExtras, i.UnitPrice, i.LineTotal)).ToList());
+            i.Id, i.ProductId, i.ProductNameSnapshot, i.SelectedImageUrl ?? images.GetValueOrDefault(i.ProductId), i.Quantity, i.SelectedSize,
+            i.SelectedColors, i.CustomText, i.SelectedExtras, i.ExtraCustomTexts, i.UnitPrice, i.LineTotal)).ToList());
 }

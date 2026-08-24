@@ -52,10 +52,17 @@
             <p class="hint">The first photo is the main one shown on the shop and product page.</p>
             <div class="image-grid">
               @for (image of form().images; track $index) {
-                <div class="image-tile">
+                <div class="image-tile" [class.is-main]="$index === 0">
+                  @if ($index === 0) {
+                    <span class="main-photo-badge">Main photo</span>
+                  }
                   <app-image-upload [url]="image.url" (urlChange)="updateImage($index, 'url', $event ?? '')" />
                   <input type="text" placeholder="Color tag (optional)" [ngModel]="image.colorTag" (ngModelChange)="updateImage($index, 'colorTag', $event)" />
-                  <button type="button" class="remove-tile-btn" (click)="removeImage($index)">Remove</button>
+                  <div class="tile-actions">
+                    <button type="button" [disabled]="$index === 0" (click)="moveImageUp($index)" title="Move earlier">◀</button>
+                    <button type="button" [disabled]="$index === form().images.length - 1" (click)="moveImageDown($index)" title="Move later">▶</button>
+                    <button type="button" class="remove-tile-btn" (click)="removeImage($index)">Remove</button>
+                  </div>
                 </div>
               }
               <button type="button" class="add-tile-btn" (click)="addImage()">+ Add photo</button>
@@ -111,6 +118,10 @@
                 [ngModel]="newCategoryName()"
                 (ngModelChange)="newCategoryName.set($event)"
               />
+              <label class="new-category-type">
+                <input type="checkbox" [ngModel]="newCategoryIsProductType()" (ngModelChange)="newCategoryIsProductType.set($event)" />
+                Product type (e.g. Bouquets, Balloons) — shows in "Shop by type" instead of "Shop by occasion"
+              </label>
               <button type="button" class="add-row-btn" [disabled]="!newCategoryName().trim()" (click)="addCategory()">+ Add category</button>
             </div>
 
@@ -314,10 +325,32 @@
             @if (form().extrasEnabled) {
               <div class="nested-rows">
                 @for (extra of form().extras; track $index) {
-                  <div class="size-row">
-                    <input type="text" placeholder="Name" [ngModel]="extra.name" (ngModelChange)="updateExtra($index, 'name', $event)" />
-                    <input type="number" placeholder="Price" [ngModel]="extra.price" (ngModelChange)="updateExtra($index, 'price', +$event)" />
-                    <button type="button" class="remove-btn" (click)="removeExtra($index)">✕</button>
+                  <div class="extra-block">
+                    <div class="size-row">
+                      <input type="text" placeholder="Name" [ngModel]="extra.name" (ngModelChange)="updateExtra($index, 'name', $event)" />
+                      <input type="number" placeholder="Price" [ngModel]="extra.price" (ngModelChange)="updateExtra($index, 'price', +$event)" />
+                      <button type="button" class="remove-btn" (click)="removeExtra($index)">✕</button>
+                    </div>
+                    @if (showTranslations()) {
+                      <div class="translation-grid">
+                        <div>
+                          <label>English name</label>
+                          <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameEn" (ngModelChange)="updateExtra($index, 'nameEn', $event)" />
+                        </div>
+                        <div>
+                          <label>Albanian name</label>
+                          <input type="text" placeholder="Falls back to the name above" [ngModel]="extra.nameSq" (ngModelChange)="updateExtra($index, 'nameSq', $event)" />
+                        </div>
+                      </div>
+                    }
+                    <label class="extra-text-toggle">
+                      <input
+                        type="checkbox"
+                        [ngModel]="extra.customTextEnabled"
+                        (ngModelChange)="updateExtra($index, 'customTextEnabled', $event)"
+                      />
+                      Ask customer to type what this is for (e.g. name to personalize)
+                    </label>
                   </div>
                 }
                 <button type="button" class="add-row-btn" (click)="addExtra()">+ Add extra</button>

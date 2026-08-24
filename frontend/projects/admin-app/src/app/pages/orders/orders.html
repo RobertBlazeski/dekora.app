@@ -96,7 +96,10 @@
                 @for (color of item.selectedColors; track color) {
                   · {{ color }}
                 }
-                @for (extra of item.selectedExtras; track extra) {
+                @for (extra of bareExtras(item); track extra) {
+                  · {{ extra }}
+                }
+                @for (extra of item.extraCustomTexts; track extra) {
                   · {{ extra }}
                 }
               </p>

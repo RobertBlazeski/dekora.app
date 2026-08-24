@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Dekora.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dekora.Api.Data.Migrations
 {
     [DbContext(typeof(DekoraDbContext))]
-    partial class DekoraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824202403_AddOrderItemExtraCustomTexts")]
+    partial class AddOrderItemExtraCustomTexts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,9 +110,6 @@ namespace Dekora.Api.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<bool>("IsProductType")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -438,9 +438,6 @@ namespace Dekora.Api.Data.Migrations
                     b.PrimitiveCollection<List<string>>("SelectedExtras")
                         .IsRequired()
                         .HasColumnType("text[]");
-
-                    b.Property<string>("SelectedImageUrl")
-                        .HasColumnType("text");
 
                     b.Property<string>("SelectedSize")
                         .HasColumnType("text");

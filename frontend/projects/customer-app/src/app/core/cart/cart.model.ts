@@ -15,5 +15,9 @@ export interface CartItem {
   selectedColors: SelectedColorChoice[];
   customText: string | null;
   selectedExtras: string[];
+  // "{ExtraName}: {what the customer typed}" — only for extras that have their own custom-text
+  // box enabled and that the customer actually filled in. Kept separate from selectedExtras
+  // since the server matches those against Product.Extras[].Name exactly for pricing.
+  extraCustomTexts: string[];
   customSizeQuantity: number | null;
 }

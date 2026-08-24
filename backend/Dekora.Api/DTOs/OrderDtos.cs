@@ -13,7 +13,16 @@ public record CreateOrderItemRequest(
     List<SelectedColorChoiceRequest>? SelectedColors,
     string? CustomText,
     List<string>? SelectedExtras,
-    int? CustomSizeQuantity);
+    // "{ExtraName}: {text}" for any selected extra with its own custom-text box — kept separate
+    // from SelectedExtras since that list is matched against Product.Extras[].Name exactly for
+    // pricing/validation (see OrdersController.BuildOrderItemsAsync), so it can't carry anything
+    // extra without breaking that lookup.
+    List<string>? ExtraCustomTexts,
+    int? CustomSizeQuantity,
+    // The photo the customer had selected on the product page — must match one of that
+    // product's own image URLs exactly or it's discarded (see BuildOrderItemsAsync), so this
+    // can't be used to sneak an arbitrary URL into what renders as an <img> in the admin panel.
+    string? ImageUrl);
 
 public record CreateOrderRequest(
     string CustomerName,
@@ -47,15 +56,17 @@ public record OrderItemDto(
     Guid Id,
     Guid ProductId,
     string ProductNameSnapshot,
-    // The product's current primary image, not a snapshot from order time — good enough for
-    // "which product is this" at a glance (the point of showing it), and simpler than storing
-    // a historical copy. Null if the product's been deleted since.
+    // The exact photo the customer had selected at order time (OrderItem.SelectedImageUrl) when
+    // available — a real signal of what they wanted, e.g. which color variant — falling back to
+    // the product's current primary image for manual orders or older orders placed before that
+    // was captured. Null if the product's been deleted since and there's no snapshot either.
     string? ImageUrl,
     int Quantity,
     string? SelectedSize,
     IReadOnlyList<string> SelectedColors,
     string? CustomText,
     IReadOnlyList<string> SelectedExtras,
+    IReadOnlyList<string> ExtraCustomTexts,
     decimal UnitPrice,
     decimal LineTotal);
 

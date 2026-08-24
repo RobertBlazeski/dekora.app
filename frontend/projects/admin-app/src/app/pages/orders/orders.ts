@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { CreateManualOrderRequest, DeliveryCity, Order, OrderStatus, OrderSummary, PaymentMethod, ProductListItem, resolveAssetUrl } from '@dekora/shared';
+import { CreateManualOrderRequest, DeliveryCity, Order, OrderItem, OrderStatus, OrderSummary, PaymentMethod, ProductListItem, resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 import { DeliveryCitiesApi } from '../../core/api/delivery-cities.api';
 import { OrdersApi } from '../../core/api/orders.api';
@@ -253,5 +253,12 @@ export class Orders {
 
   protected resolveUrl(url: string | null): string | null {
     return resolveAssetUrl(environment.apiUrl, url);
+  }
+
+  // extraCustomTexts entries are formatted "{ExtraName}: {text}" — once one exists for an extra,
+  // its bare name from selectedExtras is redundant to also show.
+  protected bareExtras(item: OrderItem): string[] {
+    const namesWithText = new Set(item.extraCustomTexts.map((t) => t.split(':')[0].trim()));
+    return item.selectedExtras.filter((name) => !namesWithText.has(name));
   }
 }

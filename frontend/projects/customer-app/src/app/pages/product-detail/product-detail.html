@@ -90,41 +90,45 @@
         {{ unitPrice() }} ден
       </p>
 
-      @if (p.sizesEnabled && p.customSizeEnabled) {
-        <div class="size-mode-toggle">
-          <button type="button" [class.active]="sizeMode() === 'fixed'" (click)="setSizeMode('fixed')">
-            {{ 'product.size' | translate }}
-          </button>
-          <button type="button" [class.active]="sizeMode() === 'custom'" (click)="setSizeMode('custom')">
-            {{ 'product.customSizeQuantity' | translate: { unit: p.customSizeUnitLabel ?? '' } }}
-          </button>
-        </div>
-      }
-
-      @if (p.sizesEnabled && sizeMode() === 'fixed') {
+      @if ((p.sizesEnabled && p.sizes.length > 0) || p.customSizeEnabled) {
         <div class="option-group">
           <label>{{ 'product.size' | translate }}</label>
           <div class="pill-row">
-            @for (size of p.sizes; track size.id) {
+            @if (p.sizesEnabled) {
+              @for (size of p.sizes; track size.id) {
+                <button
+                  type="button"
+                  class="size-pill"
+                  [class.active]="sizeMode() === 'fixed' && size.name === selectedSizeName()"
+                  [class.discounted]="size.discountedPrice !== null"
+                  (click)="selectSize(size.name)"
+                >
+                  <span class="size-name">{{ size.name }}</span>
+                  @if (size.description) {
+                    <span class="size-description">{{ size.description }}</span>
+                  }
+                  @if (size.discountedPrice !== null) {
+                    <span class="size-delta discount">
+                      <span class="was">{{ size.price }} ден</span>
+                      {{ size.discountedPrice }} ден
+                    </span>
+                  } @else {
+                    <span class="size-delta">{{ size.price }} ден</span>
+                  }
+                </button>
+              }
+            }
+            @if (p.customSizeEnabled) {
               <button
                 type="button"
-                class="size-pill"
-                [class.active]="size.name === selectedSizeName()"
-                [class.discounted]="size.discountedPrice !== null"
-                (click)="selectSize(size.name)"
+                class="size-pill custom-size-pill"
+                [class.active]="sizeMode() === 'custom'"
+                (click)="setSizeMode('custom')"
               >
-                <span class="size-name">{{ size.name }}</span>
-                @if (size.description) {
-                  <span class="size-description">{{ size.description }}</span>
-                }
-                @if (size.discountedPrice !== null) {
-                  <span class="size-delta discount">
-                    <span class="was">{{ size.price }} ден</span>
-                    {{ size.discountedPrice }} ден
-                  </span>
-                } @else {
-                  <span class="size-delta">{{ size.price }} ден</span>
-                }
+                <span class="size-name">{{ 'product.customSizeLabel' | translate }}</span>
+                <span class="size-delta">
+                  {{ 'product.customSizeFrom' | translate: { price: p.customSizeUnitPrice ?? 0, unit: p.customSizeUnitLabel ?? '' } }}
+                </span>
               </button>
             }
           </div>
@@ -132,14 +136,22 @@
       }
 
       @if (p.customSizeEnabled && sizeMode() === 'custom') {
-        <div class="option-group">
-          <label>{{ 'product.customSizeQuantity' | translate: { unit: p.customSizeUnitLabel ?? '' } }}</label>
+        <div class="option-group custom-size-panel">
+          <label for="customSizeQty">{{ 'product.customSizeQuantity' | translate: { unit: p.customSizeUnitLabel ?? '' } }}</label>
           <input
+            id="customSizeQty"
             type="number"
             min="1"
             [value]="customSizeQuantity()"
             (input)="customSizeQuantity.set(+$any($event.target).value || 1)"
           />
+          <p class="custom-size-math">
+            {{ 'product.customSizeMath' | translate: { quantity: customSizeQuantity(), unit: p.customSizeUnitLabel ?? '', unitPrice: p.customSizeUnitPrice ?? 0 } }}
+            @if ((p.customSizeBaseFee ?? 0) > 0) {
+              {{ 'product.customSizeMathFee' | translate: { fee: p.customSizeBaseFee ?? 0 } }}
+            }
+            {{ 'product.customSizeMathTotal' | translate: { total: customSizeSubtotal() } }}
+          </p>
         </div>
       }
 
@@ -192,9 +204,19 @@
                   [checked]="selectedExtraNames().has(extra.name)"
                   (change)="toggleExtra(extra.name)"
                 />
-                <span class="extra-name">{{ extra.name }}</span>
+                <span class="extra-name">{{ extraDisplayName(extra) }}</span>
                 <span class="extra-price">+{{ extra.price }} ден</span>
               </label>
+              @if (extra.customTextEnabled && selectedExtraNames().has(extra.name)) {
+                <textarea
+                  class="extra-custom-text"
+                  rows="2"
+                  maxlength="200"
+                  [placeholder]="'product.extraTextPlaceholder' | translate: { extra: extraDisplayName(extra) }"
+                  [value]="selectedExtraTexts()[extra.name] ?? ''"
+                  (input)="setExtraText(extra.name, $any($event.target).value)"
+                ></textarea>
+              }
             }
           </div>
         </div>

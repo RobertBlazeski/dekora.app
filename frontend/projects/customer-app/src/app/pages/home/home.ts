@@ -78,13 +78,16 @@ export class Home {
   private static readonly TILE_TONES = ['coral', 'rose', 'lilac', 'success', 'ink'];
 
   protected readonly categories = signal<Category[]>([]);
-  protected readonly occasionTiles = computed(() =>
-    this.categories().map((category, i) => ({
+  protected readonly occasionTiles = computed(() => this.buildTiles(this.categories().filter((c) => !c.isProductType)));
+  protected readonly typeTiles = computed(() => this.buildTiles(this.categories().filter((c) => c.isProductType)));
+
+  private buildTiles(categories: Category[]) {
+    return categories.map((category, i) => ({
       category,
       tone: Home.TILE_TONES[i % Home.TILE_TONES.length],
       imageUrl: resolveAssetUrl(environment.apiUrl, category.sampleImageUrl),
-    })),
-  );
+    }));
+  }
 
   // Original 5 categories have curated translations; anything the owner adds later just shows
   // its name as-is rather than falling back to a raw, untranslated i18n key.

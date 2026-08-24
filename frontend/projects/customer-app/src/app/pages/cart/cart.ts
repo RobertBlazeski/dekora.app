@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
+import { CartItem } from '../../core/cart/cart.model';
 import { CartService } from '../../core/cart/cart.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { BusinessRulesApi } from '../../core/api/business-rules.api';
@@ -44,5 +45,12 @@ export class Cart {
 
   protected resolveUrl(url: string | null): string | null {
     return resolveAssetUrl(environment.apiUrl, url);
+  }
+
+  // extraCustomTexts entries are formatted "{ExtraName}: {text}" — once one exists for an extra,
+  // its bare name from selectedExtras is redundant to also show.
+  protected bareExtras(item: CartItem): string[] {
+    const namesWithText = new Set(item.extraCustomTexts.map((t) => t.split(':')[0].trim()));
+    return item.selectedExtras.filter((name) => !namesWithText.has(name));
   }
 }

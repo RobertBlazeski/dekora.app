@@ -42,7 +42,7 @@ public class CategoriesController(DekoraDbContext db) : ControllerBase
                 .ThenByDescending(p => p.CreatedAt)
                 .FirstOrDefault();
 
-            result.Add(new CategoryDto(category.Id, category.Name, category.SortOrder, sample?.Images.Select(i => i.Url).FirstOrDefault()));
+            result.Add(new CategoryDto(category.Id, category.Name, category.SortOrder, category.IsProductType, sample?.Images.Select(i => i.Url).FirstOrDefault()));
         }
 
         return Ok(result);
@@ -58,14 +58,14 @@ public class CategoriesController(DekoraDbContext db) : ControllerBase
 
         var existing = await db.Categories.FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
         if (existing is not null)
-            return Ok(new CategoryDto(existing.Id, existing.Name, existing.SortOrder, null));
+            return Ok(new CategoryDto(existing.Id, existing.Name, existing.SortOrder, existing.IsProductType, null));
 
         var sortOrder = await db.Categories.CountAsync();
-        var category = new Category { Name = name, SortOrder = sortOrder };
+        var category = new Category { Name = name, SortOrder = sortOrder, IsProductType = request.IsProductType };
         db.Categories.Add(category);
         await db.SaveChangesAsync();
 
         // Brand new — no products in it yet, so there's nothing to show a sample photo of.
-        return Ok(new CategoryDto(category.Id, category.Name, category.SortOrder, null));
+        return Ok(new CategoryDto(category.Id, category.Name, category.SortOrder, category.IsProductType, null));
     }
 }

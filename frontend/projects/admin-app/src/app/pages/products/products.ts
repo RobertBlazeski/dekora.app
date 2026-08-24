@@ -94,6 +94,7 @@ export class Products {
 
   protected readonly allCategories = signal<Category[]>([]);
   protected readonly newCategoryName = signal('');
+  protected readonly newCategoryIsProductType = signal(false);
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly formOpen = signal(false);
   protected readonly saving = signal(false);
@@ -150,12 +151,13 @@ export class Products {
     const name = this.newCategoryName().trim();
     if (!name) return;
 
-    this.categoriesApi.create({ name }).subscribe((category) => {
+    this.categoriesApi.create({ name, isProductType: this.newCategoryIsProductType() }).subscribe((category) => {
       this.allCategories.update((list) =>
         list.some((c) => c.id === category.id) ? list : [...list, category].sort((a, b) => a.sortOrder - b.sortOrder),
       );
       this.toggleCategory(category.name);
       this.newCategoryName.set('');
+      this.newCategoryIsProductType.set(false);
     });
   }
 
@@ -208,7 +210,13 @@ export class Products {
           sortOrder: g.sortOrder,
           colors: g.colors.map((c) => ({ name: c.name, hexValue: c.hexValue, soldOut: c.soldOut })),
         })),
-        extras: product.extras.map((x) => ({ name: x.name, price: x.price })),
+        extras: product.extras.map((x) => ({
+          name: x.name,
+          nameEn: x.nameEn,
+          nameSq: x.nameSq,
+          price: x.price,
+          customTextEnabled: x.customTextEnabled,
+        })),
       });
       this.previewImageIndex.set(0);
       this.showTranslations.set(false);
@@ -266,6 +274,26 @@ export class Products {
       ...f,
       images: f.images.map((img, i) => (i === index ? { ...img, [field]: field === 'colorTag' ? value || null : value } : img)),
     }));
+  }
+
+  // The first photo is the one shown as the product's main photo everywhere on the storefront
+  // (see the hint text above the grid) — moving a photo to the front is how the owner picks it.
+  protected moveImageUp(index: number): void {
+    if (index === 0) return;
+    this.reorderImages(index, index - 1);
+  }
+
+  protected moveImageDown(index: number): void {
+    if (index === this.form().images.length - 1) return;
+    this.reorderImages(index, index + 1);
+  }
+
+  private reorderImages(fromIndex: number, toIndex: number): void {
+    this.form.update((f) => {
+      const images = [...f.images];
+      [images[fromIndex], images[toIndex]] = [images[toIndex], images[fromIndex]];
+      return { ...f, images };
+    });
   }
 
   protected addSize(): void {
@@ -356,14 +384,17 @@ export class Products {
   }
 
   protected addExtra(): void {
-    this.form.update((f) => ({ ...f, extras: [...f.extras, { name: '', price: 0 }] }));
+    this.form.update((f) => ({
+      ...f,
+      extras: [...f.extras, { name: '', nameEn: null, nameSq: null, price: 0, customTextEnabled: false }],
+    }));
   }
 
   protected removeExtra(index: number): void {
     this.form.update((f) => ({ ...f, extras: f.extras.filter((_, i) => i !== index) }));
   }
 
-  protected updateExtra(index: number, field: 'name' | 'price', value: string | number): void {
+  protected updateExtra(index: number, field: keyof UpsertProductExtraRequest, value: string | number | boolean | null): void {
     this.form.update((f) => ({ ...f, extras: f.extras.map((x, i) => (i === index ? { ...x, [field]: value } : x)) }));
   }
 
