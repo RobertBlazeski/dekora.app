@@ -83,6 +83,10 @@ public class DekoraDbContext(DbContextOptions<DekoraDbContext> options)
         {
             e.Property(i => i.UnitPrice).HasPrecision(18, 2);
             e.Property(i => i.LineTotal).HasPrecision(18, 2);
+            // Matches the defaultValueSql baked into the AddOrderItemExtraCustomTexts migration
+            // (needed there so it could backfill existing rows) — kept here too so the model and
+            // migration history agree, and `dotnet ef migrations add` doesn't see a phantom diff.
+            e.Property(i => i.ExtraCustomTexts).HasDefaultValueSql("'{}'");
         });
 
         builder.Entity<Review>(e =>

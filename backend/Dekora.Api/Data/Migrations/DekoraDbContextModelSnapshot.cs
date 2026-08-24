@@ -412,7 +412,8 @@ namespace Dekora.Api.Data.Migrations
 
                     b.PrimitiveCollection<List<string>>("ExtraCustomTexts")
                         .IsRequired()
-                        .HasColumnType("text[]");
+                        .HasColumnType("text[]")
+                        .HasDefaultValueSql("'{}'");
 
                     b.Property<decimal>("LineTotal")
                         .HasPrecision(18, 2)

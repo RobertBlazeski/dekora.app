@@ -74,6 +74,7 @@ builder.Services.Configure<BusinessRulesOptions>(builder.Configuration.GetSectio
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));
 builder.Services.Configure<TelegramOptions>(builder.Configuration.GetSection(TelegramOptions.SectionName));
 builder.Services.Configure<FrontendOptions>(builder.Configuration.GetSection(FrontendOptions.SectionName));
+builder.Services.Configure<GoogleTranslateOptions>(builder.Configuration.GetSection(GoogleTranslateOptions.SectionName));
 builder.Services.Configure<ImageStorageOptions>(builder.Configuration.GetSection(ImageStorageOptions.SectionName));
 
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
@@ -106,6 +107,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 builder.Services.AddHttpClient<ITelegramSender, TelegramSender>();
+builder.Services.AddHttpClient<Dekora.Api.Controllers.TranslationController>();
 builder.Services.AddScoped<INotificationSender, CompositeNotificationSender>();
 
 // Auth endpoints get a stricter rate limit than the rest of the API — they're the ones
