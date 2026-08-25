@@ -75,8 +75,17 @@
           </section>
 
           <section class="form-section">
-            <label>Name</label>
-            <input type="text" [ngModel]="form().name" (ngModelChange)="form.update((f) => ({ ...f, name: $event }))" />
+            <div #nameBlock class="field-block" [class.field-invalid]="nameInvalid()">
+              <label>Name</label>
+              <input
+                type="text"
+                [ngModel]="form().name"
+                (ngModelChange)="form.update((f) => ({ ...f, name: $event })); nameInvalid.set(false)"
+              />
+              @if (nameInvalid()) {
+                <p class="field-error">A product needs a name.</p>
+              }
+            </div>
 
             <button type="button" class="translations-toggle" (click)="toggleTranslations()">
               {{ showTranslations() ? '▾' : '▸' }} Translations (optional)
@@ -114,8 +123,13 @@
               <p class="hint">When set and lower than the base price, this product shows as discounted everywhere.</p>
             }
 
+            <div #categoriesBlock class="field-block" [class.field-invalid]="categoriesInvalid()">
             <label>Categories</label>
-            <p class="hint">Occasion</p>
+            @if (categoriesInvalid()) {
+              <p class="field-error">Pick at least one occasion or product type below.</p>
+            }
+
+            <p class="hint">Occasion — which occasion(s) this product suits (shows in "Shop by occasion")</p>
             <div class="chip-row">
               @for (category of occasionCategoryOptions(); track category.id) {
                 <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
@@ -123,54 +137,83 @@
                 </button>
               }
             </div>
-            @if (typeCategoryOptions().length > 0) {
-              <p class="hint">Product type</p>
-              <div class="chip-row">
-                @for (category of typeCategoryOptions(); track category.id) {
-                  <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
-                    {{ category.name }}
-                  </button>
-                }
-              </div>
-            }
             <div class="add-category-row">
               <input
                 type="text"
-                placeholder="New category name"
-                [ngModel]="newCategoryName()"
-                (ngModelChange)="newCategoryName.set($event)"
+                placeholder="New occasion category name"
+                [ngModel]="newOccasionCategoryName()"
+                (ngModelChange)="newOccasionCategoryName.set($event)"
               />
-              <label class="new-category-type">
-                <input type="checkbox" [ngModel]="newCategoryIsProductType()" (ngModelChange)="newCategoryIsProductType.set($event)" />
-                Product type (e.g. Bouquets, Balloons) — shows in "Shop by type" instead of "Shop by occasion"
-              </label>
               @if (showTranslations()) {
                 <div class="translation-grid">
                   <div>
                     <label>English name</label>
                     <div class="field-with-translate">
-                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newCategoryNameEn()" (ngModelChange)="newCategoryNameEn.set($event)" />
-                      <app-translate-button [sourceText]="newCategoryName()" targetLanguage="en" (translated)="newCategoryNameEn.set($event)" />
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newOccasionCategoryNameEn()" (ngModelChange)="newOccasionCategoryNameEn.set($event)" />
+                      <app-translate-button [sourceText]="newOccasionCategoryName()" targetLanguage="en" (translated)="newOccasionCategoryNameEn.set($event)" />
                     </div>
                   </div>
                   <div>
                     <label>Albanian name</label>
                     <div class="field-with-translate">
-                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newCategoryNameSq()" (ngModelChange)="newCategoryNameSq.set($event)" />
-                      <app-translate-button [sourceText]="newCategoryName()" targetLanguage="sq" (translated)="newCategoryNameSq.set($event)" />
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newOccasionCategoryNameSq()" (ngModelChange)="newOccasionCategoryNameSq.set($event)" />
+                      <app-translate-button [sourceText]="newOccasionCategoryName()" targetLanguage="sq" (translated)="newOccasionCategoryNameSq.set($event)" />
                     </div>
                   </div>
                 </div>
               }
-              <button type="button" class="add-row-btn" [disabled]="!newCategoryName().trim()" (click)="addCategory()">+ Add category</button>
+              <button type="button" class="add-row-btn" [disabled]="!newOccasionCategoryName().trim()" (click)="addOccasionCategory()">+ Add occasion category</button>
+            </div>
+
+            <p class="hint">Product type — which type(s) this product is (shows in "Shop by type")</p>
+            <div class="chip-row">
+              @for (category of typeCategoryOptions(); track category.id) {
+                <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
+                  {{ category.name }}
+                </button>
+              }
+            </div>
+            <div class="add-category-row">
+              <input
+                type="text"
+                placeholder="New product type name (e.g. Bouquets, Balloons)"
+                [ngModel]="newTypeCategoryName()"
+                (ngModelChange)="newTypeCategoryName.set($event)"
+              />
+              @if (showTranslations()) {
+                <div class="translation-grid">
+                  <div>
+                    <label>English name</label>
+                    <div class="field-with-translate">
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newTypeCategoryNameEn()" (ngModelChange)="newTypeCategoryNameEn.set($event)" />
+                      <app-translate-button [sourceText]="newTypeCategoryName()" targetLanguage="en" (translated)="newTypeCategoryNameEn.set($event)" />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Albanian name</label>
+                    <div class="field-with-translate">
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newTypeCategoryNameSq()" (ngModelChange)="newTypeCategoryNameSq.set($event)" />
+                      <app-translate-button [sourceText]="newTypeCategoryName()" targetLanguage="sq" (translated)="newTypeCategoryNameSq.set($event)" />
+                    </div>
+                  </div>
+                </div>
+              }
+              <button type="button" class="add-row-btn" [disabled]="!newTypeCategoryName().trim()" (click)="addTypeCategory()">+ Add product type</button>
             </div>
 
             <button type="button" class="translations-toggle" (click)="manageCategoriesOpen.set(!manageCategoriesOpen())">
-              {{ manageCategoriesOpen() ? '▾' : '▸' }} Manage categories (rename, translate, change type)
+              {{ manageCategoriesOpen() ? '▾' : '▸' }} Manage categories (rename, translate, move between occasion/type)
             </button>
             @if (manageCategoriesOpen()) {
+              <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Occasion categories', list: occasionCategoryOptions() }" />
+              <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Product types', list: typeCategoryOptions() }" />
+            }
+            </div>
+
+            <ng-template #categoryManageGroup let-label="label" let-list="list">
+              <p class="hint category-manage-group-label">{{ label }}</p>
               <div class="category-manage-list">
-                @for (category of allCategories(); track category.id) {
+                @for (category of list; track category.id) {
                   <div class="category-manage-row">
                     @if (editingCategoryId() === category.id) {
                       <input
@@ -209,13 +252,14 @@
                       </div>
                     } @else {
                       <span class="category-manage-name">{{ category.name }}</span>
-                      <span class="category-manage-type">{{ category.isProductType ? 'Type' : 'Occasion' }}</span>
                       <button type="button" class="edit-category-btn" (click)="startEditCategory(category)">Edit</button>
                     }
                   </div>
+                } @empty {
+                  <p class="hint">None yet.</p>
                 }
               </div>
-            }
+            </ng-template>
 
             @if (form().categories.length > 0) {
               <label>Homepage tile photo</label>

@@ -11,6 +11,15 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
+
+  // Two filter dropdowns plus the "Add product" button no longer fit on one line once a phone
+  // narrows past ~480px — stack each to full width instead of letting them overflow sideways.
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
 }
 
 .category-filter {
@@ -21,6 +30,10 @@
   font: inherit;
   font-size: 0.85rem;
   color: var(--color-ink);
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 }
 
 .pill-btn {
@@ -32,6 +45,10 @@
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 }
 
 .product-grid {
@@ -787,13 +804,26 @@
   flex: 1;
 }
 
-.category-manage-type {
-  font-size: 0.72rem;
+.category-manage-group-label {
+  margin-top: 0.75rem;
+}
+
+// A save() that finds a required field empty scrolls straight to its wrapping .field-block and
+// flags it here — a plain border/background tint in the same coral used for discounts/sale
+// badges elsewhere, so it reads as "attention needed" without introducing a new color meaning.
+.field-block.field-invalid {
+  padding: 0.75rem;
+  margin: 0 -0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--color-coral-tint);
+  outline: 1px solid var(--color-coral);
+}
+
+.field-error {
+  margin: 0.3rem 0 0;
+  color: var(--color-coral);
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--color-ink-soft);
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-bg);
 }
 
 .edit-category-btn {

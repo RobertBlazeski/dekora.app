@@ -1,4 +1,5 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Category,
@@ -92,7 +93,7 @@ function emptyForm(): ProductFormState {
 
 @Component({
   selector: 'app-products',
-  imports: [FormsModule, ImageUpload, TranslateButton],
+  imports: [FormsModule, NgTemplateOutlet, ImageUpload, TranslateButton],
   templateUrl: './products.html',
   styleUrl: './products.scss',
 })
@@ -104,10 +105,15 @@ export class Products {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly allCategories = signal<Category[]>([]);
-  protected readonly newCategoryName = signal('');
-  protected readonly newCategoryNameEn = signal<string | null>(null);
-  protected readonly newCategoryNameSq = signal<string | null>(null);
-  protected readonly newCategoryIsProductType = signal(false);
+  // Kept as two separate sets of state (rather than one shared field plus a type checkbox) so
+  // each "+ Add" form sits directly under the chip row it adds to and unambiguously creates a
+  // category of that kind — a single shared add-form with a checkbox was the confusing part.
+  protected readonly newOccasionCategoryName = signal('');
+  protected readonly newOccasionCategoryNameEn = signal<string | null>(null);
+  protected readonly newOccasionCategoryNameSq = signal<string | null>(null);
+  protected readonly newTypeCategoryName = signal('');
+  protected readonly newTypeCategoryNameEn = signal<string | null>(null);
+  protected readonly newTypeCategoryNameSq = signal<string | null>(null);
   protected readonly manageCategoriesOpen = signal(false);
   protected readonly editingCategoryId = signal<string | null>(null);
   protected readonly categoryDraft = signal<CategoryDraft | null>(null);
@@ -170,6 +176,13 @@ export class Products {
 
   protected readonly previewImageIndex = signal(0);
 
+  // Flip on a failed save() so the template can flag exactly which section is missing something,
+  // rather than the form silently rejecting the click (or the API rejecting it far less clearly).
+  protected readonly nameInvalid = signal(false);
+  protected readonly categoriesInvalid = signal(false);
+  private readonly nameBlock = viewChild<ElementRef<HTMLElement>>('nameBlock');
+  private readonly categoriesBlock = viewChild<ElementRef<HTMLElement>>('categoriesBlock');
+
   // Compared against the form's live JSON on every change so the browser's unload warning (and
   // the confirm-before-discard guard in closeForm) only fire when something would actually be
   // lost — reset to the current form whenever it's loaded fresh or successfully saved.
@@ -183,21 +196,37 @@ export class Products {
     this.destroyRef.onDestroy(this.unsavedChanges.register(() => this.isDirty()));
   }
 
-  protected addCategory(): void {
-    const name = this.newCategoryName().trim();
+  protected addOccasionCategory(): void {
+    const name = this.newOccasionCategoryName().trim();
     if (!name) return;
 
     this.categoriesApi
-      .create({ name, nameEn: this.newCategoryNameEn(), nameSq: this.newCategoryNameSq(), isProductType: this.newCategoryIsProductType() })
+      .create({ name, nameEn: this.newOccasionCategoryNameEn(), nameSq: this.newOccasionCategoryNameSq(), isProductType: false })
       .subscribe((category) => {
         this.allCategories.update((list) =>
           list.some((c) => c.id === category.id) ? list : [...list, category].sort((a, b) => a.sortOrder - b.sortOrder),
         );
         this.toggleCategory(category.name);
-        this.newCategoryName.set('');
-        this.newCategoryNameEn.set(null);
-        this.newCategoryNameSq.set(null);
-        this.newCategoryIsProductType.set(false);
+        this.newOccasionCategoryName.set('');
+        this.newOccasionCategoryNameEn.set(null);
+        this.newOccasionCategoryNameSq.set(null);
+      });
+  }
+
+  protected addTypeCategory(): void {
+    const name = this.newTypeCategoryName().trim();
+    if (!name) return;
+
+    this.categoriesApi
+      .create({ name, nameEn: this.newTypeCategoryNameEn(), nameSq: this.newTypeCategoryNameSq(), isProductType: true })
+      .subscribe((category) => {
+        this.allCategories.update((list) =>
+          list.some((c) => c.id === category.id) ? list : [...list, category].sort((a, b) => a.sortOrder - b.sortOrder),
+        );
+        this.toggleCategory(category.name);
+        this.newTypeCategoryName.set('');
+        this.newTypeCategoryNameEn.set(null);
+        this.newTypeCategoryNameSq.set(null);
       });
   }
 
@@ -248,6 +277,8 @@ export class Products {
     this.lastSavedFormJson = JSON.stringify(this.form());
     this.previewImageIndex.set(0);
     this.showTranslations.set(false);
+    this.nameInvalid.set(false);
+    this.categoriesInvalid.set(false);
     this.formOpen.set(true);
   }
 
@@ -300,6 +331,8 @@ export class Products {
       this.lastSavedFormJson = JSON.stringify(this.form());
       this.previewImageIndex.set(0);
       this.showTranslations.set(false);
+      this.nameInvalid.set(false);
+      this.categoriesInvalid.set(false);
       this.formOpen.set(true);
     });
   }
@@ -327,6 +360,7 @@ export class Products {
         showcaseCategories: has ? f.showcaseCategories.filter((c) => c !== category) : f.showcaseCategories,
       };
     });
+    if (this.form().categories.length > 0) this.categoriesInvalid.set(false);
   }
 
   // Marks (or unmarks) this product's photo as the one shown on the homepage "shop by
@@ -479,7 +513,23 @@ export class Products {
     this.form.update((f) => ({ ...f, extras: f.extras.map((x, i) => (i === index ? { ...x, [field]: value } : x)) }));
   }
 
+  // Points the owner straight at whichever required section is missing something, instead of the
+  // save button just silently doing nothing (or the API rejecting it with no visible cause).
+  private validateForm(): boolean {
+    const f = this.form();
+    const nameMissing = !f.name.trim();
+    const categoriesMissing = f.categories.length === 0;
+    this.nameInvalid.set(nameMissing);
+    this.categoriesInvalid.set(categoriesMissing);
+
+    const firstInvalidRef = nameMissing ? this.nameBlock() : categoriesMissing ? this.categoriesBlock() : null;
+    firstInvalidRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return !nameMissing && !categoriesMissing;
+  }
+
   protected save(): void {
+    if (!this.validateForm()) return;
+
     const f = this.form();
     const request: UpsertProductRequest = {
       name: f.name,
