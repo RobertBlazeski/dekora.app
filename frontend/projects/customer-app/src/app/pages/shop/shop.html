@@ -15,14 +15,34 @@
     <button type="button" class="chip" [class.active]="selectedCategory() === ''" (click)="selectCategory('')">
       {{ 'shopFilters.allCategories' | translate }}
     </button>
-    @for (category of categories(); track category.id) {
+  </div>
+
+  @if (typeCategories().length > 0) {
+    <p class="chip-group-label">{{ 'home.shopByType' | translate }}</p>
+    <div class="chip-row">
+      @for (category of typeCategories(); track category.id) {
+        <button
+          type="button"
+          class="chip"
+          [class.active]="selectedCategory() === category.name"
+          (click)="selectCategory(category.name)"
+        >
+          {{ categoryLabel(category) }}
+        </button>
+      }
+    </div>
+  }
+
+  <p class="chip-group-label">{{ 'home.shopByOccasion' | translate }}</p>
+  <div class="chip-row">
+    @for (category of occasionCategories(); track category.id) {
       <button
         type="button"
         class="chip"
         [class.active]="selectedCategory() === category.name"
         (click)="selectCategory(category.name)"
       >
-        {{ categoryLabel(category.name) }}
+        {{ categoryLabel(category) }}
       </button>
     }
   </div>

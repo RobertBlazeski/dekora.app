@@ -65,12 +65,20 @@ public class HomepageContentController(DekoraDbContext db) : ControllerBase
         }
 
         content.BannerTitle = request.BannerTitle;
+        content.BannerTitleEn = request.BannerTitleEn;
+        content.BannerTitleSq = request.BannerTitleSq;
         content.BannerSubtitle = request.BannerSubtitle;
+        content.BannerSubtitleEn = request.BannerSubtitleEn;
+        content.BannerSubtitleSq = request.BannerSubtitleSq;
         content.BannerImageUrl = request.BannerImageUrl;
         content.BannerCtaLabel = request.BannerCtaLabel;
+        content.BannerCtaLabelEn = request.BannerCtaLabelEn;
+        content.BannerCtaLabelSq = request.BannerCtaLabelSq;
         content.BannerCtaLink = request.BannerCtaLink;
         content.PromoBannerEnabled = request.PromoBannerEnabled;
         content.PromoBannerText = request.PromoBannerText;
+        content.PromoBannerTextEn = request.PromoBannerTextEn;
+        content.PromoBannerTextSq = request.PromoBannerTextSq;
         content.PromoBannerLink = request.PromoBannerLink;
         content.PromoBannerEndsAt = request.PromoBannerEndsAt;
         content.FeaturedProductId = request.FeaturedProductId;
@@ -101,12 +109,15 @@ public class HomepageContentController(DekoraDbContext db) : ControllerBase
             var pricing = ProductPricing.Summarize(c.FeaturedProduct);
             featured = new FeaturedProductDto(
                 c.FeaturedProduct.Id, c.FeaturedProduct.Name, c.FeaturedProduct.NameEn, c.FeaturedProduct.NameSq,
-                c.FeaturedProduct.Images.Select(i => i.Url).FirstOrDefault(), pricing.LowestPrice);
+                c.FeaturedProduct.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault(), pricing.LowestPrice);
         }
 
         return new HomepageContentDto(
-            c.BannerTitle, c.BannerSubtitle, c.BannerImageUrl, c.BannerCtaLabel, c.BannerCtaLink,
-            c.PromoBannerEnabled, c.PromoBannerText, c.PromoBannerLink, c.PromoBannerEndsAt,
-            effectivePromoBannerEndsAt, featured);
+            c.BannerTitle, c.BannerTitleEn, c.BannerTitleSq,
+            c.BannerSubtitle, c.BannerSubtitleEn, c.BannerSubtitleSq,
+            c.BannerImageUrl,
+            c.BannerCtaLabel, c.BannerCtaLabelEn, c.BannerCtaLabelSq, c.BannerCtaLink,
+            c.PromoBannerEnabled, c.PromoBannerText, c.PromoBannerTextEn, c.PromoBannerTextSq, c.PromoBannerLink,
+            c.PromoBannerEndsAt, effectivePromoBannerEndsAt, featured);
     }
 }

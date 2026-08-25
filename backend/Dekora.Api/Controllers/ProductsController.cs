@@ -274,7 +274,9 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
         product.ExtrasEnabled = request.ExtrasEnabled;
         product.CustomTextEnabled = request.CustomTextEnabled;
 
-        product.Images = request.Images.Select(i => new ProductImage { Url = i.Url, ColorTag = i.ColorTag }).ToList();
+        // SortOrder comes straight from the request array's own order — the admin form already
+        // sends photos in exactly the order the owner arranged them in (see the reorder buttons).
+        product.Images = request.Images.Select((i, index) => new ProductImage { Url = i.Url, ColorTag = i.ColorTag, SortOrder = index }).ToList();
         product.Sizes = request.Sizes.Select(s => new ProductSize
         {
             Name = s.Name,
@@ -305,14 +307,14 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
         var pricing = ProductPricing.Summarize(p);
         return new ProductListItemDto(
             p.Id, p.Name, p.NameEn, p.NameSq, p.BasePrice, pricing.LowestPrice, pricing.IsDiscounted, pricing.DiscountPercent,
-            p.Categories, p.SoldOut, p.IsTrending, p.IsFeatured, p.Images.Select(i => i.Url).FirstOrDefault());
+            p.Categories, p.SoldOut, p.IsTrending, p.IsFeatured, p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault());
     }
 
     private static ProductDetailDto ToDetailDto(Product p) => new(
         p.Id, p.Name, p.NameEn, p.NameSq, p.Description, p.DescriptionEn, p.DescriptionSq, p.BasePrice, p.DiscountedPrice, p.Categories, p.Tags, p.ShowcaseCategories,
         p.SoldOut, p.IsTrending, p.IsFeatured,
         p.SizesEnabled, p.CustomSizeEnabled, p.CustomSizeUnitPrice, p.CustomSizeUnitLabel, p.CustomSizeBaseFee, p.ExtrasEnabled, p.CustomTextEnabled,
-        p.Images.Select(i => new ProductImageDto(i.Id, i.Url, i.ColorTag)).ToList(),
+        p.Images.OrderBy(i => i.SortOrder).Select(i => new ProductImageDto(i.Id, i.Url, i.ColorTag)).ToList(),
         // Sorted by effective price ascending — the sizes are entered in whatever order the
         // owner typed them (e.g. S, M, L), but a collection navigation property has no
         // guaranteed order from the database, and "cheapest first" is what customers expect

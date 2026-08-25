@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Category, CreateCategoryRequest } from '@dekora/shared';
+import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -14,5 +14,9 @@ export class CategoriesApi {
 
   create(request: CreateCategoryRequest): Observable<Category> {
     return this.http.post<Category>(`${environment.apiUrl}/categories`, request);
+  }
+
+  update(id: string, request: UpdateCategoryRequest): Observable<Category> {
+    return this.http.put<Category>(`${environment.apiUrl}/categories/${id}`, request);
   }
 }

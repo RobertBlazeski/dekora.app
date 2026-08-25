@@ -1,7 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, DestroyRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Category, HomepageContent, ProductListItem, resolveAssetUrl, resolveProductName } from '@dekora/shared';
+import { Category, HomepageContent, ProductListItem, resolveAssetUrl, resolveLocalizedText, resolveProductName } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 import { BusinessRulesApi } from '../../core/api/business-rules.api';
 import { CategoriesApi } from '../../core/api/categories.api';
@@ -41,6 +41,32 @@ export class Home {
   protected readonly featuredProductLink = computed(() => {
     const p = this.featuredProduct();
     return p ? ['/', this.translation.currentLocale(), 'product', p.id] : null;
+  });
+
+  // Falls back to the untranslated Macedonian text (or, for title/subtitle, the i18n default
+  // copy) whenever the owner hasn't set a translation for the current locale.
+  protected readonly displayBannerTitle = computed(() => {
+    const c = this.content();
+    if (!c?.bannerTitle) return this.translation.translate('home.title');
+    return resolveLocalizedText(this.translation.currentLocale(), c.bannerTitle, c.bannerTitleEn, c.bannerTitleSq);
+  });
+
+  protected readonly displayBannerSubtitle = computed(() => {
+    const c = this.content();
+    if (!c?.bannerSubtitle) return this.translation.translate('home.subtitle');
+    return resolveLocalizedText(this.translation.currentLocale(), c.bannerSubtitle, c.bannerSubtitleEn, c.bannerSubtitleSq);
+  });
+
+  protected readonly displayBannerCtaLabel = computed(() => {
+    const c = this.content();
+    if (!c?.bannerCtaLabel) return this.translation.translate('home.defaultCtaLabel');
+    return resolveLocalizedText(this.translation.currentLocale(), c.bannerCtaLabel, c.bannerCtaLabelEn, c.bannerCtaLabelSq);
+  });
+
+  protected readonly displayPromoBannerText = computed(() => {
+    const c = this.content();
+    if (!c?.promoBannerText) return '';
+    return resolveLocalizedText(this.translation.currentLocale(), c.promoBannerText, c.promoBannerTextEn, c.promoBannerTextSq);
   });
 
   // Falls back to the custom banner photo only when no product is featured.
@@ -89,11 +115,16 @@ export class Home {
     }));
   }
 
-  // Original 5 categories have curated translations; anything the owner adds later just shows
-  // its name as-is rather than falling back to a raw, untranslated i18n key.
-  protected categoryLabel(name: string): string {
-    const translated = this.translation.translate('categories.' + name);
-    return translated === 'categories.' + name ? name : translated;
+  // Prefers the category's own nameEn/nameSq (settable from the admin dashboard) over the
+  // original 5 categories' hardcoded i18n keys, which stay as the fallback for those five so
+  // nothing regresses for categories nobody's bothered to add a translation to yet. A category
+  // with neither just shows its raw name.
+  protected categoryLabel(category: Category): string {
+    const resolved = resolveProductName(this.translation.currentLocale(), category);
+    if (resolved !== category.name) return resolved;
+
+    const translated = this.translation.translate('categories.' + category.name);
+    return translated === 'categories.' + category.name ? category.name : translated;
   }
 
   // Logged-in visitors already have an account — pushing "create an account" at them is dead

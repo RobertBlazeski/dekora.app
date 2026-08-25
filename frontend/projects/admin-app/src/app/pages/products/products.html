@@ -128,8 +128,78 @@
                 <input type="checkbox" [ngModel]="newCategoryIsProductType()" (ngModelChange)="newCategoryIsProductType.set($event)" />
                 Product type (e.g. Bouquets, Balloons) — shows in "Shop by type" instead of "Shop by occasion"
               </label>
+              @if (showTranslations()) {
+                <div class="translation-grid">
+                  <div>
+                    <label>English name</label>
+                    <div class="field-with-translate">
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newCategoryNameEn()" (ngModelChange)="newCategoryNameEn.set($event)" />
+                      <app-translate-button [sourceText]="newCategoryName()" targetLanguage="en" (translated)="newCategoryNameEn.set($event)" />
+                    </div>
+                  </div>
+                  <div>
+                    <label>Albanian name</label>
+                    <div class="field-with-translate">
+                      <input type="text" placeholder="Falls back to the name above" [ngModel]="newCategoryNameSq()" (ngModelChange)="newCategoryNameSq.set($event)" />
+                      <app-translate-button [sourceText]="newCategoryName()" targetLanguage="sq" (translated)="newCategoryNameSq.set($event)" />
+                    </div>
+                  </div>
+                </div>
+              }
               <button type="button" class="add-row-btn" [disabled]="!newCategoryName().trim()" (click)="addCategory()">+ Add category</button>
             </div>
+
+            <button type="button" class="translations-toggle" (click)="manageCategoriesOpen.set(!manageCategoriesOpen())">
+              {{ manageCategoriesOpen() ? '▾' : '▸' }} Manage categories (rename, translate, change type)
+            </button>
+            @if (manageCategoriesOpen()) {
+              <div class="category-manage-list">
+                @for (category of allCategories(); track category.id) {
+                  <div class="category-manage-row">
+                    @if (editingCategoryId() === category.id) {
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        [ngModel]="categoryDraft()?.name"
+                        (ngModelChange)="updateCategoryDraft('name', $event)"
+                      />
+                      <label class="new-category-type">
+                        <input
+                          type="checkbox"
+                          [ngModel]="categoryDraft()?.isProductType"
+                          (ngModelChange)="updateCategoryDraft('isProductType', $event)"
+                        />
+                        Product type
+                      </label>
+                      <div class="translation-grid">
+                        <div>
+                          <label>English name</label>
+                          <div class="field-with-translate">
+                            <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameEn" (ngModelChange)="updateCategoryDraft('nameEn', $event)" />
+                            <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="en" (translated)="updateCategoryDraft('nameEn', $event)" />
+                          </div>
+                        </div>
+                        <div>
+                          <label>Albanian name</label>
+                          <div class="field-with-translate">
+                            <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameSq" (ngModelChange)="updateCategoryDraft('nameSq', $event)" />
+                            <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="sq" (translated)="updateCategoryDraft('nameSq', $event)" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="category-manage-actions">
+                        <button type="button" class="cancel-btn" (click)="cancelEditCategory()">Cancel</button>
+                        <button type="button" class="save-btn" [disabled]="!categoryDraft()?.name?.trim()" (click)="saveCategoryEdit()">Save</button>
+                      </div>
+                    } @else {
+                      <span class="category-manage-name">{{ category.name }}</span>
+                      <span class="category-manage-type">{{ category.isProductType ? 'Type' : 'Occasion' }}</span>
+                      <button type="button" class="edit-category-btn" (click)="startEditCategory(category)">Edit</button>
+                    }
+                  </div>
+                }
+              </div>
+            }
 
             @if (form().categories.length > 0) {
               <label>Homepage tile photo</label>

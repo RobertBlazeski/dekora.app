@@ -9,14 +9,22 @@
       </div>
     }
 
-    <div class="track-viewport">
-      <div class="track" [style.animation-duration.s]="scrollDurationSeconds">
+    <div
+      #viewport
+      class="track-viewport"
+      (pointermove)="onPointerMove($event)"
+      (pointerleave)="onPointerLeave($event)"
+      (pointerdown)="onPointerDown()"
+      (pointerup)="onPointerUp()"
+      (pointercancel)="onPointerUp()"
+    >
+      <div class="track">
         @for (product of products; track product.id + '-a') {
           <div class="card-slot">
             <app-product-card [product]="product" />
           </div>
         }
-        <!-- Duplicate the rail so the marquee loop is seamless. -->
+        <!-- Duplicate the rail so the loop point (see ProductCarousel.step) is seamless. -->
         @for (product of products; track product.id + '-b') {
           <div class="card-slot">
             <app-product-card [product]="product" [hidden]="true" />

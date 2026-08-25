@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
+  Category,
   ProductDetail as ProductDetailModel,
   ProductExtra,
   ProductListItem,
@@ -11,6 +12,7 @@ import {
   resolveProductName,
 } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
+import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
 import { ReviewsApi } from '../../core/api/reviews.api';
 import { BusinessRulesApi } from '../../core/api/business-rules.api';
@@ -34,6 +36,7 @@ type SizeMode = 'none' | 'fixed' | 'custom';
 export class ProductDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly productsApi = inject(ProductsApi);
+  private readonly categoriesApi = inject(CategoriesApi);
   private readonly reviewsApi = inject(ReviewsApi);
   private readonly businessRulesApi = inject(BusinessRulesApi);
   private readonly cart = inject(CartService);
@@ -43,6 +46,7 @@ export class ProductDetail {
   protected readonly translation = inject(TranslationService);
 
   protected readonly product = signal<ProductDetailModel | null>(null);
+  protected readonly categories = signal<Category[]>([]);
   protected readonly reviews = signal<Review[]>([]);
   protected readonly alsoOrdered = signal<ProductListItem[]>([]);
   protected readonly trending = signal<ProductListItem[]>([]);
@@ -187,6 +191,7 @@ export class ProductDetail {
     if (!productId) return;
 
     this.businessRulesApi.get().subscribe((rules) => this.pointsEarnRate.set(rules.pointsEarnRate));
+    this.categoriesApi.getAll().subscribe((categories) => this.categories.set(categories));
 
     this.productsApi.getById(productId).subscribe((product) => {
       this.product.set(product);
@@ -208,6 +213,21 @@ export class ProductDetail {
 
   protected resolveUrl(url: string | null | undefined): string | null {
     return resolveAssetUrl(environment.apiUrl, url ?? null);
+  }
+
+  // Prefers the category's own nameEn/nameSq (settable from the admin dashboard) over the
+  // original 5 categories' hardcoded i18n keys, matching the same fallback chain the shop and
+  // homepage use — without this the breadcrumb would show a raw, untranslated i18n key for any
+  // category the owner added later.
+  protected categoryLabel(name: string): string {
+    const category = this.categories().find((c) => c.name === name);
+    if (category) {
+      const resolved = resolveProductName(this.translation.currentLocale(), category);
+      if (resolved !== category.name) return resolved;
+    }
+
+    const translated = this.translation.translate('categories.' + name);
+    return translated === 'categories.' + name ? name : translated;
   }
 
   // The rating line under the title (and the "Write a review" button) both open the same popup —

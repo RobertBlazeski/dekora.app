@@ -3,12 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { HomepageContent, ProductListItem, UpdateHomepageContentRequest, resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 import { ImageUpload } from '../../components/image-upload/image-upload';
+import { TranslateButton } from '../../components/translate-button/translate-button';
 import { HomepageContentApi } from '../../core/api/homepage-content.api';
 import { ProductsApi } from '../../core/api/products.api';
 
 @Component({
   selector: 'app-homepage',
-  imports: [FormsModule, ImageUpload],
+  imports: [FormsModule, ImageUpload, TranslateButton],
   templateUrl: './homepage.html',
   styleUrl: './homepage.scss',
 })
@@ -18,12 +19,20 @@ export class Homepage {
 
   protected readonly content = signal<HomepageContent>({
     bannerTitle: '',
+    bannerTitleEn: null,
+    bannerTitleSq: null,
     bannerSubtitle: '',
+    bannerSubtitleEn: null,
+    bannerSubtitleSq: null,
     bannerImageUrl: null,
     bannerCtaLabel: null,
+    bannerCtaLabelEn: null,
+    bannerCtaLabelSq: null,
     bannerCtaLink: null,
     promoBannerEnabled: false,
     promoBannerText: null,
+    promoBannerTextEn: null,
+    promoBannerTextSq: null,
     promoBannerLink: null,
     promoBannerEndsAt: null,
     effectivePromoBannerEndsAt: new Date(0).toISOString(),
@@ -32,6 +41,7 @@ export class Homepage {
   protected readonly featuredProductId = signal<string | null>(null);
   protected readonly saving = signal(false);
   protected readonly saved = signal(false);
+  protected readonly showTranslations = signal(false);
 
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly productSearch = signal('');
@@ -102,12 +112,20 @@ export class Homepage {
     const c = this.content();
     const request: UpdateHomepageContentRequest = {
       bannerTitle: c.bannerTitle,
+      bannerTitleEn: c.bannerTitleEn,
+      bannerTitleSq: c.bannerTitleSq,
       bannerSubtitle: c.bannerSubtitle,
+      bannerSubtitleEn: c.bannerSubtitleEn,
+      bannerSubtitleSq: c.bannerSubtitleSq,
       bannerImageUrl: c.bannerImageUrl,
       bannerCtaLabel: c.bannerCtaLabel,
+      bannerCtaLabelEn: c.bannerCtaLabelEn,
+      bannerCtaLabelSq: c.bannerCtaLabelSq,
       bannerCtaLink: c.bannerCtaLink,
       promoBannerEnabled: c.promoBannerEnabled,
       promoBannerText: c.promoBannerText,
+      promoBannerTextEn: c.promoBannerTextEn,
+      promoBannerTextSq: c.promoBannerTextSq,
       promoBannerLink: c.promoBannerLink,
       promoBannerEndsAt: c.promoBannerEndsAt,
       featuredProductId: this.featuredProductId(),

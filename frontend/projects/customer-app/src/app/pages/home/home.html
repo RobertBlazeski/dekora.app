@@ -1,9 +1,9 @@
 @if (content()?.promoBannerEnabled && content()?.promoBannerText) {
   <div class="promo-strip">
     @if (promoBannerHref(); as href) {
-      <a [href]="href">{{ content()!.promoBannerText }}</a>
+      <a [href]="href">{{ displayPromoBannerText() }}</a>
     } @else {
-      <span>{{ content()!.promoBannerText }}</span>
+      <span>{{ displayPromoBannerText() }}</span>
     }
     @if (promoCountdown(); as countdown) {
       <span class="promo-countdown">{{ 'home.promoEndsIn' | translate }} {{ countdown }}</span>
@@ -14,11 +14,11 @@
 <section class="hero">
   <div class="hero-copy">
     <p class="eyebrow">{{ 'home.eyebrow' | translate }}</p>
-    <h1>{{ content()?.bannerTitle || ('home.title' | translate) }}</h1>
-    <p class="subtitle">{{ content()?.bannerSubtitle || ('home.subtitle' | translate) }}</p>
+    <h1>{{ displayBannerTitle() }}</h1>
+    <p class="subtitle">{{ displayBannerSubtitle() }}</p>
     <div class="hero-actions">
       <a class="btn-solid" [href]="primaryCtaLink()">
-        {{ content()?.bannerCtaLabel || ('home.defaultCtaLabel' | translate) }} →
+        {{ displayBannerCtaLabel() }} →
       </a>
       <a class="btn-outline" [routerLink]="['/', translation.currentLocale(), 'shop']">
         {{ 'home.shopBestsellers' | translate }}
@@ -72,7 +72,7 @@
               <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
             </svg>
           }
-          <span class="occasion-label">{{ categoryLabel(tile.category.name) }}</span>
+          <span class="occasion-label">{{ categoryLabel(tile.category) }}</span>
         </a>
       }
     </div>
@@ -100,7 +100,7 @@
             <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
           </svg>
         }
-        <span class="occasion-label">{{ categoryLabel(tile.category.name) }}</span>
+        <span class="occasion-label">{{ categoryLabel(tile.category) }}</span>
       </a>
     }
   </div>

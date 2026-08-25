@@ -7,9 +7,15 @@ public class HomepageContent
     public Guid Id { get; set; }
 
     public string BannerTitle { get; set; } = string.Empty;
+    public string? BannerTitleEn { get; set; }
+    public string? BannerTitleSq { get; set; }
     public string BannerSubtitle { get; set; } = string.Empty;
+    public string? BannerSubtitleEn { get; set; }
+    public string? BannerSubtitleSq { get; set; }
     public string? BannerImageUrl { get; set; }
     public string? BannerCtaLabel { get; set; }
+    public string? BannerCtaLabelEn { get; set; }
+    public string? BannerCtaLabelSq { get; set; }
     public string? BannerCtaLink { get; set; }
 
     // When set, the hero shows this product's photo instead of BannerImageUrl, with a "from
@@ -23,6 +29,8 @@ public class HomepageContent
     // without touching the main banner copy/image.
     public bool PromoBannerEnabled { get; set; }
     public string? PromoBannerText { get; set; }
+    public string? PromoBannerTextEn { get; set; }
+    public string? PromoBannerTextSq { get; set; }
     public string? PromoBannerLink { get; set; }
 
     // Optional countdown the owner can set explicitly. The strip always shows a countdown

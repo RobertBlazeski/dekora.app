@@ -431,7 +431,7 @@ public class OrdersController(
         return await db.Products
             .AsNoTracking()
             .Where(p => productIds.Contains(p.Id))
-            .Select(p => new { p.Id, ImageUrl = p.Images.Select(i => i.Url).FirstOrDefault() })
+            .Select(p => new { p.Id, ImageUrl = p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault() })
             .ToDictionaryAsync(p => p.Id, p => p.ImageUrl);
     }
 

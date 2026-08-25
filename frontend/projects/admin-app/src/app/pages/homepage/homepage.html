@@ -62,6 +62,56 @@
     </div>
   </div>
 
+  <button type="button" class="translations-toggle" (click)="showTranslations.set(!showTranslations())">
+    {{ showTranslations() ? '▾' : '▸' }} Translations (optional)
+  </button>
+  @if (showTranslations()) {
+    <div class="translation-grid">
+      <div>
+        <label>English headline</label>
+        <div class="field-with-translate">
+          <input type="text" placeholder="Falls back to the headline above" [ngModel]="content().bannerTitleEn" (ngModelChange)="updateField('bannerTitleEn', $event)" />
+          <app-translate-button [sourceText]="content().bannerTitle" targetLanguage="en" (translated)="updateField('bannerTitleEn', $event)" />
+        </div>
+      </div>
+      <div>
+        <label>Albanian headline</label>
+        <div class="field-with-translate">
+          <input type="text" placeholder="Falls back to the headline above" [ngModel]="content().bannerTitleSq" (ngModelChange)="updateField('bannerTitleSq', $event)" />
+          <app-translate-button [sourceText]="content().bannerTitle" targetLanguage="sq" (translated)="updateField('bannerTitleSq', $event)" />
+        </div>
+      </div>
+      <div>
+        <label>English supporting paragraph</label>
+        <div class="field-with-translate">
+          <textarea rows="2" placeholder="Falls back to the paragraph above" [ngModel]="content().bannerSubtitleEn" (ngModelChange)="updateField('bannerSubtitleEn', $event)"></textarea>
+          <app-translate-button [sourceText]="content().bannerSubtitle" targetLanguage="en" (translated)="updateField('bannerSubtitleEn', $event)" />
+        </div>
+      </div>
+      <div>
+        <label>Albanian supporting paragraph</label>
+        <div class="field-with-translate">
+          <textarea rows="2" placeholder="Falls back to the paragraph above" [ngModel]="content().bannerSubtitleSq" (ngModelChange)="updateField('bannerSubtitleSq', $event)"></textarea>
+          <app-translate-button [sourceText]="content().bannerSubtitle" targetLanguage="sq" (translated)="updateField('bannerSubtitleSq', $event)" />
+        </div>
+      </div>
+      <div>
+        <label>English button label</label>
+        <div class="field-with-translate">
+          <input type="text" placeholder="Falls back to the label above" [ngModel]="content().bannerCtaLabelEn" (ngModelChange)="updateField('bannerCtaLabelEn', $event)" />
+          <app-translate-button [sourceText]="content().bannerCtaLabel ?? ''" targetLanguage="en" (translated)="updateField('bannerCtaLabelEn', $event)" />
+        </div>
+      </div>
+      <div>
+        <label>Albanian button label</label>
+        <div class="field-with-translate">
+          <input type="text" placeholder="Falls back to the label above" [ngModel]="content().bannerCtaLabelSq" (ngModelChange)="updateField('bannerCtaLabelSq', $event)" />
+          <app-translate-button [sourceText]="content().bannerCtaLabel ?? ''" targetLanguage="sq" (translated)="updateField('bannerCtaLabelSq', $event)" />
+        </div>
+      </div>
+    </div>
+  }
+
   <button type="button" class="save-btn" [disabled]="saving()" (click)="save()">
     {{ saving() ? 'Saving…' : saved() ? 'Saved ✓' : 'Save banner' }}
   </button>
@@ -92,6 +142,28 @@
       [ngModel]="content().promoBannerText"
       (ngModelChange)="updateField('promoBannerText', $event)"
     />
+
+    <button type="button" class="translations-toggle" (click)="showTranslations.set(!showTranslations())">
+      {{ showTranslations() ? '▾' : '▸' }} Translations (optional)
+    </button>
+    @if (showTranslations()) {
+      <div class="translation-grid">
+        <div>
+          <label>English message</label>
+          <div class="field-with-translate">
+            <input type="text" placeholder="Falls back to the message above" [ngModel]="content().promoBannerTextEn" (ngModelChange)="updateField('promoBannerTextEn', $event)" />
+            <app-translate-button [sourceText]="content().promoBannerText ?? ''" targetLanguage="en" (translated)="updateField('promoBannerTextEn', $event)" />
+          </div>
+        </div>
+        <div>
+          <label>Albanian message</label>
+          <div class="field-with-translate">
+            <input type="text" placeholder="Falls back to the message above" [ngModel]="content().promoBannerTextSq" (ngModelChange)="updateField('promoBannerTextSq', $event)" />
+            <app-translate-button [sourceText]="content().promoBannerText ?? ''" targetLanguage="sq" (translated)="updateField('promoBannerTextSq', $event)" />
+          </div>
+        </div>
+      </div>
+    }
 
     <label>Link (optional)</label>
     <input

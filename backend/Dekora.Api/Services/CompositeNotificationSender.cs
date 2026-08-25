@@ -87,7 +87,7 @@ public class CompositeNotificationSender(
             : await db.Products
                 .AsNoTracking()
                 .Where(p => productIdsNeedingLiveLookup.Contains(p.Id))
-                .Select(p => new { p.Id, ImageUrl = p.Images.Select(i => i.Url).FirstOrDefault() })
+                .Select(p => new { p.Id, ImageUrl = p.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault() })
                 .ToDictionaryAsync(p => p.Id, p => p.ImageUrl, cancellationToken);
 
         return itemList.ToDictionary(i => i.Id, i =>

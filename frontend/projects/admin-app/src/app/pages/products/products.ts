@@ -20,6 +20,13 @@ import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
 import { SavedColorsApi } from '../../core/api/saved-colors.api';
 
+interface CategoryDraft {
+  name: string;
+  nameEn: string | null;
+  nameSq: string | null;
+  isProductType: boolean;
+}
+
 interface ProductFormState {
   id: string | null;
   name: string;
@@ -95,7 +102,12 @@ export class Products {
 
   protected readonly allCategories = signal<Category[]>([]);
   protected readonly newCategoryName = signal('');
+  protected readonly newCategoryNameEn = signal<string | null>(null);
+  protected readonly newCategoryNameSq = signal<string | null>(null);
   protected readonly newCategoryIsProductType = signal(false);
+  protected readonly manageCategoriesOpen = signal(false);
+  protected readonly editingCategoryId = signal<string | null>(null);
+  protected readonly categoryDraft = signal<CategoryDraft | null>(null);
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly formOpen = signal(false);
   protected readonly saving = signal(false);
@@ -152,13 +164,55 @@ export class Products {
     const name = this.newCategoryName().trim();
     if (!name) return;
 
-    this.categoriesApi.create({ name, isProductType: this.newCategoryIsProductType() }).subscribe((category) => {
+    this.categoriesApi
+      .create({ name, nameEn: this.newCategoryNameEn(), nameSq: this.newCategoryNameSq(), isProductType: this.newCategoryIsProductType() })
+      .subscribe((category) => {
+        this.allCategories.update((list) =>
+          list.some((c) => c.id === category.id) ? list : [...list, category].sort((a, b) => a.sortOrder - b.sortOrder),
+        );
+        this.toggleCategory(category.name);
+        this.newCategoryName.set('');
+        this.newCategoryNameEn.set(null);
+        this.newCategoryNameSq.set(null);
+        this.newCategoryIsProductType.set(false);
+      });
+  }
+
+  // Create only covers what's set at the moment a category is first added — this is how a typo
+  // gets fixed, a translation gets added later, or a category gets moved between "occasion" and
+  // "type" after the fact, without deleting and recreating it (which isn't even offered, since
+  // that would silently orphan the category label on every product already using it).
+  protected startEditCategory(category: Category): void {
+    this.editingCategoryId.set(category.id);
+    this.categoryDraft.set({
+      name: category.name,
+      nameEn: category.nameEn,
+      nameSq: category.nameSq,
+      isProductType: category.isProductType,
+    });
+  }
+
+  protected cancelEditCategory(): void {
+    this.editingCategoryId.set(null);
+    this.categoryDraft.set(null);
+  }
+
+  protected updateCategoryDraft<K extends keyof CategoryDraft>(field: K, value: CategoryDraft[K]): void {
+    this.categoryDraft.update((d) => (d ? { ...d, [field]: value } : d));
+  }
+
+  protected saveCategoryEdit(): void {
+    const id = this.editingCategoryId();
+    const draft = this.categoryDraft();
+    const name = draft?.name.trim();
+    if (!id || !draft || !name) return;
+
+    this.categoriesApi.update(id, { ...draft, name }).subscribe((updated) => {
       this.allCategories.update((list) =>
-        list.some((c) => c.id === category.id) ? list : [...list, category].sort((a, b) => a.sortOrder - b.sortOrder),
+        list.map((c) => (c.id === id ? updated : c)).sort((a, b) => a.sortOrder - b.sortOrder),
       );
-      this.toggleCategory(category.name);
-      this.newCategoryName.set('');
-      this.newCategoryIsProductType.set(false);
+      this.editingCategoryId.set(null);
+      this.categoryDraft.set(null);
     });
   }
 

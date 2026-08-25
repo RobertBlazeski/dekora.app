@@ -2,12 +2,20 @@ namespace Dekora.Api.DTOs;
 
 public record HomepageContentDto(
     string BannerTitle,
+    string? BannerTitleEn,
+    string? BannerTitleSq,
     string BannerSubtitle,
+    string? BannerSubtitleEn,
+    string? BannerSubtitleSq,
     string? BannerImageUrl,
     string? BannerCtaLabel,
+    string? BannerCtaLabelEn,
+    string? BannerCtaLabelSq,
     string? BannerCtaLink,
     bool PromoBannerEnabled,
     string? PromoBannerText,
+    string? PromoBannerTextEn,
+    string? PromoBannerTextSq,
     string? PromoBannerLink,
     DateTimeOffset? PromoBannerEndsAt,
     // Always populated when PromoBannerEnabled — either the owner's own end time, or the
@@ -18,12 +26,20 @@ public record HomepageContentDto(
 
 public record UpdateHomepageContentRequest(
     string BannerTitle,
+    string? BannerTitleEn,
+    string? BannerTitleSq,
     string BannerSubtitle,
+    string? BannerSubtitleEn,
+    string? BannerSubtitleSq,
     string? BannerImageUrl,
     string? BannerCtaLabel,
+    string? BannerCtaLabelEn,
+    string? BannerCtaLabelSq,
     string? BannerCtaLink,
     bool PromoBannerEnabled,
     string? PromoBannerText,
+    string? PromoBannerTextEn,
+    string? PromoBannerTextSq,
     string? PromoBannerLink,
     DateTimeOffset? PromoBannerEndsAt,
     Guid? FeaturedProductId);

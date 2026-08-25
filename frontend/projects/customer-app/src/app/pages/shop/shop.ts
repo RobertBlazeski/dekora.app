@@ -1,6 +1,6 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Category, ProductCategory, ProductListItem } from '@dekora/shared';
+import { Category, ProductCategory, ProductListItem, resolveProductName } from '@dekora/shared';
 import { ProductsApi } from '../../core/api/products.api';
 import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductCard } from '../../components/product-card/product-card';
@@ -21,6 +21,8 @@ export class Shop {
 
   // The owner can add categories beyond the original 5 — loaded live rather than hardcoded.
   protected readonly categories = signal<Category[]>([]);
+  protected readonly occasionCategories = computed(() => this.categories().filter((c) => !c.isProductType));
+  protected readonly typeCategories = computed(() => this.categories().filter((c) => c.isProductType));
   protected readonly search = signal(this.route.snapshot.queryParamMap.get('q') ?? '');
   protected readonly selectedCategory = signal<ProductCategory | ''>(
     (this.route.snapshot.queryParamMap.get('category') as ProductCategory | null) ?? '',
@@ -55,10 +57,15 @@ export class Shop {
     this.selectedCategory.set(category);
   }
 
-  // Original 5 categories have curated translations; anything the owner adds later just
-  // shows its name as-is rather than falling back to a raw, untranslated i18n key.
-  protected categoryLabel(category: string): string {
-    const translated = this.translation.translate('categories.' + category);
-    return translated === 'categories.' + category ? category : translated;
+  // Prefers the category's own nameEn/nameSq (settable from the admin dashboard) over the
+  // original 5 categories' hardcoded i18n keys, which stay as the fallback for those five so
+  // nothing regresses for categories nobody's bothered to add a translation to yet. A category
+  // with neither just shows its raw name.
+  protected categoryLabel(category: Category): string {
+    const resolved = resolveProductName(this.translation.currentLocale(), category);
+    if (resolved !== category.name) return resolved;
+
+    const translated = this.translation.translate('categories.' + category.name);
+    return translated === 'categories.' + category.name ? category.name : translated;
   }
 }

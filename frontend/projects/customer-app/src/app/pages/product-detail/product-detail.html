@@ -3,7 +3,7 @@
     <a [routerLink]="['/', translation.currentLocale(), 'shop']">{{ 'nav.shop' | translate }}</a>
     <span>›</span>
     <a [routerLink]="['/', translation.currentLocale(), 'shop']" [queryParams]="{ category: p.categories[0] }">
-      {{ 'categories.' + p.categories[0] | translate }}
+      {{ categoryLabel(p.categories[0]) }}
     </a>
     <span>›</span>
     <span class="current">{{ displayName() }}</span>

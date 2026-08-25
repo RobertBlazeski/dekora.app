@@ -1,5 +1,5 @@
-<div class="cropper-backdrop">
-  <div class="cropper-modal">
+<div class="cropper-backdrop" (click)="cancel()">
+  <div class="cropper-modal" (click)="$event.stopPropagation()">
     <h2>Adjust photo</h2>
     <p class="hint">Drag to reposition, scroll or use the slider to zoom.</p>
 

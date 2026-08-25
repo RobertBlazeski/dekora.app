@@ -22,9 +22,19 @@
 }
 
 .track-viewport {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
   // Fade the edges so the loop point isn't a hard cut.
   mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+
+  // The scroll position is driven programmatically (see ProductCarousel.step) and, on a phone,
+  // directly by touch — a visible scrollbar here would just be a distracting, redundant control.
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .track {
@@ -32,23 +42,6 @@
   gap: 1rem;
   width: max-content;
   padding: 0 1.5rem;
-  animation-name: scroll-left;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-
-  &:hover {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes scroll-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    // Exactly one copy's width, since the list is rendered twice back-to-back.
-    transform: translateX(-50%);
-  }
 }
 
 .card-slot {

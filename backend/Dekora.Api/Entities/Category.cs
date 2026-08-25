@@ -8,11 +8,13 @@ public class Category
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string? NameEn { get; set; }
+    public string? NameSq { get; set; }
     public int SortOrder { get; set; }
 
-    // Splits the homepage into two separate browsing rails — "Shop by occasion" (Birthdays,
-    // Weddings, ...) and "Shop by type" (Bouquets, Balloons, Boxes, ...) — rather than one long
-    // ranked list where a product-type category always loses to whichever occasion happens to
-    // sort first. Set once by the owner when they create the category.
+    // Splits the homepage (and the shop page's filter chips) into two separate groups — "Shop by
+    // occasion" (Birthdays, Weddings, ...) and "Shop by type" (Bouquets, Balloons, Boxes, ...) —
+    // rather than one long ranked list where a product-type category always loses to whichever
+    // occasion happens to sort first. Editable any time via CategoriesController.Update.
     public bool IsProductType { get; set; }
 }

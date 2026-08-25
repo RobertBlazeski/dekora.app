@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Dekora.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dekora.Api.Data.Migrations
 {
     [DbContext(typeof(DekoraDbContext))]
-    partial class DekoraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260824220350_AddProductImageSortOrder")]
+    partial class AddProductImageSortOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,12 +116,6 @@ namespace Dekora.Api.Data.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("NameEn")
-                        .HasColumnType("text");
-
-                    b.Property<string>("NameSq")
                         .HasColumnType("text");
 
                     b.Property<int>("SortOrder")
@@ -249,12 +246,6 @@ namespace Dekora.Api.Data.Migrations
                     b.Property<string>("BannerCtaLabel")
                         .HasColumnType("text");
 
-                    b.Property<string>("BannerCtaLabelEn")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BannerCtaLabelSq")
-                        .HasColumnType("text");
-
                     b.Property<string>("BannerCtaLink")
                         .HasColumnType("text");
 
@@ -265,20 +256,8 @@ namespace Dekora.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("BannerSubtitleEn")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BannerSubtitleSq")
-                        .HasColumnType("text");
-
                     b.Property<string>("BannerTitle")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BannerTitleEn")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BannerTitleSq")
                         .HasColumnType("text");
 
                     b.Property<Guid?>("FeaturedProductId")
@@ -297,12 +276,6 @@ namespace Dekora.Api.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PromoBannerText")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PromoBannerTextEn")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PromoBannerTextSq")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
