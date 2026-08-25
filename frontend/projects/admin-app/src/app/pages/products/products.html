@@ -110,13 +110,24 @@
             }
 
             <label>Categories</label>
+            <p class="hint">Occasion</p>
             <div class="chip-row">
-              @for (category of allCategories(); track category.id) {
+              @for (category of occasionCategoryOptions(); track category.id) {
                 <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
                   {{ category.name }}
                 </button>
               }
             </div>
+            @if (typeCategoryOptions().length > 0) {
+              <p class="hint">Product type</p>
+              <div class="chip-row">
+                @for (category of typeCategoryOptions(); track category.id) {
+                  <button type="button" class="chip" [class.active]="form().categories.includes(category.name)" (click)="toggleCategory(category.name)">
+                    {{ category.name }}
+                  </button>
+                }
+              </div>
+            }
             <div class="add-category-row">
               <input
                 type="text"

@@ -193,19 +193,60 @@
 
 <section class="card">
   <h2>Trending / featured picks</h2>
-  <p class="hint">Products marked trending show in the "Trending now" carousel on the homepage and product pages.</p>
+  <p class="hint">
+    Trending products show in the "Trending now" carousel on the homepage and product pages. Featured is
+    saved for a future homepage section — safe to set now either way.
+  </p>
 
-  <input type="search" class="search-input" placeholder="Search products…" [ngModel]="productSearch()" (ngModelChange)="productSearch.set($event)" />
-
-  <div class="product-list">
-    @for (product of filteredProducts(); track product.id) {
-      <div class="product-row">
-        <span class="thumb" [style.background-image]="resolveUrl(product.primaryImageUrl) ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null"></span>
-        <span class="name">{{ product.name }}</span>
-        <button type="button" class="trending-btn" [class.active]="product.isTrending" (click)="toggleTrending(product)">
-          {{ product.isTrending ? '✓ Trending' : 'Add to trending' }}
+  <div class="trending-filters">
+    <input type="search" class="search-input" placeholder="Search products…" [ngModel]="productSearch()" (ngModelChange)="productSearch.set($event)" />
+    <div class="chip-row">
+      <button type="button" class="chip" [class.active]="trendingCategoryFilter() === ''" (click)="trendingCategoryFilter.set('')">
+        All
+      </button>
+      @for (category of categories(); track category.id) {
+        <button
+          type="button"
+          class="chip"
+          [class.active]="trendingCategoryFilter() === category.name"
+          (click)="trendingCategoryFilter.set(category.name)"
+        >
+          {{ category.name }}
         </button>
+      }
+    </div>
+  </div>
+
+  <div class="trending-grid">
+    @for (product of filteredProducts(); track product.id) {
+      <div
+        class="trend-tile"
+        [class.active]="activeTileId() === product.id"
+        (click)="toggleActiveTile(product.id)"
+        (keydown.enter)="toggleActiveTile(product.id)"
+        tabindex="0"
+        role="button"
+      >
+        <div class="trend-photo" [style.background-image]="resolveUrl(product.primaryImageUrl) ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null">
+          @if (product.isTrending) {
+            <span class="trend-badge trending">★ Trending</span>
+          }
+          @if (product.isFeatured) {
+            <span class="trend-badge featured">✓ Featured</span>
+          }
+          <div class="trend-overlay">
+            <button type="button" [class.active]="product.isTrending" (click)="toggleTrending(product); $event.stopPropagation()">
+              {{ product.isTrending ? '✕ Remove trending' : '+ Add to trending' }}
+            </button>
+            <button type="button" [class.active]="product.isFeatured" (click)="toggleFeatured(product); $event.stopPropagation()">
+              {{ product.isFeatured ? '✕ Remove featured' : '+ Add to featured' }}
+            </button>
+          </div>
+        </div>
+        <p class="trend-name">{{ product.name }}</p>
       </div>
+    } @empty {
+      <p class="hint">No products match that search/filter.</p>
     }
   </div>
 </section>

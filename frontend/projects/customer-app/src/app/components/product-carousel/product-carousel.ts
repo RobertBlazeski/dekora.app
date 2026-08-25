@@ -65,15 +65,22 @@ export class ProductCarousel implements OnDestroy {
   private readonly step = (timestamp: number): void => {
     const el = this.viewport()?.nativeElement;
     if (el && !this.dragging) {
-      const delta = this.lastTimestamp === null ? 0 : (timestamp - this.lastTimestamp) / 1000;
+      // Browsers throttle or fully suspend requestAnimationFrame on a backgrounded tab — coming
+      // back after minutes away would otherwise hand this a delta of "minutes" in one tick,
+      // which the single-subtraction wrap below can't correct (it only ever removes one
+      // loopWidth, not however many were actually crossed) and would fling the track to a
+      // jarring, effectively random position. Capping delta bounds the jump to what one normal
+      // frame would have produced, so a backgrounded tab just resumes calmly instead.
+      const rawDelta = this.lastTimestamp === null ? 0 : (timestamp - this.lastTimestamp) / 1000;
+      const delta = Math.min(rawDelta, 0.1);
+
       // scrollWidth spans both copies of the list, so half of it is exactly one copy's width —
-      // the point at which the loop should wrap.
+      // the point at which the loop should wrap. True modulo (not a single conditional
+      // subtraction) so it's still correct even if something does move it more than one lap.
       const loopWidth = el.scrollWidth / 2;
       if (loopWidth > 0) {
-        let next = el.scrollLeft + BASE_SPEED_PX_PER_SECOND * this.speedMultiplier * delta;
-        if (next >= loopWidth) next -= loopWidth;
-        if (next < 0) next += loopWidth;
-        el.scrollLeft = next;
+        const next = el.scrollLeft + BASE_SPEED_PX_PER_SECOND * this.speedMultiplier * delta;
+        el.scrollLeft = ((next % loopWidth) + loopWidth) % loopWidth;
       }
     }
     this.lastTimestamp = timestamp;

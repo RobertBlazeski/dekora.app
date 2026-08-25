@@ -115,6 +115,13 @@ export class Products {
   protected readonly showTranslations = signal(false);
   protected readonly savedColors = signal<SavedColor[]>([]);
 
+  // Splits the picker to match how the storefront itself groups categories (see the homepage's
+  // "shop by type" vs "shop by occasion") — without this split, "which chip actually puts this
+  // product in the Bouquets/Balloons section" was genuinely not discoverable, since it looked
+  // identical to every occasion chip next to it.
+  protected readonly occasionCategoryOptions = computed(() => this.allCategories().filter((c) => !c.isProductType));
+  protected readonly typeCategoryOptions = computed(() => this.allCategories().filter((c) => c.isProductType));
+
   protected readonly categorySearch = signal('');
   protected readonly filteredProducts = computed(() => {
     const term = this.categorySearch();

@@ -278,53 +278,155 @@ textarea {
   margin-bottom: 1rem;
 }
 
-.product-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 24rem;
+.trending-filters {
+  margin-bottom: 1rem;
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .chip {
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.active {
+      background: var(--color-ink);
+      border-color: var(--color-ink);
+      color: white;
+    }
+  }
+}
+
+// A responsive photo grid rather than the old list-of-rows — large enough to actually judge a
+// product by its photo, and equally usable with a mouse or a finger (see .trend-overlay below).
+.trending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  max-height: 34rem;
   overflow-y: auto;
+  padding: 0.25rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+    gap: 0.6rem;
+  }
 }
 
-.product-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
+.trend-tile {
+  cursor: pointer;
+  outline: none;
+
+  &:focus-visible .trend-photo {
+    outline: 2px solid var(--color-coral);
+    outline-offset: 2px;
+  }
+}
+
+.trend-photo {
+  position: relative;
+  aspect-ratio: 1;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-line);
-}
-
-.thumb {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
   background-color: var(--color-lilac);
   background-size: cover;
   background-position: center;
-  flex-shrink: 0;
-}
+  overflow: hidden;
 
-.name {
-  flex: 1;
-  font-weight: 500;
-  font-size: 0.88rem;
-}
-
-.trending-btn {
-  padding: 0.4rem 0.9rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--color-line);
-  background: transparent;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-
-  &.active {
-    background: var(--color-coral-tint);
-    border-color: var(--color-coral);
-    color: var(--color-coral);
+  // The "turns pinkish" hover/tap cue — a tint over the photo itself, not a separate element,
+  // so it's guaranteed to always exactly cover it.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(226, 99, 95, 0.08), rgba(226, 99, 95, 0.6));
+    opacity: 0;
+    transition: opacity 0.15s ease;
   }
+}
+
+.trend-tile:hover .trend-photo::after,
+.trend-tile.active .trend-photo::after {
+  opacity: 1;
+}
+
+.trend-badge {
+  position: absolute;
+  top: 0.4rem;
+  z-index: 1;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: white;
+  background: var(--color-ink);
+
+  &.trending {
+    left: 0.4rem;
+  }
+
+  &.featured {
+    right: 0.4rem;
+    background: var(--color-coral);
+  }
+}
+
+// Revealed both by real :hover (desktop mouse) and by .active (tap-to-toggle, driven from the
+// component — the only option on a phone, since it has no hover state at all).
+.trend-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+
+  button {
+    width: 100%;
+    padding: 0.45rem 0.5rem;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: white;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.active {
+      background: var(--color-ink);
+      color: white;
+    }
+  }
+}
+
+.trend-tile:hover .trend-overlay,
+.trend-tile.active .trend-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.trend-name {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

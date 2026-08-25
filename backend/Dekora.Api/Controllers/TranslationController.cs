@@ -29,6 +29,12 @@ public class TranslationController(HttpClient httpClient, ILogger<TranslationCon
         if (request.TargetLanguage is not ("en" or "sq"))
             return Problem("targetLanguage must be 'en' or 'sq'.", statusCode: 400);
 
+        // Every real use of this button is a product name, description, extra, or FAQ entry —
+        // nothing here is ever remotely close to this. The cap exists purely so one accidental
+        // paste of something huge can't burn through MyMemory's daily free quota in a single call.
+        if (request.Text.Length > 2000)
+            return Problem("That text is too long to translate in one go (2000 character limit).", statusCode: 400);
+
         try
         {
             var url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(request.Text)}&langpair=mk|{request.TargetLanguage}";

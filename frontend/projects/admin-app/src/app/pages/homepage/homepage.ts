@@ -1,9 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HomepageContent, ProductListItem, UpdateHomepageContentRequest, resolveAssetUrl } from '@dekora/shared';
+import { Category, HomepageContent, ProductListItem, UpdateHomepageContentRequest, resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
 import { ImageUpload } from '../../components/image-upload/image-upload';
 import { TranslateButton } from '../../components/translate-button/translate-button';
+import { CategoriesApi } from '../../core/api/categories.api';
 import { HomepageContentApi } from '../../core/api/homepage-content.api';
 import { ProductsApi } from '../../core/api/products.api';
 
@@ -16,6 +17,7 @@ import { ProductsApi } from '../../core/api/products.api';
 export class Homepage {
   private readonly homepageContentApi = inject(HomepageContentApi);
   private readonly productsApi = inject(ProductsApi);
+  private readonly categoriesApi = inject(CategoriesApi);
 
   protected readonly content = signal<HomepageContent>({
     bannerTitle: '',
@@ -44,10 +46,20 @@ export class Homepage {
   protected readonly showTranslations = signal(false);
 
   protected readonly products = signal<ProductListItem[]>([]);
+  protected readonly categories = signal<Category[]>([]);
   protected readonly productSearch = signal('');
+  protected readonly trendingCategoryFilter = signal('');
+  // Which tile is showing its "Add to trending / Add to featured" overlay — CSS handles this
+  // for real mouse hover on its own, this is only for the tap-to-reveal a phone needs (and
+  // doubles as a click-to-pin-open convenience on desktop).
+  protected readonly activeTileId = signal<string | null>(null);
+
   protected readonly filteredProducts = computed(() => {
     const term = this.productSearch().toLowerCase();
-    return this.products().filter((p) => this.matchesSearch(p, term));
+    const category = this.trendingCategoryFilter();
+    return this.products().filter(
+      (p) => this.matchesSearch(p, term) && (!category || p.categories.includes(category)),
+    );
   });
 
   protected readonly featuredProductSearch = signal('');
@@ -74,6 +86,7 @@ export class Homepage {
       this.featuredProductId.set(content.featuredProduct?.id ?? null);
     });
     this.loadProducts();
+    this.categoriesApi.getAll().subscribe((categories) => this.categories.set(categories));
   }
 
   private loadProducts(): void {
@@ -141,6 +154,15 @@ export class Homepage {
 
   protected toggleTrending(product: ProductListItem): void {
     this.productsApi.setTrending(product.id, !product.isTrending, null).subscribe(() => this.loadProducts());
+  }
+
+  protected toggleFeatured(product: ProductListItem): void {
+    this.productsApi.setFeatured(product.id, !product.isFeatured).subscribe(() => this.loadProducts());
+  }
+
+  // Tapping a tile again (or tapping a different one) closes it — only ever one open at a time.
+  protected toggleActiveTile(productId: string): void {
+    this.activeTileId.update((current) => (current === productId ? null : productId));
   }
 
   protected resolveUrl(url: string | null): string | null {
