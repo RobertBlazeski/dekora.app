@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Category, HomepageContent, ProductListItem, UpdateHomepageContentRequest, resolveAssetUrl } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
@@ -7,6 +7,7 @@ import { TranslateButton } from '../../components/translate-button/translate-but
 import { CategoriesApi } from '../../core/api/categories.api';
 import { HomepageContentApi } from '../../core/api/homepage-content.api';
 import { ProductsApi } from '../../core/api/products.api';
+import { UnsavedChangesService } from '../../core/unsaved-changes/unsaved-changes.service';
 
 @Component({
   selector: 'app-homepage',
@@ -18,6 +19,8 @@ export class Homepage {
   private readonly homepageContentApi = inject(HomepageContentApi);
   private readonly productsApi = inject(ProductsApi);
   private readonly categoriesApi = inject(CategoriesApi);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly content = signal<HomepageContent>({
     bannerTitle: '',
@@ -44,6 +47,16 @@ export class Homepage {
   protected readonly saving = signal(false);
   protected readonly saved = signal(false);
   protected readonly showTranslations = signal(false);
+
+  // This page's banner/promo form is always "live" (no open/close modal), so dirty-tracking
+  // just compares the current content + featured-product pick against the last loaded/saved
+  // snapshot — reset whenever either of those happens.
+  private lastSavedSnapshotJson = this.snapshotJson();
+  protected readonly isDirty = computed(() => this.snapshotJson() !== this.lastSavedSnapshotJson);
+
+  private snapshotJson(): string {
+    return JSON.stringify({ content: this.content(), featuredProductId: this.featuredProductId() });
+  }
 
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly categories = signal<Category[]>([]);
@@ -84,9 +97,11 @@ export class Homepage {
     this.homepageContentApi.get().subscribe((content) => {
       this.content.set(content);
       this.featuredProductId.set(content.featuredProduct?.id ?? null);
+      this.lastSavedSnapshotJson = this.snapshotJson();
     });
     this.loadProducts();
     this.categoriesApi.getAll().subscribe((categories) => this.categories.set(categories));
+    this.destroyRef.onDestroy(this.unsavedChanges.register(() => this.isDirty()));
   }
 
   private loadProducts(): void {
@@ -146,6 +161,7 @@ export class Homepage {
 
     this.homepageContentApi.update(request).subscribe((updated) => {
       this.content.set(updated);
+      this.lastSavedSnapshotJson = this.snapshotJson();
       this.saving.set(false);
       this.saved.set(true);
       setTimeout(() => this.saved.set(false), 2000);

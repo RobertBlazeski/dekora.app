@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Category,
@@ -19,6 +19,7 @@ import { TranslateButton } from '../../components/translate-button/translate-but
 import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
 import { SavedColorsApi } from '../../core/api/saved-colors.api';
+import { UnsavedChangesService } from '../../core/unsaved-changes/unsaved-changes.service';
 
 interface CategoryDraft {
   name: string;
@@ -99,6 +100,8 @@ export class Products {
   private readonly productsApi = inject(ProductsApi);
   private readonly savedColorsApi = inject(SavedColorsApi);
   private readonly categoriesApi = inject(CategoriesApi);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly allCategories = signal<Category[]>([]);
   protected readonly newCategoryName = signal('');
@@ -123,10 +126,16 @@ export class Products {
   protected readonly typeCategoryOptions = computed(() => this.allCategories().filter((c) => c.isProductType));
 
   protected readonly categorySearch = signal('');
+  protected readonly statusFilter = signal<'' | 'trending' | 'featured'>('');
   protected readonly filteredProducts = computed(() => {
     const term = this.categorySearch();
-    if (!term) return this.products();
-    return this.products().filter((p) => p.categories.includes(term));
+    const status = this.statusFilter();
+    return this.products().filter((p) => {
+      if (term && !p.categories.includes(term)) return false;
+      if (status === 'trending' && !p.isTrending) return false;
+      if (status === 'featured' && !p.isFeatured) return false;
+      return true;
+    });
   });
 
   // Mirrors how the customer product page prices things, so the preview panel shows a
@@ -161,10 +170,17 @@ export class Products {
 
   protected readonly previewImageIndex = signal(0);
 
+  // Compared against the form's live JSON on every change so the browser's unload warning (and
+  // the confirm-before-discard guard in closeForm) only fire when something would actually be
+  // lost — reset to the current form whenever it's loaded fresh or successfully saved.
+  private lastSavedFormJson = JSON.stringify(emptyForm());
+  protected readonly isDirty = computed(() => this.formOpen() && JSON.stringify(this.form()) !== this.lastSavedFormJson);
+
   constructor() {
     this.reload();
     this.savedColorsApi.getAll().subscribe((colors) => this.savedColors.set(colors));
     this.categoriesApi.getAll().subscribe((categories) => this.allCategories.set(categories));
+    this.destroyRef.onDestroy(this.unsavedChanges.register(() => this.isDirty()));
   }
 
   protected addCategory(): void {
@@ -229,6 +245,7 @@ export class Products {
 
   protected openCreate(): void {
     this.form.set(emptyForm());
+    this.lastSavedFormJson = JSON.stringify(this.form());
     this.previewImageIndex.set(0);
     this.showTranslations.set(false);
     this.formOpen.set(true);
@@ -280,6 +297,7 @@ export class Products {
           customTextEnabled: x.customTextEnabled,
         })),
       });
+      this.lastSavedFormJson = JSON.stringify(this.form());
       this.previewImageIndex.set(0);
       this.showTranslations.set(false);
       this.formOpen.set(true);
@@ -295,6 +313,7 @@ export class Products {
   }
 
   protected closeForm(): void {
+    if (this.isDirty() && !confirm('Discard unsaved changes to this product?')) return;
     this.formOpen.set(false);
   }
 
@@ -500,6 +519,7 @@ export class Products {
       this.productsApi.setTrending(saved.id, f.isTrending, f.trendingOrder).subscribe();
       this.productsApi.setFeatured(saved.id, f.isFeatured).subscribe(() => {
         this.saving.set(false);
+        this.lastSavedFormJson = JSON.stringify(this.form());
         this.formOpen.set(false);
         this.reload();
       });

@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ContactInfo, FaqEntry, UpsertFaqEntryRequest } from '@dekora/shared';
 import { TranslateButton } from '../../components/translate-button/translate-button';
 import { ContactInfoApi, FaqApi } from '../../core/api/faq.api';
+import { UnsavedChangesService } from '../../core/unsaved-changes/unsaved-changes.service';
 
 interface FaqFormState {
   id: string | null;
@@ -27,12 +28,17 @@ function emptyForm(): FaqFormState {
 export class Faq {
   private readonly faqApi = inject(FaqApi);
   private readonly contactInfoApi = inject(ContactInfoApi);
+  private readonly unsavedChanges = inject(UnsavedChangesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly entries = signal<FaqEntry[]>([]);
   protected readonly formOpen = signal(false);
   protected readonly form = signal<FaqFormState>(emptyForm());
   protected readonly showTranslations = signal(false);
   protected readonly saving = signal(false);
+
+  private lastSavedFormJson = JSON.stringify(emptyForm());
+  protected readonly isDirty = computed(() => this.formOpen() && JSON.stringify(this.form()) !== this.lastSavedFormJson);
 
   protected readonly contact = signal<ContactInfo>({ instagramHandle: '', email: '', location: '', phoneNumbers: [] });
   protected readonly contactSaving = signal(false);
@@ -41,6 +47,7 @@ export class Faq {
   constructor() {
     this.reload();
     this.contactInfoApi.get().subscribe((info) => this.contact.set(info));
+    this.destroyRef.onDestroy(this.unsavedChanges.register(() => this.isDirty()));
   }
 
   private reload(): void {
@@ -49,6 +56,7 @@ export class Faq {
 
   protected openCreate(): void {
     this.form.set({ ...emptyForm(), question: '', answer: '' });
+    this.lastSavedFormJson = JSON.stringify(this.form());
     this.showTranslations.set(false);
     this.formOpen.set(true);
   }
@@ -63,11 +71,13 @@ export class Faq {
       answerEn: entry.answerEn ?? '',
       answerSq: entry.answerSq ?? '',
     });
+    this.lastSavedFormJson = JSON.stringify(this.form());
     this.showTranslations.set(false);
     this.formOpen.set(true);
   }
 
   protected closeForm(): void {
+    if (this.isDirty() && !confirm('Discard unsaved changes to this FAQ entry?')) return;
     this.formOpen.set(false);
   }
 
@@ -97,6 +107,7 @@ export class Faq {
     const save$ = f.id ? this.faqApi.update(f.id, request) : this.faqApi.create(request);
     save$.subscribe(() => {
       this.saving.set(false);
+      this.lastSavedFormJson = JSON.stringify(this.form());
       this.formOpen.set(false);
       this.reload();
     });
