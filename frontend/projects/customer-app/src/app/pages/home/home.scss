@@ -266,8 +266,9 @@
   line-height: 1.2;
 }
 
-// A photo tile gets a bottom-up scrim (tinted with its assigned tone) so the label stays
-// legible over any product photo without the owner ever picking colors/crops by hand.
+// A photo tile gets a bottom-up scrim so the label stays legible over any product photo without
+// the owner ever picking colors/crops by hand — and, per feedback, without tinting the photo's
+// own colors at all: no per-tone overlay here, just a plain dark-to-transparent gradient.
 .has-photo {
   color: white;
 
@@ -276,32 +277,6 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.12) 55%, transparent 100%);
-  }
-
-  &.tone-coral::after,
-  &.tone-rose::after,
-  &.tone-lilac::after,
-  &.tone-success::after,
-  &.tone-ink::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    mix-blend-mode: soft-light;
-  }
-  &.tone-coral::after {
-    background: var(--color-coral);
-  }
-  &.tone-rose::after {
-    background: var(--color-rose);
-  }
-  &.tone-lilac::after {
-    background: var(--color-lilac);
-  }
-  &.tone-success::after {
-    background: var(--color-success);
-  }
-  &.tone-ink::after {
-    background: var(--color-ink);
   }
 }
 

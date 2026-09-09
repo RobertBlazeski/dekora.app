@@ -24,23 +24,17 @@ public class CategoriesController(DekoraDbContext db) : ControllerBase
         var result = new List<CategoryDto>(categories.Count);
         foreach (var category in categories)
         {
-            // A real product photo for the homepage "shop by occasion" tile — the owner's own
-            // pick (Product.ShowcaseCategories) wins if one exists for this category, otherwise
-            // falls back to whatever's currently the best-looking product in it, so the tile
-            // still looks intentional even before the owner has picked anything. Ordering by
-            // array-containment isn't reliably SQL-translatable, so the (small, per-category)
-            // candidate set is sorted in-memory instead.
-            var candidates = await db.Products.AsNoTracking()
+            // The homepage "shop by occasion/type" tile only shows a real product photo once the
+            // owner has explicitly picked one for this category (see SetShowcase below) — no
+            // guessing at "the best-looking product in it," which used to silently reassign a
+            // tile's photo to whatever product was newest, surprising the owner every time they
+            // added a product to a category without meaning to change its tile.
+            var sample = await db.Products.AsNoTracking()
                 .Include(p => p.Images)
-                .Where(p => p.Categories.Contains(category.Name) && !p.SoldOut)
-                .ToListAsync();
-
-            var sample = candidates
-                .OrderByDescending(p => p.ShowcaseCategories.Contains(category.Name))
-                .ThenByDescending(p => p.IsFeatured)
+                .Where(p => p.Categories.Contains(category.Name) && p.ShowcaseCategories.Contains(category.Name) && !p.SoldOut)
+                .OrderByDescending(p => p.IsFeatured)
                 .ThenByDescending(p => p.IsTrending)
-                .ThenByDescending(p => p.CreatedAt)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             result.Add(ToDto(category, sample?.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault()));
         }
@@ -97,6 +91,37 @@ public class CategoriesController(DekoraDbContext db) : ControllerBase
         await db.SaveChangesAsync();
 
         return Ok(ToDto(category, null));
+    }
+
+    // Lets the owner pick a category's homepage tile photo directly (from the Homepage admin
+    // page's category grid) instead of only being able to set it from deep inside a single
+    // product's edit form. At most one product showcases a given category at a time, so whoever
+    // currently holds it gets cleared first — otherwise GetAll's picker would have to guess again.
+    [HttpPut("{id:guid}/showcase")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<CategoryDto>> SetShowcase(Guid id, SetCategoryShowcaseRequest request)
+    {
+        var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        if (category is null) return NotFound();
+
+        var currentHolders = await db.Products.Where(p => p.ShowcaseCategories.Contains(category.Name)).ToListAsync();
+        foreach (var holder in currentHolders)
+            holder.ShowcaseCategories = holder.ShowcaseCategories.Where(c => c != category.Name).ToList();
+
+        string? sampleImageUrl = null;
+        if (request.ProductId is { } productId)
+        {
+            var product = await db.Products.Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == productId);
+            if (product is null) return Problem("Product not found.", statusCode: 400);
+            if (!product.Categories.Contains(category.Name))
+                return Problem("That product isn't assigned to this category.", statusCode: 400);
+
+            product.ShowcaseCategories = [.. product.ShowcaseCategories, category.Name];
+            sampleImageUrl = product.Images.OrderBy(i => i.SortOrder).Select(i => i.Url).FirstOrDefault();
+        }
+
+        await db.SaveChangesAsync();
+        return Ok(ToDto(category, sampleImageUrl));
     }
 
     private static CategoryDto ToDto(Category c, string? sampleImageUrl) =>

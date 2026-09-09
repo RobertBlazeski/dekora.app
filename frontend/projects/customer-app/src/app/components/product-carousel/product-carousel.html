@@ -19,13 +19,21 @@
       (pointercancel)="onPointerUp()"
     >
       <div class="track">
+        <!-- A leading duplicate to scroll backward into (see ProductCarousel.step) — without it,
+             reversing past the start had nowhere real to go and had to fake it by jumping
+             straight to the tail, which read as a glitch instead of a continuous scroll back. -->
+        @for (product of products; track product.id + '-before') {
+          <div class="card-slot">
+            <app-product-card [product]="product" [hidden]="true" />
+          </div>
+        }
         @for (product of products; track product.id + '-a') {
           <div class="card-slot">
             <app-product-card [product]="product" />
           </div>
         }
-        <!-- Duplicate the rail so the loop point (see ProductCarousel.step) is seamless. -->
-        @for (product of products; track product.id + '-b') {
+        <!-- Trailing duplicate so forward looping is likewise seamless. -->
+        @for (product of products; track product.id + '-after') {
           <div class="card-slot">
             <app-product-card [product]="product" [hidden]="true" />
           </div>

@@ -192,6 +192,75 @@
 </section>
 
 <section class="card">
+  <h2>Category tile photos</h2>
+  <p class="hint">
+    Each "shop by occasion" / "shop by type" tile on the homepage shows a real product photo — pick which
+    product represents each category here. A category with no pick yet just shows as a plain color tile
+    instead of guessing one for you.
+  </p>
+
+  <p class="hint category-tile-group-label">Occasion</p>
+  <div class="category-tile-grid">
+    @for (category of occasionCategories(); track category.id) {
+      <button type="button" class="cat-tile" [class.active]="activeCategoryTileId() === category.id" (click)="toggleCategoryTile(category.id)">
+        <span class="cat-tile-photo" [style.background-image]="resolveUrl(category.sampleImageUrl) ? 'url(' + resolveUrl(category.sampleImageUrl) + ')' : null">
+          @if (!category.sampleImageUrl) {
+            <span class="cat-tile-empty">No photo</span>
+          }
+        </span>
+        <span class="cat-tile-name">{{ category.name }}</span>
+      </button>
+    } @empty {
+      <p class="hint">No occasion categories yet.</p>
+    }
+  </div>
+
+  @if (typeCategories().length > 0) {
+    <p class="hint category-tile-group-label">Product type</p>
+    <div class="category-tile-grid">
+      @for (category of typeCategories(); track category.id) {
+        <button type="button" class="cat-tile" [class.active]="activeCategoryTileId() === category.id" (click)="toggleCategoryTile(category.id)">
+          <span class="cat-tile-photo" [style.background-image]="resolveUrl(category.sampleImageUrl) ? 'url(' + resolveUrl(category.sampleImageUrl) + ')' : null">
+            @if (!category.sampleImageUrl) {
+              <span class="cat-tile-empty">No photo</span>
+            }
+          </span>
+          <span class="cat-tile-name">{{ category.name }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (activeCategoryTile(); as activeCategory) {
+    <div class="cat-tile-picker">
+      <div class="cat-tile-picker-header">
+        <strong>Pick a photo for "{{ activeCategory.name }}"</strong>
+        @if (activeCategory.sampleImageUrl) {
+          <button type="button" class="remove-featured-btn" (click)="clearCategoryShowcase($event)">Remove photo</button>
+        }
+      </div>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Search this category's products…"
+        [ngModel]="categoryTileSearch()"
+        (ngModelChange)="categoryTileSearch.set($event)"
+      />
+      <div class="cat-tile-picker-grid">
+        @for (product of categoryTileCandidates(); track product.id) {
+          <button type="button" class="search-result" (click)="pickCategoryShowcase(product)">
+            <span class="result-thumb" [style.background-image]="resolveUrl(product.primaryImageUrl) ? 'url(' + resolveUrl(product.primaryImageUrl) + ')' : null"></span>
+            {{ product.name }}
+          </button>
+        } @empty {
+          <p class="hint">No products in this category yet.</p>
+        }
+      </div>
+    </div>
+  }
+</section>
+
+<section class="card">
   <h2>Trending / featured picks</h2>
   <p class="hint">
     Trending products show in the "Trending now" carousel on the homepage and product pages. Featured is

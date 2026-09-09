@@ -19,4 +19,9 @@ export class CategoriesApi {
   update(id: string, request: UpdateCategoryRequest): Observable<Category> {
     return this.http.put<Category>(`${environment.apiUrl}/categories/${id}`, request);
   }
+
+  // Pass null to clear whichever product currently showcases this category's homepage tile.
+  setShowcase(id: string, productId: string | null): Observable<Category> {
+    return this.http.put<Category>(`${environment.apiUrl}/categories/${id}/showcase`, { productId });
+  }
 }

@@ -7,8 +7,8 @@ export interface Category {
   // Splits the homepage (and the shop page's filter chips) into two separate groups — "Shop by
   // occasion" (false, the default) and "Shop by type" (true) — editable any time.
   isProductType: boolean;
-  // A photo from the best-looking product currently in this category, for the homepage tile —
-  // null until the category has at least one (non-sold-out) product in it.
+  // The homepage tile photo for this category — null until the owner explicitly picks a product
+  // to represent it (see CategoriesApi.setShowcase); never guessed automatically.
   sampleImageUrl: string | null;
 }
 

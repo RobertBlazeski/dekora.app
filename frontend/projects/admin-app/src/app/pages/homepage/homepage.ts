@@ -84,6 +84,24 @@ export class Homepage {
       .slice(0, 6);
   });
 
+  // Category tile photos are picked here, category-first, rather than only from deep inside a
+  // single product's edit form — that was the only way before, and it made it easy to lose track
+  // of which categories already had a photo and which didn't.
+  protected readonly occasionCategories = computed(() => this.categories().filter((c) => !c.isProductType));
+  protected readonly typeCategories = computed(() => this.categories().filter((c) => c.isProductType));
+  protected readonly activeCategoryTileId = signal<string | null>(null);
+  protected readonly categoryTileSearch = signal('');
+  protected readonly activeCategoryTile = computed(() => this.categories().find((c) => c.id === this.activeCategoryTileId()) ?? null);
+
+  // Scoped to products actually in the category being picked for — a tile photo has to come
+  // from a product that's already assigned there.
+  protected readonly categoryTileCandidates = computed(() => {
+    const category = this.activeCategoryTile();
+    if (!category) return [];
+    const term = this.categoryTileSearch().trim().toLowerCase();
+    return this.products().filter((p) => p.categories.includes(category.name) && this.matchesSearch(p, term));
+  });
+
   private matchesSearch(p: ProductListItem, term: string): boolean {
     if (!term) return true;
     return (
@@ -179,6 +197,29 @@ export class Homepage {
   // Tapping a tile again (or tapping a different one) closes it — only ever one open at a time.
   protected toggleActiveTile(productId: string): void {
     this.activeTileId.update((current) => (current === productId ? null : productId));
+  }
+
+  protected toggleCategoryTile(categoryId: string): void {
+    this.activeCategoryTileId.update((current) => (current === categoryId ? null : categoryId));
+    this.categoryTileSearch.set('');
+  }
+
+  protected pickCategoryShowcase(product: ProductListItem): void {
+    const category = this.activeCategoryTile();
+    if (!category) return;
+    this.categoriesApi.setShowcase(category.id, product.id).subscribe((updated) => {
+      this.categories.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+      this.activeCategoryTileId.set(null);
+    });
+  }
+
+  protected clearCategoryShowcase(event: Event): void {
+    event.stopPropagation();
+    const category = this.activeCategoryTile();
+    if (!category) return;
+    this.categoriesApi.setShowcase(category.id, null).subscribe((updated) => {
+      this.categories.update((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+    });
   }
 
   protected resolveUrl(url: string | null): string | null {

@@ -16,8 +16,13 @@ const BASE_SPEED_PX_PER_SECOND = 40;
 // requestAnimationFrame step that nudges scrollLeft forward every frame — that's what lets a
 // mouse hovering near either edge speed it up or reverse it, and lets a phone's native touch
 // scroll take over directly (the loop just steps back while a finger/mouse is actually dragging
-// it, so it never fights the gesture). The list is rendered twice back-to-back so the loop point
-// is invisible: once scrollLeft passes one full copy's width, it wraps back by that same amount.
+// it, so it never fights the gesture). The list is rendered three times back-to-back (before /
+// main / after) so there's always real, contiguous content to scroll into in either direction —
+// once the viewport has drifted a full lap into a flanking copy, scrollLeft is silently shifted
+// by exactly one copy's width back into the middle copy. Because all three copies are identical,
+// that shift lands on pixel-for-pixel the same content and is invisible. Two copies with a modulo
+// wrap only made forward looping seamless this way; going backward past the start had no real
+// buffer to scroll into and had to jump straight to the tail instead, which read as a glitch.
 @Component({
   selector: 'app-product-carousel',
   imports: [RouterLink, ProductCard, TranslatePipe],
@@ -74,13 +79,17 @@ export class ProductCarousel implements OnDestroy {
       const rawDelta = this.lastTimestamp === null ? 0 : (timestamp - this.lastTimestamp) / 1000;
       const delta = Math.min(rawDelta, 0.1);
 
-      // scrollWidth spans both copies of the list, so half of it is exactly one copy's width —
-      // the point at which the loop should wrap. True modulo (not a single conditional
-      // subtraction) so it's still correct even if something does move it more than one lap.
-      const loopWidth = el.scrollWidth / 2;
+      // scrollWidth spans all three copies, so a third of it is exactly one copy's width.
+      const loopWidth = el.scrollWidth / 3;
       if (loopWidth > 0) {
-        const next = el.scrollLeft + BASE_SPEED_PX_PER_SECOND * this.speedMultiplier * delta;
-        el.scrollLeft = ((next % loopWidth) + loopWidth) % loopWidth;
+        el.scrollLeft += BASE_SPEED_PX_PER_SECOND * this.speedMultiplier * delta;
+        // Recenter back into the middle copy once a full lap's worth of drift has accumulated
+        // in either direction — see the class-level comment for why this is invisible.
+        if (el.scrollLeft < loopWidth * 0.5) {
+          el.scrollLeft += loopWidth;
+        } else if (el.scrollLeft > loopWidth * 1.5) {
+          el.scrollLeft -= loopWidth;
+        }
       }
     }
     this.lastTimestamp = timestamp;

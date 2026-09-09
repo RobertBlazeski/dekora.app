@@ -127,6 +127,7 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
 
         var product = new Product();
         Apply(product, request);
+        await ClearOtherShowcaseHoldersAsync(product.ShowcaseCategories, excludeProductId: null);
         db.Products.Add(product);
         await db.SaveChangesAsync();
 
@@ -157,6 +158,7 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
         db.ProductExtras.RemoveRange(product.Extras);
 
         Apply(product, request);
+        await ClearOtherShowcaseHoldersAsync(product.ShowcaseCategories, excludeProductId: product.Id);
         await db.SaveChangesAsync();
 
         return Ok(ToDetailDto(product));
@@ -245,6 +247,21 @@ public class ProductsController(DekoraDbContext db, IWebHostEnvironment env, ILo
         product.IsFeatured = request.IsFeatured;
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    // At most one product should showcase a given category's homepage tile at a time — without
+    // this, saving a product with a showcase box checked could silently steal (or, worse, split)
+    // a tile that another product had already been explicitly picked for.
+    private async Task ClearOtherShowcaseHoldersAsync(IEnumerable<string> categoryNames, Guid? excludeProductId)
+    {
+        foreach (var categoryName in categoryNames)
+        {
+            var holders = await db.Products
+                .Where(p => (excludeProductId == null || p.Id != excludeProductId) && p.ShowcaseCategories.Contains(categoryName))
+                .ToListAsync();
+            foreach (var holder in holders)
+                holder.ShowcaseCategories = holder.ShowcaseCategories.Where(c => c != categoryName).ToList();
+        }
     }
 
     private static void Apply(Product product, UpsertProductRequest request)
