@@ -9,36 +9,22 @@
       </div>
     }
 
-    <div
-      #viewport
-      class="track-viewport"
-      (pointermove)="onPointerMove($event)"
-      (pointerleave)="onPointerLeave($event)"
-      (pointerdown)="onPointerDown()"
-      (pointerup)="onPointerUp()"
-      (pointercancel)="onPointerUp()"
-    >
-      <div class="track">
-        <!-- A leading duplicate to scroll backward into (see ProductCarousel.step) — without it,
-             reversing past the start had nowhere real to go and had to fake it by jumping
-             straight to the tail, which read as a glitch instead of a continuous scroll back. -->
-        @for (product of products; track product.id + '-before') {
-          <div class="card-slot">
-            <app-product-card [product]="product" [hidden]="true" />
-          </div>
-        }
-        @for (product of products; track product.id + '-a') {
-          <div class="card-slot">
-            <app-product-card [product]="product" />
-          </div>
-        }
-        <!-- Trailing duplicate so forward looping is likewise seamless. -->
-        @for (product of products; track product.id + '-after') {
-          <div class="card-slot">
-            <app-product-card [product]="product" [hidden]="true" />
-          </div>
-        }
+    <div class="track-wrap">
+      @if (canScrollLeft()) {
+        <button type="button" class="scroll-arrow left" [attr.aria-label]="'shopFilters.scrollLeft' | translate" (click)="scrollByPage(-1)">‹</button>
+      }
+      <div #viewport class="track-viewport" (scroll)="onScroll()">
+        <div class="track">
+          @for (product of products; track product.id) {
+            <div class="card-slot">
+              <app-product-card [product]="product" />
+            </div>
+          }
+        </div>
       </div>
+      @if (canScrollRight()) {
+        <button type="button" class="scroll-arrow right" [attr.aria-label]="'shopFilters.scrollRight' | translate" (click)="scrollByPage(1)">›</button>
+      }
     </div>
   </section>
 }

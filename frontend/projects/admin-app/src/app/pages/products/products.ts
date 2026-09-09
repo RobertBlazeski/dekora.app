@@ -114,6 +114,11 @@ export class Products {
   protected readonly newTypeCategoryName = signal('');
   protected readonly newTypeCategoryNameEn = signal<string | null>(null);
   protected readonly newTypeCategoryNameSq = signal<string | null>(null);
+  // Collapsed by default — picking from existing categories is the common case, and showing
+  // both "add new" forms open by default made the categories section the biggest single
+  // contributor to the form feeling overwhelming.
+  protected readonly addOccasionOpen = signal(false);
+  protected readonly addTypeOpen = signal(false);
   protected readonly manageCategoriesOpen = signal(false);
   protected readonly editingCategoryId = signal<string | null>(null);
   protected readonly categoryDraft = signal<CategoryDraft | null>(null);
@@ -210,6 +215,7 @@ export class Products {
         this.newOccasionCategoryName.set('');
         this.newOccasionCategoryNameEn.set(null);
         this.newOccasionCategoryNameSq.set(null);
+        this.addOccasionOpen.set(false);
       });
   }
 
@@ -227,6 +233,7 @@ export class Products {
         this.newTypeCategoryName.set('');
         this.newTypeCategoryNameEn.set(null);
         this.newTypeCategoryNameSq.set(null);
+        this.addTypeOpen.set(false);
       });
   }
 
@@ -279,6 +286,8 @@ export class Products {
     this.showTranslations.set(false);
     this.nameInvalid.set(false);
     this.categoriesInvalid.set(false);
+    this.addOccasionOpen.set(false);
+    this.addTypeOpen.set(false);
     this.formOpen.set(true);
   }
 
@@ -333,6 +342,8 @@ export class Products {
       this.showTranslations.set(false);
       this.nameInvalid.set(false);
       this.categoriesInvalid.set(false);
+      this.addOccasionOpen.set(false);
+      this.addTypeOpen.set(false);
       this.formOpen.set(true);
     });
   }
@@ -361,19 +372,6 @@ export class Products {
       };
     });
     if (this.form().categories.length > 0) this.categoriesInvalid.set(false);
-  }
-
-  // Marks (or unmarks) this product's photo as the one shown on the homepage "shop by
-  // occasion" tile for the given category — only meaningful for a category the product is
-  // actually assigned to (the checkbox only appears for those).
-  protected toggleShowcaseCategory(category: string): void {
-    this.form.update((f) => {
-      const has = f.showcaseCategories.includes(category);
-      return {
-        ...f,
-        showcaseCategories: has ? f.showcaseCategories.filter((c) => c !== category) : [...f.showcaseCategories, category],
-      };
-    });
   }
 
   protected addImage(): void {

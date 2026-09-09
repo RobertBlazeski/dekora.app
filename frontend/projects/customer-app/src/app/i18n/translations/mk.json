@@ -72,7 +72,7 @@
     "Graduation": "Матура",
     "JustBecause": "Само така"
   },
-  "shopFilters": { "allCategories": "Сите категории", "searchPlaceholder": "Пребарај производи…", "noResults": "Нема производи што одговараат на пребарувањето.", "seeAll": "Прикажи ги сите" },
+  "shopFilters": { "allCategories": "Сите категории", "searchPlaceholder": "Пребарај производи…", "noResults": "Нема производи што одговараат на пребарувањето.", "seeAll": "Прикажи ги сите", "scrollLeft": "Лево", "scrollRight": "Десно" },
   "product": {
     "soldOut": "Распродадено",
     "bestseller": "Хит",

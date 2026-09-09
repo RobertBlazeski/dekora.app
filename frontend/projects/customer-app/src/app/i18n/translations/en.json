@@ -72,7 +72,7 @@
     "Graduation": "Graduation",
     "JustBecause": "Just because"
   },
-  "shopFilters": { "allCategories": "All categories", "searchPlaceholder": "Search products…", "noResults": "No products match your search.", "seeAll": "See all" },
+  "shopFilters": { "allCategories": "All categories", "searchPlaceholder": "Search products…", "noResults": "No products match your search.", "seeAll": "See all", "scrollLeft": "Scroll left", "scrollRight": "Scroll right" },
   "product": {
     "soldOut": "Sold out",
     "bestseller": "Bestseller",

@@ -1,8 +1,10 @@
 using System.Text.Json;
 using Dekora.Api.Constants;
 using Dekora.Api.DTOs;
+using Dekora.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Dekora.Api.Controllers;
 
@@ -10,15 +12,13 @@ namespace Dekora.Api.Controllers;
 // extras, FAQ entries) — drafts an English or Albanian version of whatever Macedonian text the
 // owner already typed, via MyMemory's free translation API, so the owner reviews and fixes it
 // rather than typing every field three times. Deliberately not Google/Azure/DeepL: MyMemory
-// needs no API key, no billing account, and no setup at all — called anonymously, good for
-// roughly 5,000 words/day, comfortably enough for manual, one-click-at-a-time use like this.
-// Translation quality is rougher than a paid provider's, which is an accepted tradeoff here.
-// Never called automatically; only a manual click, and the result always lands back in an
-// editable field, never saved directly.
+// needs no API key, no billing account, and no setup at all. Translation quality is rougher
+// than a paid provider's, which is an accepted tradeoff here. Never called automatically; only
+// a manual click, and the result always lands back in an editable field, never saved directly.
 [ApiController]
 [Route("api/translate")]
 [Authorize(Roles = Roles.Admin)]
-public class TranslationController(HttpClient httpClient, ILogger<TranslationController> logger) : ControllerBase
+public class TranslationController(HttpClient httpClient, IOptions<EmailOptions> emailOptions, ILogger<TranslationController> logger) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<TranslateResponseDto>> Translate(TranslateRequest request, CancellationToken cancellationToken)
@@ -37,7 +37,13 @@ public class TranslationController(HttpClient httpClient, ILogger<TranslationCon
 
         try
         {
-            var url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(request.Text)}&langpair=mk|{request.TargetLanguage}";
+            // Called anonymously, MyMemory's free tier is capped at ~5,000 words/day shared
+            // across whatever else is calling from this server's IP — real product-catalog
+            // usage burns through that fast and then every single call fails for the rest of
+            // the day. Passing a contact email (no verification needed, doesn't need to be a
+            // real inbox) raises that to 50,000 words/day per MyMemory's documented behavior.
+            var contactEmail = Uri.EscapeDataString(emailOptions.Value.FromAddress);
+            var url = $"https://api.mymemory.translated.net/get?q={Uri.EscapeDataString(request.Text)}&langpair=mk|{request.TargetLanguage}&de={contactEmail}";
             var response = await httpClient.GetAsync(url, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
 

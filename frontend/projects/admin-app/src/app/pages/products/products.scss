@@ -711,26 +711,6 @@
   }
 }
 
-.showcase-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  margin-top: 0.3rem;
-}
-
-.showcase-check {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-
-  input {
-    margin: 0;
-  }
-}
-
 .add-category-row {
   display: flex;
   flex-wrap: wrap;

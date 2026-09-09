@@ -72,7 +72,7 @@
     "Graduation": "Diplomim",
     "JustBecause": "Thjesht ashtu"
   },
-  "shopFilters": { "allCategories": "Të gjitha kategoritë", "searchPlaceholder": "Kërko produkte…", "noResults": "Asnjë produkt nuk përputhet me kërkimin.", "seeAll": "Shiko të gjitha" },
+  "shopFilters": { "allCategories": "Të gjitha kategoritë", "searchPlaceholder": "Kërko produkte…", "noResults": "Asnjë produkt nuk përputhet me kërkimin.", "seeAll": "Shiko të gjitha", "scrollLeft": "Majtas", "scrollRight": "Djathtas" },
   "product": {
     "soldOut": "I shitur",
     "bestseller": "Më i shituri",

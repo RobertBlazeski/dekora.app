@@ -50,9 +50,13 @@ public class UploadsController(IWebHostEnvironment env, IOptions<ImageStorageOpt
         try
         {
             await using var stream = file.OpenReadStream();
-            using var oriented = DecodeWithOrientation(stream);
-            if (oriented is null)
+            var (status, decodedBitmap) = DecodeWithOrientation(stream, config.MaxDecodedPixels);
+            if (status == DecodeStatus.Invalid)
                 return Problem("That file doesn't look like a valid image.", statusCode: 400);
+            if (status == DecodeStatus.TooManyPixels)
+                return Problem("That image's dimensions are too large to process.", statusCode: 400);
+
+            using var oriented = decodedBitmap!;
 
             using var toEncode = ResizeIfNeeded(oriented, config.MaxDimension);
             using var image = SKImage.FromBitmap(toEncode);
@@ -70,27 +74,36 @@ public class UploadsController(IWebHostEnvironment env, IOptions<ImageStorageOpt
         return Ok(new { url = $"/uploads/{fileName}" });
     }
 
+    private enum DecodeStatus { Success, Invalid, TooManyPixels }
+
     // Phone cameras nearly always save pixels in the sensor's native (often sideways) layout
     // and record how to display them upright in the EXIF orientation tag — SKBitmap.Decode
     // ignores that tag entirely, and since the resize/re-encode below produces a plain JPEG
     // with no metadata, whatever orientation came out of that raw decode is permanent. Reading
     // the tag via SKCodec and physically rotating the pixels here is what makes the saved file
     // actually match what the phone showed on-screen, regardless of what reads it later.
-    private static SKBitmap? DecodeWithOrientation(Stream stream)
+    private static (DecodeStatus Status, SKBitmap? Bitmap) DecodeWithOrientation(Stream stream, long maxDecodedPixels)
     {
         using var codec = SKCodec.Create(stream);
-        if (codec is null) return null;
+        if (codec is null) return (DecodeStatus.Invalid, null);
 
         var info = codec.Info;
+
+        // Checked against the header's claimed dimensions before allocating anything — a file
+        // can be tiny on disk while claiming a pixel count that would allocate gigabytes the
+        // moment GetPixels actually decodes it (see ImageStorageOptions.MaxDecodedPixels).
+        if ((long)info.Width * info.Height > maxDecodedPixels)
+            return (DecodeStatus.TooManyPixels, null);
+
         var bitmap = new SKBitmap(info.Width, info.Height);
         var result = codec.GetPixels(bitmap.Info, bitmap.GetPixels());
         if (result != SKCodecResult.Success && result != SKCodecResult.IncompleteInput)
         {
             bitmap.Dispose();
-            return null;
+            return (DecodeStatus.Invalid, null);
         }
 
-        return ApplyExifOrientation(bitmap, codec.EncodedOrigin);
+        return (DecodeStatus.Success, ApplyExifOrientation(bitmap, codec.EncodedOrigin));
     }
 
     private static SKBitmap ApplyExifOrientation(SKBitmap bitmap, SKEncodedOrigin origin)

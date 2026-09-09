@@ -187,11 +187,38 @@ export class ProductDetail {
   });
 
   constructor() {
-    const productId = this.route.snapshot.paramMap.get('id');
-    if (!productId) return;
-
     this.businessRulesApi.get().subscribe((rules) => this.pointsEarnRate.set(rules.pointsEarnRate));
     this.categoriesApi.getAll().subscribe((categories) => this.categories.set(categories));
+
+    // Subscribed, not a one-time snapshot read — clicking a different product from a "trending"/
+    // "also ordered" rail on this same page navigates within the same route (just a different
+    // :id), which Angular reuses this component instance for rather than recreating it. A
+    // snapshot read only ever sees the id this component was first created with, so the page
+    // would silently keep showing the original product forever while the URL quietly changed
+    // underneath it — this is what used to make those rail clicks look like they scrolled to
+    // the top and did nothing.
+    this.route.paramMap.subscribe((params) => {
+      const productId = params.get('id');
+      if (productId) this.loadProduct(productId);
+    });
+  }
+
+  private loadProduct(productId: string): void {
+    // Every selection is specific to whichever product is currently loaded — carrying any of it
+    // over to a newly-navigated-to product could show a color/size/extra as "selected" that the
+    // customer never actually chose for this product.
+    this.product.set(null);
+    this.selectedImageUrl.set(null);
+    this.sizeMode.set('none');
+    this.selectedSizeName.set(null);
+    this.customSizeQuantity.set(1);
+    this.selectedColorByGroup.set({});
+    this.selectedExtraNames.set(new Set());
+    this.selectedExtraTexts.set({});
+    this.customText.set('');
+    this.quantity.set(1);
+    this.justAdded.set(false);
+    this.reviewPopupOpen.set(false);
 
     this.productsApi.getById(productId).subscribe((product) => {
       this.product.set(product);
