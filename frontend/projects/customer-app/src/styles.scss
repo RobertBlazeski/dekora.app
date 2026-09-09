@@ -61,8 +61,8 @@
 }
 
 // --- Fly-to-cart (see core/cart/fly-to-cart.service.ts) ---
-// Appended straight to <body> by the service (outside any component's view), so it needs to be
-// a global, unscoped rule rather than living in a component stylesheet.
+// Both appended straight to <body> by the service (outside any component's view), so they need
+// to be global, unscoped rules rather than living in a component stylesheet.
 .fly-to-cart-ghost {
   position: fixed;
   z-index: 200;
@@ -73,4 +73,22 @@
   box-shadow: var(--shadow-modal);
   pointer-events: none;
   will-change: transform, opacity;
+}
+
+.fly-to-cart-bag {
+  position: fixed;
+  z-index: 210;
+  left: 50%;
+  top: 42%;
+  width: 84px;
+  height: 84px;
+  color: var(--color-coral);
+  filter: drop-shadow(0 12px 20px rgba(61, 42, 59, 0.28));
+  pointer-events: none;
+  will-change: transform, opacity;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 }
