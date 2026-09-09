@@ -11,7 +11,7 @@
 
     <div class="track-viewport">
       <div class="track" [style.animation-duration.s]="loopDurationSeconds">
-        @for (product of products; track product.id + '-a') {
+        @for (product of repeatedProducts; track product.id + '-a-' + $index) {
           <div class="card-slot">
             <app-product-card [product]="product" />
           </div>
@@ -20,7 +20,7 @@
              translates by exactly -50% (this doubled track's halfway point), which lines up
              pixel-for-pixel with where it started. Hidden from assistive tech and keyboard focus
              since it's a visual duplicate, not distinct content. -->
-        @for (product of products; track product.id + '-b') {
+        @for (product of repeatedProducts; track product.id + '-b-' + $index) {
           <div class="card-slot">
             <app-product-card [product]="product" [hidden]="true" />
           </div>
