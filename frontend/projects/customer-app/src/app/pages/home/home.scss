@@ -229,11 +229,30 @@
   color: var(--color-ink);
   background-size: cover;
   background-position: center;
+  // A soft same-color ring, not a fill — reads as "this category has its own color" the way a
+  // museum label or a paint swatch does, rather than a banner sitting on top of the photo.
+  box-shadow: inset 0 0 0 1.5px var(--tile-tone-color, transparent);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
     transform: scale(1.015);
-    box-shadow: var(--shadow-card, 0 8px 20px rgba(0, 0, 0, 0.12));
+    box-shadow: inset 0 0 0 1.5px var(--tile-tone-color, transparent), var(--shadow-card, 0 8px 20px rgba(0, 0, 0, 0.12));
+  }
+
+  &.tone-coral {
+    --tile-tone-color: color-mix(in srgb, var(--color-coral) 55%, transparent);
+  }
+  &.tone-rose {
+    --tile-tone-color: color-mix(in srgb, var(--color-rose) 55%, transparent);
+  }
+  &.tone-lilac {
+    --tile-tone-color: color-mix(in srgb, var(--color-rose) 30%, transparent);
+  }
+  &.tone-success {
+    --tile-tone-color: color-mix(in srgb, var(--color-success) 55%, transparent);
+  }
+  &.tone-ink {
+    --tile-tone-color: color-mix(in srgb, var(--color-ink) 30%, transparent);
   }
 
   &:not(.has-photo) {
@@ -255,45 +274,21 @@
   }
 }
 
+// A faint tone-colored glow tucked into one corner, well behind the label — the "subtle vignette"
+// alternative to a tinted photo: it never touches the photo's own colors, and it's soft enough to
+// read as ambient warmth rather than a filter or a banner.
+.has-photo::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: radial-gradient(ellipse 75% 60% at 100% 0%, var(--tile-tone-color, transparent), transparent 70%);
+  opacity: 0.5;
+}
+
 .occasion-icon {
   color: var(--color-ink);
   opacity: 0.4;
-}
-
-// A small tone-colored mark that's the same idea for every tile, photo or not — a subtle,
-// consistent way to tell categories apart at a glance without ever touching the photo itself.
-.occasion-accent {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 1.5rem;
-  height: 4px;
-  border-radius: var(--radius-pill);
-  background: currentColor;
-}
-
-.tone-coral .occasion-accent {
-  color: var(--color-coral);
-}
-.tone-rose .occasion-accent {
-  color: var(--color-rose);
-}
-.tone-lilac .occasion-accent {
-  // $color-lilac itself is too pale to read as an accent color — reuses rose for this slot.
-  color: var(--color-rose);
-}
-.tone-success .occasion-accent {
-  color: var(--color-success);
-}
-.tone-ink .occasion-accent {
-  color: var(--color-ink);
-}
-
-// On a photo tile the accent sits on the dark scrim, so it wants to read as a bright chip
-// rather than a saturated smear — white with a tone-tinted ring instead of a flat tone fill.
-.has-photo .occasion-accent {
-  background: white;
-  box-shadow: 0 0 0 1.5px currentColor;
 }
 
 .occasion-label {
