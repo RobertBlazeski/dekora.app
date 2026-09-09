@@ -15,7 +15,8 @@ import { WishlistToastService } from '../../core/wishlist/wishlist-toast.service
 })
 export class ProductCard {
   @Input({ required: true }) product!: ProductListItem;
-  // Set for hidden duplicate cards in a marquee loop, so assistive tech and keyboard focus skip them.
+  // Set for the hidden duplicate half of a carousel's looping track, so assistive tech and
+  // keyboard focus skip it — it's a visual copy, not distinct content.
   @Input() hidden = false;
 
   protected readonly translation = inject(TranslationService);

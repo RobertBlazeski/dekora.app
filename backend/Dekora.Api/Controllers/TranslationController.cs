@@ -47,27 +47,48 @@ public class TranslationController(HttpClient httpClient, IOptions<EmailOptions>
             var response = await httpClient.GetAsync(url, cancellationToken);
             var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogError("MyMemory returned HTTP {Status}: {Body}", (int)response.StatusCode, body);
+                return Problem($"Translation service returned HTTP {(int)response.StatusCode}.", statusCode: 502);
+            }
+
             // Parsed loosely rather than into a strict typed model — MyMemory's own
             // "responseStatus" field is inconsistently a number or a numeric string depending on
             // the error case, so checking directly for a translatedText string is the more
-            // reliable success signal.
+            // reliable success signal. Quota-exceeded and IP-blocked responses both still come
+            // back as HTTP 200 with a warning placed directly in translatedText, so that string
+            // is also screened for MyMemory's own "WARNING"/quota wording rather than trusted
+            // as a real translation just because it's present.
             using var doc = JsonDocument.Parse(body);
             if (doc.RootElement.TryGetProperty("responseData", out var data) &&
                 data.TryGetProperty("translatedText", out var translatedEl) &&
                 translatedEl.ValueKind == JsonValueKind.String)
             {
-                var translated = System.Net.WebUtility.HtmlDecode(translatedEl.GetString());
-                return Ok(new TranslateResponseDto(translated ?? string.Empty));
+                var rawText = translatedEl.GetString() ?? string.Empty;
+                if (rawText.Contains("MYMEMORY WARNING", StringComparison.OrdinalIgnoreCase) ||
+                    rawText.Contains("QUOTA", StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.LogError("MyMemory refused the request: {Warning}", rawText);
+                    return Problem(rawText, statusCode: 502);
+                }
+
+                var translated = System.Net.WebUtility.HtmlDecode(rawText);
+                return Ok(new TranslateResponseDto(translated));
             }
 
             var details = doc.RootElement.TryGetProperty("responseDetails", out var detailsEl) ? detailsEl.ToString() : null;
-            logger.LogError("MyMemory translation failed: {Body}", body);
-            return Problem(string.IsNullOrWhiteSpace(details) ? "Translation failed." : details, statusCode: 502);
+            logger.LogError("MyMemory response had no usable translation: {Body}", body);
+            return Problem(
+                string.IsNullOrWhiteSpace(details)
+                    ? $"Translation service gave an unusable response (HTTP {(int)response.StatusCode})."
+                    : details,
+                statusCode: 502);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to reach the translation service");
-            return Problem("Couldn't reach the translation service — try again in a moment.", statusCode: 502);
+            return Problem($"Couldn't reach the translation service: {ex.GetType().Name} — {ex.Message}", statusCode: 502);
         }
     }
 }

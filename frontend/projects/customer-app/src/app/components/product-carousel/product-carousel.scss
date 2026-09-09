@@ -21,22 +21,19 @@
   }
 }
 
-.track-wrap {
-  position: relative;
-}
-
 .track-viewport {
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
+  overflow: hidden;
+  // Fade the edges so a card entering/leaving the visible strip does it gradually rather than
+  // popping in/out at a hard boundary.
+  mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
 
-  // The scroll position is set by the arrow buttons and, on a phone, directly by touch — a
-  // visible scrollbar here would just be a distracting, redundant control.
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
+  // Pausing on hover/focus (desktop) or while actually touching a card (any pointer type) is
+  // what makes this safe to click precisely — the animation just stops in place, no position
+  // math involved, so resuming afterward is exactly as seamless as normal playback.
+  &:hover .track,
+  &:focus-within .track,
+  .track:active {
+    animation-play-state: paused;
   }
 }
 
@@ -45,51 +42,24 @@
   gap: 1rem;
   width: max-content;
   padding: 0 1.5rem;
+  animation-name: marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+// Translates by exactly half of the doubled track's width — since the second half is a pixel
+// copy of the first, that halfway point is indistinguishable from the start, so the loop resets
+// with nothing to notice.
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .card-slot {
   flex: 0 0 auto;
   width: 200px;
-  scroll-snap-align: start;
-}
-
-// Overlaid on the track's edges, only shown once there's actually more to scroll to in that
-// direction (see ProductCarousel.canScrollLeft/canScrollRight) — a phone can always just swipe,
-// so these are a convenience rather than the only way to move the strip.
-.scroll-arrow {
-  position: absolute;
-  top: 50%;
-  z-index: 2;
-  transform: translateY(-50%);
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-line);
-  background: var(--color-card);
-  color: var(--color-ink);
-  font-size: 1.3rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--shadow-card, 0 4px 12px rgba(0, 0, 0, 0.12));
-  transition: transform 0.15s ease, background 0.15s ease;
-
-  &:hover {
-    background: var(--color-rose-tint);
-    transform: translateY(-50%) scale(1.08);
-  }
-
-  &.left {
-    left: 0.5rem;
-  }
-
-  &.right {
-    right: 0.5rem;
-  }
-
-  @media (max-width: 640px) {
-    display: none;
-  }
 }
