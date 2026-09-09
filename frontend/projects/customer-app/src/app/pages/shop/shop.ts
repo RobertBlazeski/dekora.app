@@ -4,12 +4,13 @@ import { Category, ProductCategory, ProductListItem, resolveProductName } from '
 import { ProductsApi } from '../../core/api/products.api';
 import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductCard } from '../../components/product-card/product-card';
+import { RevealOnScrollDirective } from '../../core/reveal/reveal-on-scroll.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-shop',
-  imports: [TranslatePipe, ProductCard],
+  imports: [TranslatePipe, ProductCard, RevealOnScrollDirective],
   templateUrl: './shop.html',
   styleUrl: './shop.scss',
 })
@@ -29,6 +30,9 @@ export class Shop {
   );
   protected readonly products = signal<ProductListItem[]>([]);
   protected readonly loading = signal(true);
+  // Matches the 4-column desktop grid so the loading state fills a full couple of rows without
+  // ever looking sparse, however narrow the actual result count turns out to be.
+  protected readonly skeletonCount = Array.from({ length: 8 }, (_, i) => i);
 
   private searchDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 

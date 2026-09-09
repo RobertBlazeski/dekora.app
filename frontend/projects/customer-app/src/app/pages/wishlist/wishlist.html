@@ -11,8 +11,8 @@
   </div>
 } @else {
   <div class="product-grid">
-    @for (product of wishlistedProducts(); track product.id) {
-      <app-product-card [product]="product" />
+    @for (product of wishlistedProducts(); track product.id; let i = $index) {
+      <app-product-card [product]="product" appRevealOnScroll [appRevealOnScrollDelay]="(i % 8) * 45" />
     }
   </div>
 }

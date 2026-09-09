@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, afterNextRender, effect, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ProductListItem, resolveAssetUrl, resolveProductName } from '@dekora/shared';
 import { environment } from '../../../environments/environment';
@@ -6,6 +6,7 @@ import { SUPPORTED_LOCALES, Locale } from '../../i18n/locale';
 import { TranslationService } from '../../i18n/translation.service';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { CartService } from '../../core/cart/cart.service';
+import { FlyToCartService } from '../../core/cart/fly-to-cart.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { WishlistService } from '../../core/wishlist/wishlist.service';
 import { ProductsApi } from '../../core/api/products.api';
@@ -21,8 +22,11 @@ export class Header {
   private readonly productsApi = inject(ProductsApi);
   protected readonly translation = inject(TranslationService);
   protected readonly cart = inject(CartService);
+  private readonly flyToCart = inject(FlyToCartService);
   protected readonly auth = inject(AuthService);
   protected readonly wishlist = inject(WishlistService);
+
+  private readonly cartLinkRef = viewChild<ElementRef<HTMLElement>>('cartLink');
 
   protected readonly locales = SUPPORTED_LOCALES;
 
@@ -48,6 +52,11 @@ export class Header {
         this.cartBumping.set(true);
         setTimeout(() => this.cartBumping.set(false), 450);
       }
+    });
+
+    afterNextRender(() => {
+      const el = this.cartLinkRef()?.nativeElement;
+      if (el) this.flyToCart.registerCartTarget(el);
     });
   }
 

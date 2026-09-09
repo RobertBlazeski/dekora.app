@@ -63,3 +63,12 @@
   flex: 0 0 auto;
   width: 200px;
 }
+
+// A static row, not the marquee — there's nothing real to loop yet while the fetch is in
+// flight, so this just holds the rail's shape and height without animating.
+.skeleton-track {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  animation: none;
+}

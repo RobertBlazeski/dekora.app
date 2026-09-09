@@ -14,12 +14,37 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   background-color: var(--color-lilac);
-  background-size: cover;
-  background-position: center;
   border: 1px solid var(--color-line);
 
   &.dimmed {
     opacity: 0.55;
+  }
+}
+
+// A separate layer from .thumb itself so the zoom-on-hover only scales the photo — badges, the
+// sale ribbon and the wishlist button all sit as .thumb's other children and stay put, clipped
+// to the same rounded corners by .thumb's own overflow: hidden.
+.thumb-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .thumb-image,
+.product-card:focus-visible .thumb-image {
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb-image {
+    transition: none;
+  }
+
+  .product-card:hover .thumb-image,
+  .product-card:focus-visible .thumb-image {
+    transform: none;
   }
 }
 

@@ -5,7 +5,8 @@
   [attr.tabindex]="hidden ? -1 : null"
   [routerLink]="['/', translation.currentLocale(), 'product', product.id]"
 >
-  <div class="thumb" [class.dimmed]="product.soldOut" [style.background-image]="imageUrl ? 'url(' + imageUrl + ')' : null">
+  <div class="thumb" [class.dimmed]="product.soldOut">
+    <span class="thumb-image" [style.background-image]="imageUrl ? 'url(' + imageUrl + ')' : null"></span>
     @if (product.soldOut) {
       <span class="badge sold-out">{{ 'product.soldOut' | translate }}</span>
     } @else if (product.isTrending && !product.isDiscounted) {

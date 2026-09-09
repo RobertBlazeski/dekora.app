@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   Category,
@@ -18,10 +18,12 @@ import { ReviewsApi } from '../../core/api/reviews.api';
 import { BusinessRulesApi } from '../../core/api/business-rules.api';
 import { AuthService } from '../../core/auth/auth.service';
 import { CartService } from '../../core/cart/cart.service';
+import { FlyToCartService } from '../../core/cart/fly-to-cart.service';
 import { WishlistService } from '../../core/wishlist/wishlist.service';
 import { WishlistToastService } from '../../core/wishlist/wishlist-toast.service';
 import { ProductCarousel } from '../../components/product-carousel/product-carousel';
 import { ProductCard } from '../../components/product-card/product-card';
+import { RevealOnScrollDirective } from '../../core/reveal/reveal-on-scroll.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { TranslationService } from '../../i18n/translation.service';
 
@@ -29,7 +31,7 @@ type SizeMode = 'none' | 'fixed' | 'custom';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [TranslatePipe, ProductCarousel, ProductCard, RouterLink],
+  imports: [TranslatePipe, ProductCarousel, ProductCard, RouterLink, RevealOnScrollDirective],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.scss',
 })
@@ -40,6 +42,8 @@ export class ProductDetail {
   private readonly reviewsApi = inject(ReviewsApi);
   private readonly businessRulesApi = inject(BusinessRulesApi);
   private readonly cart = inject(CartService);
+  private readonly flyToCart = inject(FlyToCartService);
+  private readonly mainImageRef = viewChild<ElementRef<HTMLElement>>('mainImage');
   protected readonly auth = inject(AuthService);
   protected readonly wishlist = inject(WishlistService);
   private readonly wishlistToast = inject(WishlistToastService);
@@ -49,7 +53,10 @@ export class ProductDetail {
   protected readonly categories = signal<Category[]>([]);
   protected readonly reviews = signal<Review[]>([]);
   protected readonly alsoOrdered = signal<ProductListItem[]>([]);
+  protected readonly alsoOrderedLoading = signal(true);
   protected readonly trending = signal<ProductListItem[]>([]);
+  protected readonly trendingLoading = signal(true);
+  protected readonly alsoOrderedSkeletonSlots = Array.from({ length: 4 }, (_, i) => i);
   protected readonly pointsEarnRate = signal(0.05);
 
   protected readonly displayName = computed(() => {
@@ -234,8 +241,18 @@ export class ProductDetail {
     });
 
     this.reviewsApi.getForProduct(productId).subscribe((reviews) => this.reviews.set(reviews));
-    this.productsApi.getAlsoOrdered(productId).subscribe((products) => this.alsoOrdered.set(products));
-    this.productsApi.getTrending().subscribe((products) => this.trending.set(products));
+
+    this.alsoOrderedLoading.set(true);
+    this.productsApi.getAlsoOrdered(productId).subscribe((products) => {
+      this.alsoOrdered.set(products);
+      this.alsoOrderedLoading.set(false);
+    });
+
+    this.trendingLoading.set(true);
+    this.productsApi.getTrending().subscribe((products) => {
+      this.trending.set(products);
+      this.trendingLoading.set(false);
+    });
   }
 
   protected resolveUrl(url: string | null | undefined): string | null {
@@ -366,6 +383,9 @@ export class ProductDetail {
     const selectedColors: SelectedColorChoice[] = Object.entries(this.selectedColorByGroup()).map(
       ([groupName, colorName]) => ({ groupName, colorName }),
     );
+
+    const mainImageEl = this.mainImageRef()?.nativeElement;
+    if (mainImageEl) this.flyToCart.fly(mainImageEl, this.resolveUrl(this.selectedImageUrl()));
 
     this.cart.addItem({
       productId: p.id,

@@ -205,11 +205,13 @@
 
 .occasion-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  // See shop.scss's product-grid for why minmax(0, 1fr) — not bare 1fr — is what actually keeps
+  // equal columns from overflowing past the edge of a narrow phone screen.
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
 
   @media (min-width: 860px) {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 

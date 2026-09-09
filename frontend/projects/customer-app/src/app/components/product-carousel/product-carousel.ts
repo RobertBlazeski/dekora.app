@@ -37,8 +37,12 @@ export class ProductCarousel {
   @Input() heading = '';
   @Input() seeAllLink: string | null = null;
   @Input() products: ProductListItem[] = [];
+  // Set by the parent while its fetch is in flight, so this shows a shimmering placeholder rail
+  // instead of just rendering nothing at all until the request resolves.
+  @Input() loading = false;
 
   protected readonly translation = inject(TranslationService);
+  protected readonly skeletonSlots = Array.from({ length: 5 }, (_, i) => i);
 
   // Each half of the doubled track is this list repeated enough times to comfortably exceed
   // MIN_HALF_WIDTH_PX, so short lists still fill (and loop seamlessly across) wide viewports.

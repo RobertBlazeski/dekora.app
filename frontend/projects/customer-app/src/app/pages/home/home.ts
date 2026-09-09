@@ -9,12 +9,13 @@ import { HomepageContentApi } from '../../core/api/homepage-content.api';
 import { ProductsApi } from '../../core/api/products.api';
 import { AuthService } from '../../core/auth/auth.service';
 import { ProductCarousel } from '../../components/product-carousel/product-carousel';
+import { RevealOnScrollDirective } from '../../core/reveal/reveal-on-scroll.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-home',
-  imports: [TranslatePipe, ProductCarousel, RouterLink],
+  imports: [TranslatePipe, ProductCarousel, RouterLink, RevealOnScrollDirective],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -30,6 +31,7 @@ export class Home {
   // point the template falls back to the translated default copy.
   protected readonly content = signal<HomepageContent | null>(null);
   protected readonly trending = signal<ProductListItem[]>([]);
+  protected readonly trendingLoading = signal(true);
 
   protected readonly featuredProduct = computed(() => this.content()?.featuredProduct ?? null);
 
@@ -144,7 +146,10 @@ export class Home {
 
   constructor() {
     this.homepageContentApi.get().subscribe((content) => this.content.set(content));
-    this.productsApi.getTrending().subscribe((products) => this.trending.set(products));
+    this.productsApi.getTrending().subscribe((products) => {
+      this.trending.set(products);
+      this.trendingLoading.set(false);
+    });
     this.categoriesApi.getAll().subscribe((categories) => this.categories.set(categories));
     this.businessRulesApi.get().subscribe((rules) => {
       this.pointsRedemptionMinimum.set(rules.pointsRedemptionMinimum);

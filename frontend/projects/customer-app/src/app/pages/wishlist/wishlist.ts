@@ -3,12 +3,13 @@ import { ProductListItem } from '@dekora/shared';
 import { ProductsApi } from '../../core/api/products.api';
 import { WishlistService } from '../../core/wishlist/wishlist.service';
 import { ProductCard } from '../../components/product-card/product-card';
+import { RevealOnScrollDirective } from '../../core/reveal/reveal-on-scroll.directive';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-wishlist',
-  imports: [TranslatePipe, ProductCard],
+  imports: [TranslatePipe, ProductCard, RevealOnScrollDirective],
   templateUrl: './wishlist.html',
   styleUrl: './wishlist.scss',
 })

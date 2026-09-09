@@ -1,4 +1,24 @@
-@if (products.length > 0) {
+@if (loading) {
+  <section class="carousel">
+    @if (heading) {
+      <div class="carousel-header">
+        <h2>{{ heading }}</h2>
+      </div>
+    }
+
+    <div class="track-viewport">
+      <div class="track skeleton-track">
+        @for (i of skeletonSlots; track i) {
+          <div class="card-slot skeleton-card">
+            <div class="skeleton-thumb"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+} @else if (products.length > 0) {
   <section class="carousel">
     @if (heading) {
       <div class="carousel-header">

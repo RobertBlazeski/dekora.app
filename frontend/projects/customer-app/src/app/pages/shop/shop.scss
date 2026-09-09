@@ -66,11 +66,15 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  // minmax(0, 1fr), not bare 1fr — a bare 1fr track defaults to minmax(auto, 1fr), which lets a
+  // column grow past its fair share (and off the edge of the screen) if any card's content
+  // can't shrink below its own intrinsic width. Capping the minimum at 0 is what actually makes
+  // "2 equal columns" hold on a narrow phone.
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   padding: 1.5rem 0 3rem;
 
   @media (min-width: 720px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

@@ -11,7 +11,7 @@
 
   <section class="product-layout">
     <div class="gallery">
-      <div class="main-image" [style.background-image]="resolveUrl(selectedImageUrl()) ? 'url(' + resolveUrl(selectedImageUrl()) + ')' : null">
+      <div class="main-image" #mainImage [style.background-image]="resolveUrl(selectedImageUrl()) ? 'url(' + resolveUrl(selectedImageUrl()) + ')' : null">
         @if (p.soldOut) {
           <span class="sold-out-badge">{{ 'product.soldOut' | translate }}</span>
         }
@@ -300,14 +300,27 @@
   }
 }
 
-<app-product-carousel [heading]="'home.trendingNow' | translate" [products]="trending()" />
+<app-product-carousel [heading]="'home.trendingNow' | translate" [products]="trending()" [loading]="trendingLoading()" />
 
-@if (alsoOrdered().length > 0) {
+@if (alsoOrderedLoading()) {
   <section class="also-ordered">
     <h2>{{ 'productDetail.alsoOrdered' | translate }}</h2>
     <div class="also-ordered-grid">
-      @for (item of alsoOrdered(); track item.id) {
-        <app-product-card [product]="item" />
+      @for (i of alsoOrderedSkeletonSlots; track i) {
+        <div class="skeleton-card">
+          <div class="skeleton-thumb"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      }
+    </div>
+  </section>
+} @else if (alsoOrdered().length > 0) {
+  <section class="also-ordered">
+    <h2>{{ 'productDetail.alsoOrdered' | translate }}</h2>
+    <div class="also-ordered-grid">
+      @for (item of alsoOrdered(); track item.id; let i = $index) {
+        <app-product-card [product]="item" appRevealOnScroll [appRevealOnScrollDelay]="(i % 8) * 45" />
       }
     </div>
   </section>

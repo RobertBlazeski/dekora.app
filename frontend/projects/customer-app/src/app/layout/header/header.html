@@ -28,7 +28,10 @@
         <svg viewBox="0 0 24 24" width="20" height="20"><path d="M10 4a6 6 0 104.47 10.03l4.75 4.75 1.41-1.41-4.75-4.75A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>
       </button>
 
-      <a class="icon-btn" [routerLink]="['/', translation.currentLocale(), 'wishlist']" aria-label="Wishlist">
+      <!-- Off the persistent row below 640px — with search, cart and the menu button all
+           needing their own room on the narrowest phones, wishlist moves into the mobile menu
+           panel below instead (next to Account) rather than risk the row overflowing. -->
+      <a class="icon-btn desktop-only" [routerLink]="['/', translation.currentLocale(), 'wishlist']" aria-label="Wishlist">
         <svg viewBox="0 0 24 24" width="20" height="20" [class.filled]="wishlist.count() > 0">
           <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
         </svg>
@@ -45,7 +48,7 @@
         }
       </a>
 
-      <a class="cart-link" [routerLink]="['/', translation.currentLocale(), 'cart']">
+      <a class="cart-link" #cartLink [routerLink]="['/', translation.currentLocale(), 'cart']">
         <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 7h12l1 13.1a1 1 0 01-1 1.9H6a1 1 0 01-1-1.9L6 7z M8 7V6a4 4 0 118 0v1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <span class="cart-label">{{ 'nav.cart' | translate }}</span>
         @if (cart.itemCount() > 0) {
@@ -87,6 +90,20 @@
         {{ (auth.isLoggedIn() ? 'nav.myAccount' : 'nav.signIn') | translate }}
         @if (auth.isLoggedIn()) {
           <span class="status-dot"></span>
+        }
+      </a>
+
+      <a
+        class="mobile-menu-account"
+        [routerLink]="['/', translation.currentLocale(), 'wishlist']"
+        (click)="closeMobileMenu()"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" [class.filled]="wishlist.count() > 0">
+          <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/>
+        </svg>
+        {{ 'nav.wishlist' | translate }}
+        @if (wishlist.count() > 0) {
+          <span class="mobile-menu-count">{{ wishlist.count() }}</span>
         }
       </a>
 
