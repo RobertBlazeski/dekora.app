@@ -16,5 +16,8 @@ export const NAV_LINKS: NavLink[] = [
   { path: '/customers', label: 'Customers', icon: 'users' },
   { path: '/reviews', label: 'Reviews', icon: 'star' },
   { path: '/faq', label: 'FAQ & Contact', icon: 'help' },
-  { path: '/notifications', label: 'Notifications', icon: 'bell' },
+  // Covers both order-notification channels and adding other staff accounts — labeled to
+  // reflect both, since a sidebar entry called just "Notifications" gave no hint that account
+  // management for the whole dashboard lived there too.
+  { path: '/notifications', label: 'Notifications & Team', icon: 'bell' },
 ];

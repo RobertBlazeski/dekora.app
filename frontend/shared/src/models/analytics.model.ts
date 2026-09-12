@@ -31,4 +31,5 @@ export interface AnalyticsOverview {
   pendingOrders: number;
   averageOrderValue: number;
   salesToday: number;
+  visitorsToday: number;
 }

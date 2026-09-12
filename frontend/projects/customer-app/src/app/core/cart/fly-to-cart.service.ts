@@ -8,15 +8,19 @@ const BAG_SVG = `
 </svg>`;
 
 // The header registers its cart icon's position on load; product-detail (or anywhere else that
-// adds to cart) calls fly() with the source photo element and image. A three-stage sequence —
-// (1) a shopping bag pops in at the center of the screen while the product photo travels from
-// its source into it, (2) the bag gives a little settle bounce once the photo "lands", (3) the
-// bag itself flies up and shrinks into the header's cart icon — rather than the photo alone
-// sliding straight there, which read as flat compared to the bag-based animations real shopping
-// apps use. Deliberately not routed through Angular's view layer — every element here is a
-// plain DOM node appended straight to <body> (see .fly-to-cart-bag/.fly-to-cart-ghost in
-// styles.scss) and driven by the Web Animations API, so it can travel across two completely
-// unrelated components without either one knowing about the other's internals.
+// adds to cart) calls fly() with the source photo element and image. A shopping bag pops in at
+// the center of the screen while the product photo travels from its source into it, then the
+// bag itself squashes on impact, rebounds, and flies up into the header's cart icon — all as one
+// continuous motion. Earlier this was three separate chained animations (pop in, then a full
+// stop, then a separate "settle" wobble, then a third animation flying to the cart), which read
+// as stop-and-go rather than fluid — real full-stop pauses between each stage instead of one
+// physically continuous path. Now the impact squash and the flight to the cart are baked into a
+// single Animation timeline, so there's only one handoff point in the whole sequence (the moment
+// the photo lands) instead of three. Deliberately not routed through Angular's view layer —
+// every element here is a plain DOM node appended straight to <body> (see
+// .fly-to-cart-bag/.fly-to-cart-ghost in styles.scss) and driven by the Web Animations API, so it
+// can travel across two completely unrelated components without either one knowing about the
+// other's internals.
 @Injectable({ providedIn: 'root' })
 export class FlyToCartService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -68,45 +72,44 @@ export class FlyToCartService {
         { transform: `translate(${gx * 0.6}px, ${gy * 0.6 - 40}px) scale(0.55)`, opacity: 1, offset: 0.6 },
         { transform: `translate(${gx}px, ${gy}px) scale(0.1)`, opacity: 0, offset: 1 },
       ],
-      { duration: 420, delay: 120, easing: 'cubic-bezier(0.3, 0, 0.6, 1)' },
+      { duration: 380, delay: 100, easing: 'cubic-bezier(0.3, 0, 0.6, 1)' },
     );
 
     ghostFly.onfinish = () => {
       ghost.remove();
 
-      const settle = bag.animate(
+      const target = this.cartTarget?.getBoundingClientRect();
+      if (!target) {
+        bag.remove();
+        return;
+      }
+
+      const dx = target.left + target.width / 2 - bagCenterX;
+      const dy = target.top + target.height / 2 - bagCenterY;
+
+      // The impact squash, the rebound, and the flight to the cart icon are all one timeline —
+      // by the 42% mark the bag is already drifting toward the cart while its own squash/stretch
+      // is still resolving, so there's no dead stop between "the photo landed" and "the bag
+      // leaves": it's one continuous motion, just like a real thrown object would move.
+      const bagFly = bag.animate(
         [
-          { transform: 'translate(-50%, -50%) scale(1)' },
-          { transform: 'translate(-50%, -50%) scale(0.88)' },
-          { transform: 'translate(-50%, -50%) scale(1.06)' },
-          { transform: 'translate(-50%, -50%) scale(1)' },
+          { transform: 'translate(-50%, -50%) translate(0, 0) scale(1, 1)', opacity: 1, offset: 0 },
+          { transform: 'translate(-50%, -50%) translate(0, 0) scale(1.16, 0.84)', opacity: 1, offset: 0.12 },
+          { transform: 'translate(-50%, -50%) translate(0, 0) scale(0.92, 1.1)', opacity: 1, offset: 0.28 },
+          {
+            transform: `translate(-50%, -50%) translate(${dx * 0.3}px, ${dy * 0.3}px) scale(1, 1)`,
+            opacity: 1,
+            offset: 0.42,
+          },
+          {
+            transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.22, 0.22)`,
+            opacity: 0.4,
+            offset: 1,
+          },
         ],
-        { duration: 260, easing: 'ease-out' },
+        { duration: 480, easing: 'cubic-bezier(0.32, 0, 0.67, 1)' },
       );
-
-      settle.onfinish = () => {
-        const target = this.cartTarget?.getBoundingClientRect();
-        if (!target) {
-          bag.remove();
-          return;
-        }
-
-        const dx = target.left + target.width / 2 - bagCenterX;
-        const dy = target.top + target.height / 2 - bagCenterY;
-
-        const bagFly = bag.animate(
-          [
-            { transform: 'translate(-50%, -50%) translate(0, 0) scale(1)', opacity: 1, offset: 0 },
-            {
-              transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) scale(0.28)`,
-              opacity: 0.5,
-              offset: 1,
-            },
-          ],
-          { duration: 380, easing: 'cubic-bezier(0.4, 0, 0.7, 1)' },
-        );
-        bagFly.onfinish = () => bag.remove();
-      };
+      bagFly.onfinish = () => bag.remove();
     };
   }
 }

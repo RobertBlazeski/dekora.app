@@ -17,4 +17,5 @@ public record AnalyticsOverviewDto(
     int TotalCustomers,
     int PendingOrders,
     decimal AverageOrderValue,
-    decimal SalesToday);
+    decimal SalesToday,
+    int VisitorsToday);

@@ -171,6 +171,12 @@ public class AnalyticsController(DekoraDbContext db) : ControllerBase
         var todayStart = new DateTimeOffset(DateTimeOffset.UtcNow.UtcDateTime.Date, TimeSpan.Zero);
         var salesToday = await db.Orders.Where(o => o.CreatedAt >= todayStart).SumAsync(o => (decimal?)o.Subtotal) ?? 0;
 
-        return Ok(new AnalyticsOverviewDto(totalOrders, totalRevenue, totalCustomers, pendingOrders, averageOrderValue, salesToday));
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var visitorsToday = await db.DailyMetrics
+            .Where(m => m.Date == today)
+            .Select(m => m.VisitorCount)
+            .FirstOrDefaultAsync();
+
+        return Ok(new AnalyticsOverviewDto(totalOrders, totalRevenue, totalCustomers, pendingOrders, averageOrderValue, salesToday, visitorsToday));
     }
 }

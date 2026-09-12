@@ -12,9 +12,75 @@
       <option value="trending">Trending only</option>
       <option value="featured">Featured only</option>
     </select>
+    <button type="button" class="pill-btn secondary" (click)="manageCategoriesOpen.set(!manageCategoriesOpen())">
+      {{ manageCategoriesOpen() ? 'Hide categories' : 'Manage categories' }}
+    </button>
     <button type="button" class="pill-btn" (click)="openCreate()">Add product</button>
   </div>
 </div>
+
+@if (manageCategoriesOpen()) {
+  <section class="card category-manage-panel">
+    <h2>Manage categories</h2>
+    <p class="hint">
+      Store-wide categories — renaming, translating, or moving one between occasion/type applies everywhere it's
+      used, not just one product.
+    </p>
+    <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Occasion categories', list: occasionCategoryOptions() }" />
+    <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Product types', list: typeCategoryOptions() }" />
+  </section>
+}
+
+<ng-template #categoryManageGroup let-label="label" let-list="list">
+  <p class="hint category-manage-group-label">{{ label }}</p>
+  <div class="category-manage-list">
+    @for (category of list; track category.id) {
+      <div class="category-manage-row">
+        @if (editingCategoryId() === category.id) {
+          <input
+            type="text"
+            placeholder="Name"
+            [ngModel]="categoryDraft()?.name"
+            (ngModelChange)="updateCategoryDraft('name', $event)"
+          />
+          <label class="new-category-type">
+            <input
+              type="checkbox"
+              [ngModel]="categoryDraft()?.isProductType"
+              (ngModelChange)="updateCategoryDraft('isProductType', $event)"
+            />
+            Product type
+          </label>
+          <div class="translation-grid">
+            <div>
+              <label>English name</label>
+              <div class="field-with-translate">
+                <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameEn" (ngModelChange)="updateCategoryDraft('nameEn', $event)" />
+                <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="en" (translated)="updateCategoryDraft('nameEn', $event)" />
+              </div>
+            </div>
+            <div>
+              <label>Albanian name</label>
+              <div class="field-with-translate">
+                <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameSq" (ngModelChange)="updateCategoryDraft('nameSq', $event)" />
+                <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="sq" (translated)="updateCategoryDraft('nameSq', $event)" />
+              </div>
+            </div>
+          </div>
+          <div class="category-manage-actions">
+            <button type="button" class="cancel-btn" (click)="cancelEditCategory()">Cancel</button>
+            <button type="button" class="save-btn" [disabled]="!categoryDraft()?.name?.trim()" (click)="saveCategoryEdit()">Save</button>
+          </div>
+        } @else {
+          <span class="category-manage-name">{{ category.name }}</span>
+          <button type="button" class="edit-category-btn" (click)="startEditCategory(category)">Edit</button>
+        }
+      </div>
+    } @empty {
+      <p class="hint">None yet.</p>
+    }
+  </div>
+</ng-template>
 
 <div class="product-grid">
   @for (product of filteredProducts(); track product.id) {
@@ -209,65 +275,11 @@
               <button type="button" class="translations-toggle" (click)="addTypeOpen.set(true)">+ New product type</button>
             }
 
-            <button type="button" class="translations-toggle" (click)="manageCategoriesOpen.set(!manageCategoriesOpen())">
-              {{ manageCategoriesOpen() ? '▾' : '▸' }} Manage categories (rename, translate, move between occasion/type)
-            </button>
-            @if (manageCategoriesOpen()) {
-              <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Occasion categories', list: occasionCategoryOptions() }" />
-              <ng-container [ngTemplateOutlet]="categoryManageGroup" [ngTemplateOutletContext]="{ label: 'Product types', list: typeCategoryOptions() }" />
-            }
+            <p class="hint">
+              Renaming, translating, or moving an existing category between occasion/type happens from the
+              "Manage categories" panel on the Products page itself, not from inside this form.
+            </p>
             </div>
-
-            <ng-template #categoryManageGroup let-label="label" let-list="list">
-              <p class="hint category-manage-group-label">{{ label }}</p>
-              <div class="category-manage-list">
-                @for (category of list; track category.id) {
-                  <div class="category-manage-row">
-                    @if (editingCategoryId() === category.id) {
-                      <input
-                        type="text"
-                        placeholder="Name"
-                        [ngModel]="categoryDraft()?.name"
-                        (ngModelChange)="updateCategoryDraft('name', $event)"
-                      />
-                      <label class="new-category-type">
-                        <input
-                          type="checkbox"
-                          [ngModel]="categoryDraft()?.isProductType"
-                          (ngModelChange)="updateCategoryDraft('isProductType', $event)"
-                        />
-                        Product type
-                      </label>
-                      <div class="translation-grid">
-                        <div>
-                          <label>English name</label>
-                          <div class="field-with-translate">
-                            <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameEn" (ngModelChange)="updateCategoryDraft('nameEn', $event)" />
-                            <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="en" (translated)="updateCategoryDraft('nameEn', $event)" />
-                          </div>
-                        </div>
-                        <div>
-                          <label>Albanian name</label>
-                          <div class="field-with-translate">
-                            <input type="text" placeholder="Falls back to the name above" [ngModel]="categoryDraft()?.nameSq" (ngModelChange)="updateCategoryDraft('nameSq', $event)" />
-                            <app-translate-button [sourceText]="categoryDraft()?.name ?? ''" targetLanguage="sq" (translated)="updateCategoryDraft('nameSq', $event)" />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="category-manage-actions">
-                        <button type="button" class="cancel-btn" (click)="cancelEditCategory()">Cancel</button>
-                        <button type="button" class="save-btn" [disabled]="!categoryDraft()?.name?.trim()" (click)="saveCategoryEdit()">Save</button>
-                      </div>
-                    } @else {
-                      <span class="category-manage-name">{{ category.name }}</span>
-                      <button type="button" class="edit-category-btn" (click)="startEditCategory(category)">Edit</button>
-                    }
-                  </div>
-                } @empty {
-                  <p class="hint">None yet.</p>
-                }
-              </div>
-            </ng-template>
 
             @if (form().showcaseCategories.length > 0) {
               <p class="hint">

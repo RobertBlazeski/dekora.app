@@ -46,6 +46,12 @@
   font-weight: 600;
   cursor: pointer;
 
+  &.secondary {
+    background: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+  }
+
   @media (max-width: 480px) {
     width: 100%;
   }
@@ -754,6 +760,19 @@
 
 .add-category-row .translation-grid {
   flex-basis: 100%;
+}
+
+.category-manage-panel {
+  padding: 1.5rem;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+  }
 }
 
 .category-manage-list {
